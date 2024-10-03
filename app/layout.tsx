@@ -2,8 +2,8 @@ import "./globals.css";
 
 import { Footer } from "@/components/Footer";
 import type { Metadata } from "next";
-import { NavbarTop } from "@/components/NavbarTop";
 import { SidebarNav } from "@/components/SidebarNav";
+import { TopNavbar } from "@/components/TopNavbar";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -17,16 +17,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="min-h-screen flex">
+      <body className="min-h-screen flex bg-gradient-to-r from-purple-500/15 to-blue-500/15">
         <SidebarNav />
 
-        <div className="flex-1 flex flex-col">
-          <div className="flex flex-col flex-1">
-            <NavbarTop />
-            {children}
-          </div>
+        <div className="flex w-full flex-1 flex-col">
+          <TopNavbar />
 
-          <Footer />
+          <div className="flex flex-col flex-1">
+            <span className="flex-1">{children}</span>
+
+            <Footer />
+          </div>
         </div>
       </body>
     </html>
