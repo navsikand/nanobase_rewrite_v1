@@ -38,7 +38,7 @@ export default function Signup() {
             className="space-y-6"
             onSubmit={async (e) => {
               e.preventDefault();
-              await fetch("http://localhost:3000/api/v1/auth/signup", {
+              await fetch("http://localhost:3002/api/v1/auth/signup", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
@@ -105,8 +105,8 @@ export default function Signup() {
               <input
                 className="p-2 bg-stone-400/20 rounded-2xl"
                 placeholder="Institution..."
-                id="institution"
-                name="institution"
+                id="institutionName"
+                name="institutionName"
                 type="text"
                 value={formData.institutionName}
                 onChange={handleChange}

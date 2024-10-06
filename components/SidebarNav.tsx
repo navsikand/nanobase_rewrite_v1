@@ -3,7 +3,7 @@ import Link from "next/link";
 
 const LINKS: { title: string; slug: string }[] = [
   { title: "Home", slug: "/" },
-  { title: "Upload structure", slug: "/upload" },
+  { title: "Upload structure", slug: "/upload-structure" },
   { title: "Profile", slug: "/profile" },
   { title: "About", slug: "/about" },
   { title: "How to upload", slug: "/how-to-upload" },
