@@ -89,13 +89,14 @@ export default function UploadStructure() {
   const filteredTags: {
     id: number;
     name: string;
-  }[] = [{ id: 5, name: query }].concat(
+  }[] =
     query === ""
       ? types
-      : types.filter((tag) => {
-          return tag.name.toLowerCase().includes(query.toLowerCase());
-        })
-  );
+      : types
+          .filter((tag) => {
+            return tag.name.toLowerCase().includes(query.toLowerCase());
+          })
+          .concat([{ id: 5, name: query as StructureTypes }]);
 
   return (
     <div className="">
@@ -104,14 +105,23 @@ export default function UploadStructure() {
           className="space-y-6"
           onSubmit={async (e) => {
             e.preventDefault();
-            await fetch("http://localhost:3002/api/v1/auth/signup", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
+            const token = localStorage.getItem("token");
+            await fetch(
+              "http://localhost:3002/api/v1/structure/createStructure",
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`, // Attach token here
 
-              body: JSON.stringify(formData),
-            });
+                  "Content-Type": "application/json",
+                },
+
+                body: JSON.stringify({
+                  keywords: [],
+                  structure_data: formData,
+                }),
+              }
+            );
             console.log(formData);
           }}
         >
@@ -137,13 +147,14 @@ export default function UploadStructure() {
           <Combobox
             value={selectedType}
             onChange={(e) => {
-              setSelectedType(e || filteredTags[0]);
+              setSelectedType(filteredTags[0]);
               handleType(e || filteredTags[0]);
             }}
             onClose={() => setQuery("")}
           >
             <ComboboxInput
               aria-label="Assignee"
+              className={"p-2 bg-stone-400/20 rounded-2xl"}
               displayValue={(type: { id: number; name: string }) =>
                 type?.name
               }
@@ -151,13 +162,13 @@ export default function UploadStructure() {
             />
             <ComboboxOptions
               anchor="bottom"
-              className="border empty:invisible"
+              className="border empty:invisible bg-gray-500/30"
             >
               {filteredTags.map((tag) => (
                 <ComboboxOption
                   key={tag.id}
                   value={tag}
-                  className="data-[focus]:bg-blue-100"
+                  className="data-[focus]:bg-blue-100 p-2 bg-stone-400 "
                 >
                   {tag.name}
                 </ComboboxOption>

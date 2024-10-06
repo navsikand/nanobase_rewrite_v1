@@ -23,7 +23,7 @@ export interface StatsData {
 
 export type props_prisma_createStructure = {
   title: string;
-  type: StructureTypes | string;
+  type: string | StructureTypes;
   description: string;
   datePublished: Date;
   citation: string;
