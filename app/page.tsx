@@ -34,7 +34,7 @@ export default function Home() {
       <div className="flex justify-center items-center mt-20">
         <Button
           className={
-            "rounded-lg px-8 py-4 font-bold text-xl bg-black text-white"
+            "rounded-lg px-8 py-4 font-bold text-xl bg-black text-white hover:-mt-3 hover:shadow-2xl duration-[200ms]"
           }
           onClick={() => router.push("/sign-up")}
         >

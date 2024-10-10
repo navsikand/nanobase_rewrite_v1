@@ -83,7 +83,7 @@ export default function UploadStructure() {
   const [selectedType, setSelectedType] = useState<{
     id: number;
     name: string;
-  }>(types[0]);
+  }>();
   const [query, setQuery] = useState("");
 
   const filteredTags: {
@@ -158,6 +158,7 @@ export default function UploadStructure() {
               displayValue={(type: { id: number; name: string }) =>
                 type?.name
               }
+              placeholder="Type..."
               onChange={(event) => setQuery(event.target.value)}
             />
             <ComboboxOptions

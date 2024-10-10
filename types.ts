@@ -1,7 +1,6 @@
-export type FilePath = {
+export type File = {
   description: string;
-  filePath: string;
-  fileType: string;
+  data: Blob;
 };
 
 export interface Keywords {
@@ -34,17 +33,8 @@ export type props_prisma_createStructure = {
   applications: string[];
   authors: string[];
 
-  structureFilePaths: FilePath[];
-  expProtocolFilePaths: FilePath[];
-  expResultsFilesPaths: FilePath[];
-  simProtocolFilePaths: FilePath[];
-  simResultsFilePaths: FilePath[];
-  oxdnaFilePaths: FilePath[];
-
   displayImageIndex: number;
-  images: FilePath[];
-
-  statsData: StatsData;
+  images: FileList | null;
 };
 
 interface Structure {
@@ -62,15 +52,15 @@ interface Structure {
   applications: string[];
   authors: string[];
 
-  structureFilePaths: FilePath[];
-  expProtocolFilePaths: FilePath[];
-  expResultsFilesPaths: FilePath[];
-  simProtocolFilePaths: FilePath[];
-  simResultsFilePaths: FilePath[];
-  oxdnaFilePaths: FilePath[];
+  structureFilePaths: File[];
+  expProtocolFilePaths: File[];
+  expResultsFilesPaths: File[];
+  simProtocolFilePaths: File[];
+  simResultsFilePaths: File[];
+  oxdnaFilePaths: File[];
 
   displayImageIndex: number;
-  images: FilePath[];
+  images: File[];
 
   statsData: StatsData;
 

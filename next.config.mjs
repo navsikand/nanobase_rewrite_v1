@@ -5,8 +5,8 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'nanobase.org',
-        port: '',
-        pathname: '',
+        // port: '',
+        // pathname: '',
       },
     ],
   },

@@ -1,85 +1,71 @@
 "use client";
 
-import {
-  Button,
-  Combobox,
-  ComboboxInput,
-  ComboboxOption,
-  ComboboxOptions,
-  Input,
-} from "@headlessui/react";
-import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+// import { useState } from "react";
 
-const tags = [
-  { id: 1, name: "Title" },
-  { id: 2, name: "Author" },
-  { id: 3, name: "Application" },
-  { id: 4, name: "Modification" },
-  { id: 5, name: "Keyword" },
-  { id: 6, name: "User" },
+// const tags = [
+//   { id: 1, name: "Title" },
+//   { id: 2, name: "Author" },
+//   { id: 3, name: "Application" },
+//   { id: 4, name: "Modification" },
+//   { id: 5, name: "Keyword" },
+//   { id: 6, name: "User" },
+// ];
+
+const LINKS: { title: string; slug: string }[] = [
+  { title: "Home", slug: "/" },
+  { title: "Upload structure", slug: "/upload-structure" },
+  { title: "Profile", slug: "/profile" },
+  { title: "About", slug: "/about" },
+  { title: "How to upload", slug: "/how-to-upload" },
+  { title: "Quick download", slug: "/quick-download" },
 ];
 
 export const TopNavbar = (): JSX.Element => {
-  const [selectedPerson, setSelectedPerson] = useState<{
-    id: number;
-    name: string;
-  } | null>({ id: -1, name: "" });
+  // const [selectedPerson, setSelectedPerson] = useState<{
+  //   id: number;
+  //   name: string;
+  // } | null>({ id: -1, name: "" });
 
-  const [query, setQuery] = useState("");
+  // const [query, setQuery] = useState("");
 
-  const filteredTags =
-    query === ""
-      ? tags
-      : tags.filter((tag) => {
-          return tag.name.toLowerCase().includes(query.toLowerCase());
-        });
+  // const filteredTags =
+  //   query === ""
+  //     ? tags
+  //     : tags.filter((tag) => {
+  //         return tag.name.toLowerCase().includes(query.toLowerCase());
+  //       });
 
   return (
-    <div className="pr-4 flex items-center">
-      <div className="flex justify-between w-full">
-        {/* Search */}
-        <div>
-          {/* Search input */}
-          <Input name="full_name" type="text" />
+    <div className="p-4 flex items-center">
+      {/* Logo */}
+      <div className="flex">
+        <div className="flex">
+          <Link href="/" className="aspect-square size-10 relative">
+            <span className="sr-only">Nanobase</span>
 
-          {/* Search by dropdown */}
-          <Combobox
-            value={selectedPerson}
-            onChange={setSelectedPerson}
-            onClose={() => setQuery("")}
-          >
-            <ComboboxInput
-              aria-label="Assignee"
-              displayValue={(
-                tag: {
-                  id: number;
-                  name: string;
-                } | null
-              ) => tag?.name || ""}
-              onChange={(e) => setQuery(e.target.value)}
+            <Image
+              src="/images/favicon.png"
+              fill={true}
+              className="object-contain"
+              alt="Nanobase"
             />
-            <ComboboxOptions
-              anchor="bottom"
-              className="border empty:invisible bg-black/40"
-            >
-              {filteredTags.map((person) => (
-                <ComboboxOption
-                  key={person.id}
-                  value={person}
-                  className="data-[focus]:bg-blue-100"
-                >
-                  {person.name}
-                </ComboboxOption>
-              ))}
-            </ComboboxOptions>
-          </Combobox>
+          </Link>
         </div>
 
-        {/* Sign in/Profile */}
-        <div>
-          <Button>Sign in</Button>
-        </div>
+        <h1 className=" ml-2 flex items-center">Nanobase</h1>
       </div>
+
+      <div className="space-x-4 w-full flex justify-center flex-1">
+        {LINKS.map((link) => (
+          <Link href={link.slug} key={link.slug}>
+            {link.title}
+          </Link>
+        ))}
+      </div>
+
+      <Link href={"/sign-in"}>Sign in</Link>
     </div>
   );
 };

@@ -18,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen flex bg-gradient-to-r from-purple-500/15 to-blue-500/15">
-        <SidebarNav />
+        {/* <SidebarNav /> */}
 
         <div className="flex w-full flex-1 flex-col">
           <TopNavbar />
