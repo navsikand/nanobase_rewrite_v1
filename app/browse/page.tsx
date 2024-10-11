@@ -37,7 +37,7 @@ export default function Browse() {
   useEffect(() => {
     setCardsToDisplay(
       fetchedData.filter((c) =>
-        c.name.toLowerCase().includes(queryValue.toLowerCase())
+        c?.name?.toLowerCase().includes(queryValue.toLowerCase())
       )
     );
   }, [queryValue, fetchedData]);
@@ -60,21 +60,21 @@ export default function Browse() {
           ({
             author,
             description,
-            image_slug,
             name,
             slug,
+            id,
             uploaded_by,
             uploaded_date,
           }) => (
             <StructureCard
+              id={id}
               author={author}
               description={description}
-              image_slug={image_slug}
               name={name}
               slug={slug}
               uploaded_by={uploaded_by}
               uploaded_date={uploaded_date}
-              key={name}
+              key={id}
             />
           )
         )}

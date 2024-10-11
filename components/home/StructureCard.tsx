@@ -1,6 +1,7 @@
 import { STRUCTURE_CARD_DATA } from "@/test_data";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export const StructureCard = ({
   uploaded_by,
@@ -8,9 +9,28 @@ export const StructureCard = ({
   uploaded_date,
   name,
   // author,
-  slug,
-  image_slug,
+  // slug,
+  id,
 }: STRUCTURE_CARD_DATA): JSX.Element => {
+  const [image, setImage] = useState<string>();
+
+  useEffect(() => {
+    fetch(
+      `http://localhost:3002/api/v1/structure/getStructureImage?id=${id}`,
+      {
+        method: "GET",
+      }
+    )
+      .then((response) => response.blob())
+      .then((imageBlob) => {
+        const imageUrl = URL.createObjectURL(imageBlob);
+        setImage(imageUrl);
+      })
+      .catch((err) =>
+        console.error("Error fetching the first image:", err)
+      );
+  }, [id]);
+
   return (
     <div className="border-2 px-5 pt-5 rounded-2xl bg-stone-50 hover:shadow-lg duration-200">
       <div className="w-11/12 mx-auto">
@@ -26,19 +46,21 @@ export const StructureCard = ({
         </p>
 
         {/* Image */}
+
         <div className="flex">
           <Link
-            href={`/structures/${slug}`}
+            href={image || "/"}
             className="aspect-square w-full border-2 rounded-lg relative"
           >
             <span className="sr-only">Nanobase</span>
-
-            <Image
-              src={image_slug}
-              fill={true}
-              className="object-contain"
-              alt="Nanobase"
-            />
+            {image && (
+              <Image
+                src={image}
+                fill={true}
+                className="object-contain"
+                alt="Nanobase"
+              />
+            )}
           </Link>
         </div>
 
