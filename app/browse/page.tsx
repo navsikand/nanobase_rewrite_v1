@@ -1,27 +1,46 @@
 "use client";
 
 import { StructureCard } from "@/components/home/StructureCard";
-import {
-  DUMMY_STRUCTURE_CARD_DATA,
-  STRUCTURE_CARD_DATA,
-} from "@/test_data";
+import { STRUCTURE_CARD_DATA } from "@/test_data";
 import { Input } from "@headlessui/react";
 import { useEffect, useState } from "react";
 
 export default function Browse() {
   const [cardsToDisplay, setCardsToDisplay] = useState<
     STRUCTURE_CARD_DATA[]
-  >(DUMMY_STRUCTURE_CARD_DATA);
+  >([]);
+  const [fetchedData, setFetchedData] = useState<STRUCTURE_CARD_DATA[]>(
+    []
+  );
 
   const [queryValue, setQueryValue] = useState("");
 
   useEffect(() => {
+    (async () => {
+      const response = await fetch(
+        "http://localhost:3002/api/v1/structure/getAllPublicStructures_paginated",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const fetchedStructures: STRUCTURE_CARD_DATA[] = (
+        await response.json()
+      ).structures as STRUCTURE_CARD_DATA[];
+
+      setFetchedData(fetchedStructures);
+    })();
+  }, []);
+
+  useEffect(() => {
     setCardsToDisplay(
-      DUMMY_STRUCTURE_CARD_DATA.filter((c) =>
+      fetchedData.filter((c) =>
         c.name.toLowerCase().includes(queryValue.toLowerCase())
       )
     );
-  }, [queryValue]);
+  }, [queryValue, fetchedData]);
 
   return (
     <div>
@@ -36,7 +55,7 @@ export default function Browse() {
         />
       </div>
 
-      <div className="grid grid-cols-3">
+      <div className="grid grid-cols-5 gap-4">
         {cardsToDisplay.map(
           ({
             author,

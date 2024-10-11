@@ -2,7 +2,7 @@ import "./globals.css";
 
 import { Footer } from "@/components/Footer";
 import type { Metadata } from "next";
-import { SidebarNav } from "@/components/SidebarNav";
+// import { SidebarNav } from "@/components/SidebarNav";
 import { TopNavbar } from "@/components/TopNavbar";
 
 export const metadata: Metadata = {

@@ -8,37 +8,49 @@ export const StructureCard = ({
   uploaded_date,
   name,
   // author,
-  // slug,
+  slug,
   image_slug,
 }: STRUCTURE_CARD_DATA): JSX.Element => {
   return (
-    <div className="border-2 p-5">
-      {/* Card header */}
-      <div className="flex justify-between">
-        <h2>{name}</h2>
-
-        <p>
-          Uploaded by {uploaded_by} | {uploaded_date.toISOString()}
+    <div className="border-2 px-5 pt-5 rounded-2xl bg-stone-50 hover:shadow-lg duration-200">
+      <div className="w-11/12 mx-auto">
+        <p className="text-xs font-extralight text-right">
+          Uploaded by {uploaded_by} |{" "}
+          {uploaded_date
+            ?.toLocaleString()
+            .split(":")[0]
+            .substring(
+              0,
+              uploaded_date.toLocaleString().split(":")[0].length - 3
+            )}
         </p>
-      </div>
 
-      {/* Image */}
-      <div className="flex">
-        <Link href="/" className="aspect-square w-full relative">
-          <span className="sr-only">Nanobase</span>
+        {/* Image */}
+        <div className="flex">
+          <Link
+            href={`/structures/${slug}`}
+            className="aspect-square w-full border-2 rounded-lg relative"
+          >
+            <span className="sr-only">Nanobase</span>
 
-          <Image
-            src={image_slug}
-            fill={true}
-            className="object-contain"
-            alt="Nanobase"
-          />
-        </Link>
-      </div>
+            <Image
+              src={image_slug}
+              fill={true}
+              className="object-contain"
+              alt="Nanobase"
+            />
+          </Link>
+        </div>
 
-      {/* Card footer */}
-      <div>
-        <p>{description}</p>
+        {/* Card header */}
+        <div className="flex justify-between text-sm font-extralight mt-2">
+          <h2>{name}</h2>
+        </div>
+
+        {/* Card footer */}
+        <div className="pb-2">
+          <p>{description}</p>
+        </div>
       </div>
     </div>
   );

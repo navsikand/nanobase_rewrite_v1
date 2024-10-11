@@ -1,18 +1,37 @@
 "use client";
 
-import { props_prisma_createStructure, StructureTypes } from "@/types";
+import { UploadStructureInformation } from "@/components/upload/structure_data";
 import {
-  Button,
-  Combobox,
-  ComboboxInput,
-  ComboboxOption,
-  ComboboxOptions,
-  Textarea,
+  Tab,
+  TabGroup,
+  TabList,
+  TabPanel,
+  TabPanels,
 } from "@headlessui/react";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useState } from "react";
+
+type type_formData = {
+  title: string;
+  type: string;
+  description: string;
+  datePublished: Date;
+  citation: string;
+  paperLink: string;
+  licensing: string;
+  private: boolean;
+
+  applications: [];
+  authors: [];
+};
 
 export default function UploadStructure() {
-  const [formData, setFormData] = useState<props_prisma_createStructure>({
+  const [structureId, setStructureId] = useState<number | null>();
+  const [uploadedImages, setUploadedImages] = useState<File[]>([]);
+  const [imagesUploadedBoolean, setImagesUploadedBoolean] =
+    useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  const [formData, setFormData] = useState<type_formData>({
     title: "",
     type: "",
     description: "",
@@ -24,276 +43,151 @@ export default function UploadStructure() {
 
     applications: [],
     authors: [],
-
-    structureFilePaths: [],
-    expProtocolFilePaths: [],
-    expResultsFilesPaths: [],
-    simProtocolFilePaths: [],
-    simResultsFilePaths: [],
-    oxdnaFilePaths: [],
-
-    displayImageIndex: 0,
-    images: [],
-
-    statsData: {},
   });
 
-  useEffect(() => {
-    console.log(formData);
-  }, [formData]);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const token = localStorage.getItem("token");
+    const response = await fetch(
+      "http://localhost:3002/api/v1/structure/createStructure",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`, // Attach token here
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          keywords: [],
+          structure_data: formData,
+        }),
+      }
+    );
+    const id: number = (await response.json()).structure_id;
+    setStructureId(id);
+    setSelectedIndex(selectedIndex + 1);
+    console.log("WORKED");
   };
 
-  const handleCheckbox = (e: ChangeEvent<HTMLInputElement>) => {
-    const { checked } = e.target;
-    setFormData({
-      ...formData,
-      private: checked,
-    });
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    setUploadedImages(Array.from(files ? files : []));
   };
 
-  const handleType = (e: { id: number; name: string }) => {
-    setFormData({
-      ...formData,
-      type: e.name,
+  const handleImageSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const token = localStorage.getItem("token");
+
+    // Create FormData object to send structureId and images
+    const imageFormData = new FormData();
+    imageFormData.append("structure_id", structureId?.toString() || "");
+
+    // Ensure uploadedImages is an array of File objects
+    uploadedImages.forEach((image) => {
+      imageFormData.append("images", image);
     });
+
+    // Send the request
+    await fetch("http://localhost:3002/api/v1/structure/uploadImages", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`, // Attach token here
+      },
+      body: imageFormData, // Send FormData with structureId and images
+    });
+
+    setImagesUploadedBoolean(true);
+    setSelectedIndex(selectedIndex + 1);
+    console.log("IMAGES WORKED");
   };
 
-  const handleArea = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    const { value } = e.target;
-    setFormData({
-      ...formData,
-      description: value,
+  const handleFileSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const token = localStorage.getItem("token");
+
+    // Create FormData object to send structureId and images
+    const imageFormData = new FormData();
+    imageFormData.append("structure_id", structureId?.toString() || "");
+
+    // Ensure uploadedImages is an array of File objects
+    uploadedImages.forEach((file) => {
+      imageFormData.append("files", file);
     });
+
+    // Send the request
+    await fetch("http://localhost:3002/api/v1/structure/uploadFiles", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`, // Attach token here
+      },
+      body: imageFormData, // Send FormData with structureId and images
+    });
+
+    console.log("Files WORKED");
   };
-
-  const types = [
-    { id: 1, name: StructureTypes.DNA },
-    { id: 2, name: StructureTypes.RNA },
-    { id: 3, name: StructureTypes.DNA_RNA_HYBRID },
-    { id: 4, name: StructureTypes.NUCLEIC_ACID_PROTEIN_HYBRID },
-  ];
-
-  const [selectedType, setSelectedType] = useState<{
-    id: number;
-    name: string;
-  }>();
-  const [query, setQuery] = useState("");
-
-  const filteredTags: {
-    id: number;
-    name: string;
-  }[] =
-    query === ""
-      ? types
-      : types
-          .filter((tag) => {
-            return tag.name.toLowerCase().includes(query.toLowerCase());
-          })
-          .concat([{ id: 5, name: query as StructureTypes }]);
 
   return (
     <div className="">
-      <div className="mx-auto w-1/2 mt-16">
-        <form
-          className="space-y-6"
-          onSubmit={async (e) => {
-            e.preventDefault();
-            const token = localStorage.getItem("token");
-            await fetch(
-              "http://localhost:3002/api/v1/structure/createStructure",
-              {
-                method: "POST",
-                headers: {
-                  Authorization: `Bearer ${token}`, // Attach token here
-
-                  "Content-Type": "application/json",
-                },
-
-                body: JSON.stringify({
-                  keywords: [],
-                  structure_data: formData,
-                }),
-              }
-            );
-            console.log(formData);
-          }}
-        >
-          {/* Structure title */}
-          <div className="flex flex-col">
-            <input
-              className="p-2 bg-stone-400/20 rounded-2xl"
-              placeholder="Title..."
-              id="title"
-              name="title"
-              type="text"
-              value={formData.title}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          {/* 
-            Structure type
-            // ! MAKE IT AN OPTION SELECT OR CUSTOM TEXT
-          */}
-
-          <Combobox
-            value={selectedType}
-            onChange={(e) => {
-              setSelectedType(filteredTags[0]);
-              handleType(e || filteredTags[0]);
-            }}
-            onClose={() => setQuery("")}
+      <TabGroup selectedIndex={selectedIndex} onChange={setSelectedIndex}>
+        <TabList className={`space-x-3`}>
+          <Tab
+            disabled={structureId === null}
+            className={`bg-gray-400 rounded-lg p-2`}
           >
-            <ComboboxInput
-              aria-label="Assignee"
-              className={"p-2 bg-stone-400/20 rounded-2xl"}
-              displayValue={(type: { id: number; name: string }) =>
-                type?.name
-              }
-              placeholder="Type..."
-              onChange={(event) => setQuery(event.target.value)}
-            />
-            <ComboboxOptions
-              anchor="bottom"
-              className="border empty:invisible bg-gray-500/30"
-            >
-              {filteredTags.map((tag) => (
-                <ComboboxOption
-                  key={tag.id}
-                  value={tag}
-                  className="data-[focus]:bg-blue-100 p-2 bg-stone-400 "
-                >
-                  {tag.name}
-                </ComboboxOption>
-              ))}
-            </ComboboxOptions>
-          </Combobox>
+            Create structure
+          </Tab>
 
-          {/* <div className="flex flex-col">
-            <input
-              className="p-2 bg-stone-400/20 rounded-2xl"
-              placeholder="Type..."
-              id="type"
-              name="type"
-              type="text"
-              value={formData.type}
-              onChange={handleChange}
-              required
-            />
-          </div> */}
-
-          {/* 
-            Structure description
-          */}
-          <div className="flex flex-col">
-            <Textarea
-              className="p-2 bg-stone-400/20 rounded-2xl"
-              placeholder="Description..."
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleArea}
-              required
-            />
-          </div>
-
-          {/* 
-            Structure date published
-          */}
-          <div className="flex flex-col">
-            <input
-              className="p-2 bg-stone-400/20 rounded-2xl"
-              id="datePublished"
-              name="datePublished"
-              type="date"
-              value={formData.datePublished.toString()}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          {/* 
-            Structure citation
-          */}
-          <div className="flex flex-col">
-            <input
-              className="p-2 bg-stone-400/20 rounded-2xl"
-              placeholder="Citation..."
-              id="citation"
-              name="citation"
-              type="text"
-              value={formData.citation}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          {/* 
-            Structure paper link
-          */}
-          <div className="flex flex-col">
-            <input
-              className="p-2 bg-stone-400/20 rounded-2xl"
-              placeholder="Paper link..."
-              id="paperLink"
-              name="paperLink"
-              type="text"
-              value={formData.paperLink}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          {/* 
-            Structure licensing
-          */}
-          <div className="flex flex-col">
-            <input
-              className="p-2 bg-stone-400/20 rounded-2xl"
-              placeholder="Licensing..."
-              id="licensing"
-              name="licensing"
-              type="text"
-              value={formData.licensing}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          {/* 
-            Structure private
-          */}
-          <div className="flex items-center">
-            Private:
-            <input
-              className="bg-stone-400/20 rounded-2xl ml-2"
-              id="private"
-              name="private"
-              type="checkbox"
-              value={JSON.stringify(formData.private)}
-              onChange={handleCheckbox}
-              required
-            />
-          </div>
-
-          <Button
-            className={
-              "rounded-lg px-6 py-2 font-semibold text-lg bg-stone-400/20 text-black"
-            }
-            type="submit"
+          <Tab
+            disabled={structureId === null}
+            className={`bg-gray-400 rounded-lg p-2`}
           >
-            Submit
-          </Button>
-        </form>
-      </div>
+            Upload images
+          </Tab>
+
+          <Tab
+            disabled={!imagesUploadedBoolean}
+            className={`bg-gray-400 rounded-lg p-2`}
+          >
+            Upload files
+          </Tab>
+        </TabList>
+        <TabPanels>
+          <TabPanel>
+            <UploadStructureInformation
+              formData={formData}
+              setFormData={setFormData}
+              handleSubmit={handleSubmit}
+            />
+          </TabPanel>
+          <TabPanel>
+            <div>
+              <form onSubmit={handleImageSubmit}>
+                <input
+                  type="file"
+                  multiple
+                  name="images"
+                  onChange={handleFileChange}
+                />
+                <button type="submit">Upload Image</button>
+              </form>
+            </div>
+          </TabPanel>
+          <TabPanel>
+            <div>
+              <form onSubmit={handleFileSubmit}>
+                <input
+                  type="file"
+                  multiple
+                  name="images"
+                  onChange={handleFileChange}
+                />
+                <button type="submit">Upload Files</button>
+              </form>
+            </div>
+          </TabPanel>
+        </TabPanels>
+      </TabGroup>
     </div>
   );
 }
