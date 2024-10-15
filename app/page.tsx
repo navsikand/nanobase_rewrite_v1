@@ -1,8 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-
 import { Button } from "@headlessui/react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const router = useRouter();
@@ -16,16 +15,18 @@ export default function Home() {
           <h1 className="ml-6 text-6xl font-bold">Nanobase</h1>
         </div>
 
-        <p className="mt-12">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent
-          mi augue, euismod id nisl eget, vehicula facilisis nunc. Quisque
-          vestibulum imperdiet magna a pretium. Maecenas id mattis orci.
-          Mauris eget tortor feugiat, dignissim massa vitae, dictum neque.
-          Fusce augue lacus, sodales a molestie id, faucibus vel risus.
-          Maecenas pharetra tempus rutrum. Fusce sollicitudin vehicula dui
-          sed lacinia. Donec sed metus blandit, pellentesque purus sed,
-          finibus nisl. Praesent ornare arcu non ipsum eleifend pretium.
-          Etiam ut eros at dui varius laoreet.
+        <p className="mt-12 text-balance">
+          Over the past 40 years, nucleic acid nanotechnology has developed
+          a wide range of static and dynamic nanostructures, used in
+          applications like nanopatterning, drug delivery, diagnostics, and
+          nanophotonics. However, many verified structures are rarely
+          reused, with labs often creating their own designs. This effort
+          aims to create a community database for sharing nanostructure
+          design files, fostering collaboration and modularity. The
+          platform includes tools to edit and characterize DNA, RNA, and
+          hybrid nanostructures, with a GUI for visualization. It supports
+          conversion to a common format and integrates with the oxDNA
+          server for simulations using coarse-grained models.
         </p>
       </div>
 

@@ -1,7 +1,9 @@
 "use client";
 
+import { ArrowRightStartOnRectangleIcon } from "@heroicons/react/16/solid";
 import Image from "next/image";
 import Link from "next/link";
+
 // import { useState } from "react";
 
 // const tags = [
@@ -14,7 +16,6 @@ import Link from "next/link";
 // ];
 
 const LINKS: { title: string; slug: string }[] = [
-  { title: "Home", slug: "/" },
   { title: "Upload structure", slug: "/upload-structure" },
   { title: "Profile", slug: "/profile" },
   { title: "About", slug: "/about" },
@@ -38,26 +39,22 @@ export const TopNavbar = (): JSX.Element => {
   //       });
 
   return (
-    <div className="p-4 flex items-center">
+    <div className="p-4 px-8 flex items-center">
       {/* Logo */}
       <div className="flex">
-        <div className="flex">
-          <Link href="/" className="aspect-square size-10 relative">
-            <span className="sr-only">Nanobase</span>
+        <Link href="/" className="aspect-square size-12 relative">
+          <span className="sr-only">Nanobase</span>
 
-            <Image
-              src="/images/favicon.png"
-              fill={true}
-              className="object-contain"
-              alt="Nanobase"
-            />
-          </Link>
-        </div>
-
-        <h1 className=" ml-2 flex items-center">Nanobase</h1>
+          <Image
+            src="/images/rounded_logo-min.png"
+            fill={true}
+            className="object-contain rounded-full shadow-lg"
+            alt="Nanobase"
+          />
+        </Link>
       </div>
 
-      <div className="space-x-4 w-full flex justify-center flex-1">
+      <div className="mx-auto space-x-3">
         {LINKS.map((link) => (
           <Link href={link.slug} key={link.slug}>
             {link.title}
@@ -65,7 +62,10 @@ export const TopNavbar = (): JSX.Element => {
         ))}
       </div>
 
-      <Link href={"/sign-in"}>Sign in</Link>
+      <Link href={"/sign-in"} className="flex items-center w-12">
+        <span className="sr-only">Sign in</span>
+        <ArrowRightStartOnRectangleIcon className="size-8" />
+      </Link>
     </div>
   );
 };
