@@ -55,7 +55,7 @@ export const StructureCard = ({
 
         <div className="flex">
           <Link
-            href={"/structure/" + id}
+            href={"/structures/" + id}
             className="aspect-square w-full border-2 rounded-lg relative"
           >
             <span className="sr-only">{title}</span>

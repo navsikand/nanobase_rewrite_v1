@@ -1,6 +1,7 @@
 "use client";
 
-import { TEMP_STRUCTURE } from "@/db_types";
+import { STRUCTURE_CARD_DATA } from "@/types";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 export default function StructurePage({
@@ -9,52 +10,52 @@ export default function StructurePage({
   params: { id: string };
 }) {
   const [structureData, setStructureData] =
-    useState<TEMP_STRUCTURE | null>(null);
+    useState<STRUCTURE_CARD_DATA | null>(null);
+
+  const [allStructureImages, setAllStructureImages] = useState<string[]>(
+    []
+  );
+
   useEffect(() => {
     (async () => {
-      // const response = await fetch(
-      //   // `http://localhost:3002/api/v1/structure/getStructureById?id=${structureId}`,
-      //   `https://6sgjdfxr-3002.usw3.devtunnels.ms/api/v1/structure/getStructureById?id=${structureId}`,
-      //   {
-      //     method: "GET",
-      //   }
-      // );
+      const response = await fetch(
+        `http://localhost:3002/api/v1/structure/getStructureById?id=${structureId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const fetchedStructure: STRUCTURE_CARD_DATA = (await response.json())
+        .structure as STRUCTURE_CARD_DATA;
 
-      const rep = {
-        structure: {
-          id: 421,
-          title: " DNA ring 60nm liposome scaffold - Yang - Nat Chem 2016",
-          type: "",
-          description:
-            " Yang et al describes a novel method for guided liposome formation inside a DNA origami ring.Due to the formation inside DNA origami ring the liposomes attain a much uniform size distribution compared to regular uncontrolled liposome formation methods.The application of this method ranges from drug delivery to artificial cell or artificial organelle synthesis.",
-          datePublished: "2024-10-11T18:13:59.005Z",
-          citation: "",
-          paperLink: "",
-          licensing: "",
-          uploadDate: "2024-10-11T18:13:59.006Z",
-          private: false,
-          applications: [],
-          authors: [],
-          structureFilePaths: [],
-          expProtocolFilePaths: [],
-          expResultsFilesPaths: [],
-          simProtocolFilePaths: [],
-          simResultsFilePaths: [],
-          oxdnaFilePaths: [],
-          displayImageIndex: 0,
-          images: [],
-          statsData: null,
-          userId: "8824f2d4-15e4-4691-9196-5be858f54039",
-          oldUserId: null,
-          oldId: 20,
-        },
-      };
+      setStructureData(fetchedStructure);
+    })();
+  }, [structureId]);
 
-      setStructureData({
-        ...rep.structure,
-        datePublished: new Date(rep.structure.datePublished),
-        uploadDate: new Date(rep.structure.uploadDate),
+  useEffect(() => {
+    (async () => {
+      const allImageNamesResponse = await fetch(
+        `http://localhost:3002/api/v1/structure/getAllStructureImagesPaths?id=${structureId}`
+      );
+
+      const allImageNames: string[] = await allImageNamesResponse.json();
+      const allImages: string[] = [];
+
+      allImageNames.map(async (imageName) => {
+        const response = await fetch(
+          `http://localhost:3002/api/v1/structure/getStructureImageByName/${imageName}?id=${structureId}`
+        );
+
+        if (!response.ok) {
+          throw new Error("Image not found");
+        }
+        const imageBlob = await response.blob();
+        const imageObjectURL = URL.createObjectURL(imageBlob);
+        allImages.push(imageObjectURL);
       });
+      setAllStructureImages(allImages);
     })();
   }, [structureId]);
 
@@ -64,10 +65,25 @@ export default function StructurePage({
         <div>{/* <Image /> */}</div>
         <div>
           <h2>{structureData?.title}</h2>
-          <p>{structureData?.uploadDate.toLocaleString()}</p>
+          <p>{structureData?.uploadDate?.toLocaleString()}</p>
           <p>{structureData?.description}</p>
-          <iframe src="https://sulcgroup.github.io/oxdna-viewer/"></iframe>
+          {/* <iframe src="https://sulcgroup.github.io/oxdna-viewer/"></iframe> */}
         </div>
+
+        {allStructureImages.map((image) => (
+          <div className="flex" key={image}>
+            <div className="aspect-square w-full border-2 rounded-lg relative">
+              {image && (
+                <Image
+                  src={image}
+                  fill={true}
+                  className="object-contain"
+                  alt={"H"}
+                />
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
