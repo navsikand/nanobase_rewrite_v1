@@ -1,9 +1,11 @@
 "use client";
 
 import { Button } from "@headlessui/react";
+import { useRouter } from "next/navigation";
 import { ChangeEvent, useState } from "react";
 
 export default function SignIn() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -19,7 +21,8 @@ export default function SignIn() {
 
   return (
     <div className="">
-      <div className="mx-auto w-1/2 mt-16">
+      <div className="mx-auto w-1/2 max-w-3xl mt-16">
+        <h1 className="text-4xl font-bold mb-5">Sign in</h1>
         <form
           className="space-y-6"
           onSubmit={async (e) => {
@@ -39,7 +42,9 @@ export default function SignIn() {
               const data = await response.json();
               // Store the token in localStorage or cookies
               localStorage.setItem("token", data.token);
+
               console.log("User authenticated");
+              router.push("/browse");
             } else {
               console.log("Authentication failed");
             }
@@ -48,8 +53,9 @@ export default function SignIn() {
           }}
         >
           <div className="flex flex-col">
+            <label htmlFor="email">Email</label>
             <input
-              className="p-2 bg-stone-400/20 rounded-2xl"
+              className="p-2 bg-stone-400/20 rounded-lg mt-1"
               placeholder="Email..."
               id="email"
               name="email"
@@ -57,12 +63,14 @@ export default function SignIn() {
               value={formData.email}
               onChange={handleChange}
               required
+              autoComplete="email"
             />
           </div>
 
           <div className="flex flex-col">
+            <label htmlFor="password">Password</label>
             <input
-              className="p-2 bg-stone-400/20 rounded-2xl"
+              className="p-2 bg-stone-400/20 rounded-lg mt-1"
               placeholder="Password..."
               id="password"
               name="password"
@@ -70,17 +78,20 @@ export default function SignIn() {
               value={formData.password}
               onChange={handleChange}
               required
+              autoComplete="current-password"
             />
           </div>
 
-          <Button
-            className={
-              "rounded-lg px-6 py-2 font-semibold text-lg bg-stone-400/20 text-black"
-            }
-            type="submit"
-          >
-            Sign in
-          </Button>
+          <div className="w-full flex justify-end">
+            <Button
+              className={
+                "rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200"
+              }
+              type="submit"
+            >
+              Sign in
+            </Button>
+          </div>
         </form>
       </div>
     </div>

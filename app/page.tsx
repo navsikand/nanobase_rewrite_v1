@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@headlessui/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
@@ -15,7 +16,7 @@ export default function Home() {
           <h1 className="ml-6 text-6xl font-bold">Nanobase</h1>
         </div>
 
-        <p className="mt-12 text-balance">
+        <p className="mt-12 text-center">
           Over the past 40 years, nucleic acid nanotechnology has developed
           a wide range of static and dynamic nanostructures, used in
           applications like nanopatterning, drug delivery, diagnostics, and
@@ -30,17 +31,22 @@ export default function Home() {
         </p>
       </div>
 
-      {/* Body */}
-      {/* Get started */}
-      <div className="flex justify-center items-center mt-20">
+      <div className="flex flex-col justify-center items-center mt-20">
         <Button
           className={
-            "rounded-lg px-8 py-4 font-bold text-xl bg-black text-white hover:-mt-3 hover:shadow-2xl duration-[200ms]"
+            "rounded-lg px-8 py-4 font-bold text-xl bg-black text-white relative hover:-translate-y-1 hover:shadow-xl duration-200"
           }
           onClick={() => router.push("/sign-up")}
         >
           Get started
         </Button>
+
+        <p className="text-sm mt-2">
+          Already have an account?{" "}
+          <Link href="/sign-in" className="underline text-blue-800">
+            Sign in
+          </Link>
+        </p>
       </div>
     </div>
   );

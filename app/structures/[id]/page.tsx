@@ -66,6 +66,7 @@ export default function StructurePage({
           <h2>{structureData?.title}</h2>
           <p>{structureData?.uploadDate.toLocaleString()}</p>
           <p>{structureData?.description}</p>
+          <iframe src="https://sulcgroup.github.io/oxdna-viewer/"></iframe>
         </div>
       </div>
     </div>

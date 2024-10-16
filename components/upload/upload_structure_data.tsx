@@ -26,21 +26,57 @@ type type_formData = {
 };
 
 type props = {
-  handleSubmit: (e: React.FormEvent) => void;
-
-  formData: type_formData;
-
-  setFormData: Dispatch<SetStateAction<type_formData>>;
+  setSelectedIndex: Dispatch<SetStateAction<number>>;
+  setStructureId: Dispatch<SetStateAction<number | null | undefined>>;
+  selectedIndex: number;
 };
 
 export const UploadStructureInformation = ({
-  handleSubmit,
-  formData,
-  setFormData,
+  selectedIndex,
+  setSelectedIndex,
+  setStructureId,
 }: props): JSX.Element => {
-  const [query, setQuery] = useState("");
+  const [formData, setFormData] = useState<type_formData>({
+    title: "",
+    type: "",
+    description: "",
+    datePublished: new Date(),
+    citation: "",
+    paperLink: "",
+    licensing: "",
+    private: false,
 
-  const types = [
+    applications: [],
+    authors: [],
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const token = localStorage.getItem("token");
+    const response = await fetch(
+      "http://localhost:3002/api/v1/structure/createStructure",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`, // Attach token here
+
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          keywords: [],
+          structure_data: formData,
+        }),
+      }
+    );
+    const id: number = (await response.json()).structure_id;
+    setStructureId(id);
+    setSelectedIndex(selectedIndex + 1);
+  };
+
+  const [structureTypeQuery, setStructureTypeQuery] = useState("");
+
+  const structureTypes = [
     { id: 1, name: StructureTypes.DNA },
     { id: 2, name: StructureTypes.RNA },
     { id: 3, name: StructureTypes.DNA_RNA_HYBRID },
@@ -52,19 +88,21 @@ export const UploadStructureInformation = ({
     name: string;
   }>();
 
-  const filteredTags: {
+  const filteredTypes: {
     id: number;
     name: string;
   }[] =
-    query === ""
-      ? types
-      : types
+    structureTypeQuery === ""
+      ? structureTypes
+      : structureTypes
           .filter((tag) => {
-            return tag.name.toLowerCase().includes(query.toLowerCase());
+            return tag.name
+              .toLowerCase()
+              .includes(structureTypeQuery.toLowerCase());
           })
-          .concat([{ id: 5, name: query as StructureTypes }]);
+          .concat([{ id: 5, name: structureTypeQuery as StructureTypes }]);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
@@ -72,7 +110,7 @@ export const UploadStructureInformation = ({
     });
   };
 
-  const handleCheckbox = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleCheckboxChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { checked } = e.target;
     setFormData({
       ...formData,
@@ -80,14 +118,14 @@ export const UploadStructureInformation = ({
     });
   };
 
-  const handleType = (e: { id: number; name: string }) => {
+  const handleTypeChange = (e: { id: number; name: string }) => {
     setFormData({
       ...formData,
       type: e.name,
     });
   };
 
-  const handleArea = (e: ChangeEvent<HTMLTextAreaElement>) => {
+  const handleTextAreaChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     const { value } = e.target;
     setFormData({
       ...formData,
@@ -107,7 +145,7 @@ export const UploadStructureInformation = ({
             name="title"
             type="text"
             value={formData.title}
-            onChange={handleChange}
+            onChange={handleInputChange}
             required
           />
         </div>
@@ -117,10 +155,10 @@ export const UploadStructureInformation = ({
         <Combobox
           value={selectedType}
           onChange={(e) => {
-            setSelectedType(filteredTags[0]);
-            handleType(e || filteredTags[0]);
+            setSelectedType(filteredTypes[0]);
+            handleTypeChange(e || filteredTypes[0]);
           }}
-          onClose={() => setQuery("")}
+          onClose={() => setStructureTypeQuery("")}
         >
           <ComboboxInput
             aria-label="Assignee"
@@ -129,13 +167,13 @@ export const UploadStructureInformation = ({
               type?.name
             }
             placeholder="Type..."
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => setStructureTypeQuery(event.target.value)}
           />
           <ComboboxOptions
             anchor="bottom"
             className="border empty:invisible bg-gray-500/30"
           >
-            {filteredTags.map((tag) => (
+            {filteredTypes.map((tag) => (
               <ComboboxOption
                 key={tag.id}
                 value={tag}
@@ -170,7 +208,7 @@ export const UploadStructureInformation = ({
             id="description"
             name="description"
             value={formData.description}
-            onChange={handleArea}
+            onChange={handleTextAreaChange}
             required
           />
         </div>
@@ -185,7 +223,7 @@ export const UploadStructureInformation = ({
             name="datePublished"
             type="date"
             value={formData.datePublished.toString()}
-            onChange={handleChange}
+            onChange={handleInputChange}
             required
           />
         </div>
@@ -201,7 +239,7 @@ export const UploadStructureInformation = ({
             name="citation"
             type="text"
             value={formData.citation}
-            onChange={handleChange}
+            onChange={handleInputChange}
             required
           />
         </div>
@@ -217,7 +255,7 @@ export const UploadStructureInformation = ({
             name="paperLink"
             type="text"
             value={formData.paperLink}
-            onChange={handleChange}
+            onChange={handleInputChange}
             required
           />
         </div>
@@ -233,7 +271,7 @@ export const UploadStructureInformation = ({
             name="licensing"
             type="text"
             value={formData.licensing}
-            onChange={handleChange}
+            onChange={handleInputChange}
             required
           />
         </div>
@@ -249,8 +287,7 @@ export const UploadStructureInformation = ({
             name="private"
             type="checkbox"
             value={JSON.stringify(formData.private)}
-            onChange={handleCheckbox}
-            required
+            onChange={handleCheckboxChange}
           />
         </div>
 

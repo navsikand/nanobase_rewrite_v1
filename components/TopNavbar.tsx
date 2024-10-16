@@ -1,19 +1,11 @@
 "use client";
 
-import { ArrowRightStartOnRectangleIcon } from "@heroicons/react/16/solid";
+import { Button } from "@headlessui/react";
+import { decode } from "jsonwebtoken";
 import Image from "next/image";
 import Link from "next/link";
-
-// import { useState } from "react";
-
-// const tags = [
-//   { id: 1, name: "Title" },
-//   { id: 2, name: "Author" },
-//   { id: 3, name: "Application" },
-//   { id: 4, name: "Modification" },
-//   { id: 5, name: "Keyword" },
-//   { id: 6, name: "User" },
-// ];
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const LINKS: { title: string; slug: string }[] = [
   { title: "Upload structure", slug: "/upload-structure" },
@@ -24,19 +16,28 @@ const LINKS: { title: string; slug: string }[] = [
 ];
 
 export const TopNavbar = (): JSX.Element => {
-  // const [selectedPerson, setSelectedPerson] = useState<{
-  //   id: number;
-  //   name: string;
-  // } | null>({ id: -1, name: "" });
+  const router = useRouter();
+  const pathName = usePathname();
+  const [userAuthState, setUserAuthState] = useState<boolean>(false);
 
-  // const [query, setQuery] = useState("");
+  useEffect(() => {
+    router.prefetch("/browse");
 
-  // const filteredTags =
-  //   query === ""
-  //     ? tags
-  //     : tags.filter((tag) => {
-  //         return tag.name.toLowerCase().includes(query.toLowerCase());
-  //       });
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const { exp } = decode(token) as { exp: number };
+        if (Date.now() < exp * 1000) {
+          console.log(pathName);
+          if (pathName === "/sign-in" || pathName === "/sign-up")
+            router.push("/browse");
+          setUserAuthState(true);
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  }, [pathName, router]);
 
   return (
     <div className="p-4 px-8 flex items-center">
@@ -48,6 +49,7 @@ export const TopNavbar = (): JSX.Element => {
           <Image
             src="/images/rounded_logo-min.png"
             fill={true}
+            sizes="100%"
             className="object-contain rounded-full shadow-lg"
             alt="Nanobase"
           />
@@ -62,10 +64,16 @@ export const TopNavbar = (): JSX.Element => {
         ))}
       </div>
 
-      <Link href={"/sign-in"} className="flex items-center w-12">
-        <span className="sr-only">Sign in</span>
-        <ArrowRightStartOnRectangleIcon className="size-8" />
-      </Link>
+      {!userAuthState && (
+        <Button
+          className={
+            "rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200"
+          }
+          onClick={() => router.push("/sign-in")}
+        >
+          Sign in
+        </Button>
+      )}
     </div>
   );
 };

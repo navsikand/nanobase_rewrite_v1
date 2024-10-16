@@ -49,96 +49,95 @@ export default function Signup() {
               setSubmitted(true);
             }}
           >
-            <div className="flex flex-col">
-              <input
-                className="p-2 bg-stone-400/20 rounded-2xl"
-                placeholder="First name..."
-                id="firstName"
-                name="firstName"
-                type="text"
-                value={formData.firstName}
-                onChange={handleChange}
-                required
-              />
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex flex-col">
+                <label htmlFor="firstName">First name</label>
+                <input
+                  className="p-2 bg-stone-400/20 rounded-lg mt-1"
+                  placeholder="John"
+                  id="firstName"
+                  name="firstName"
+                  type="text"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  required
+                  autoComplete="given-name"
+                />
+              </div>
+
+              <div className="flex flex-col">
+                <label htmlFor="lastName">Last name</label>
+                <input
+                  className="p-2 bg-stone-400/20 rounded-lg mt-1"
+                  placeholder="Doe"
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  required
+                  autoComplete="family-name"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex flex-col">
+                <label htmlFor="email">Email</label>
+                <input
+                  className="p-2 bg-stone-400/20 rounded-lg mt-1"
+                  placeholder="example@example.com"
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  autoComplete="email"
+                />
+              </div>
+
+              <div className="flex flex-col">
+                <label htmlFor="institutionName">Institution</label>
+                <input
+                  className="p-2 bg-stone-400/20 rounded-lg mt-1"
+                  placeholder="The College of Water Polo and Divinity"
+                  id="institutionName"
+                  name="institutionName"
+                  type="text"
+                  value={formData.institutionName}
+                  onChange={handleChange}
+                  required
+                  autoComplete="organization"
+                />
+              </div>
             </div>
 
             <div className="flex flex-col">
+              <label htmlFor="password">Password</label>
               <input
-                className="p-2 bg-stone-400/20 rounded-2xl"
-                placeholder="Last name..."
-                id="lastName"
-                name="lastName"
-                type="text"
-                value={formData.lastName}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <input
-                className="p-2 bg-stone-400/20 rounded-2xl"
-                placeholder="Email..."
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <input
-                className="p-2 bg-stone-400/20 rounded-2xl"
-                placeholder="Password..."
+                className="p-2 bg-stone-400/20 rounded-lg mt-1"
+                placeholder="Not test123"
                 id="password"
                 name="password"
                 type="password"
                 value={formData.password}
                 onChange={handleChange}
                 required
+                autoComplete="new-password"
               />
             </div>
 
-            <div className="flex flex-col">
-              <input
-                className="p-2 bg-stone-400/20 rounded-2xl"
-                placeholder="Institution..."
-                id="institutionName"
-                name="institutionName"
-                type="text"
-                value={formData.institutionName}
-                onChange={handleChange}
-                required
-              />
+            <div className="w-full flex justify-end">
+              <Button
+                className={
+                  "rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200"
+                }
+                type="submit"
+              >
+                Sign up
+              </Button>
             </div>
-
-            <Button
-              className={
-                "rounded-lg px-6 py-2 font-semibold text-lg bg-stone-400/20 text-black"
-              }
-              type="submit"
-            >
-              Submit
-            </Button>
           </form>
-        </Transition>
-
-        <Transition
-          show={submitted}
-          enter="transition-opacity duration-500"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="transition-opacity duration-500"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <div>
-            <p>
-              Thank you for signing up! We’ve received your information.
-            </p>
-          </div>
         </Transition>
       </div>
     </div>
