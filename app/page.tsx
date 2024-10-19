@@ -41,7 +41,7 @@ export default function Home() {
           Get started
         </Button>
 
-        <p className="text-sm mt-2">
+        <p className="text-sm mt-3">
           Already have an account?{" "}
           <Link href="/sign-in" className="underline text-blue-800">
             Sign in

@@ -3,15 +3,57 @@
 import { StructureCard } from "@/components/home/StructureCard";
 import { STRUCTURE_CARD_DATA } from "@/types";
 import { Input, Select } from "@headlessui/react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-export default function Browse() {
+export default function FreshBrowse() {
+  const [fetchedData, setFetchedData] = useState<
+    (STRUCTURE_CARD_DATA & { image: string })[] | null
+  >(null);
+
   const [cardsToDisplay, setCardsToDisplay] = useState<
-    STRUCTURE_CARD_DATA[]
+    (STRUCTURE_CARD_DATA & { image: string })[]
   >([]);
-  const [fetchedData, setFetchedData] = useState<STRUCTURE_CARD_DATA[]>(
-    []
-  );
+
+  const fetchStructureData = async (): Promise<STRUCTURE_CARD_DATA[]> => {
+    const response = await fetch(
+      "http://localhost:3002/api/v1/structure/getAllPublicStructures_paginated",
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return (await response.json()).structures as STRUCTURE_CARD_DATA[];
+  };
+
+  const fetchAndSetStructureDataWithImages = useCallback(async () => {
+    const fetchedStructures = await fetchStructureData();
+
+    const structuresWithImage = await Promise.all(
+      fetchedStructures.map(async (fetchedStructure) => {
+        const structureId = fetchedStructure.structure.id;
+        if (structureId) {
+          const response = await fetch(
+            `http://localhost:3002/api/v1/structure/getStructureDisplayImage?id=${structureId}`
+          );
+          const fetchedImageBlob = await response.blob();
+          const imageUrl = URL.createObjectURL(fetchedImageBlob);
+
+          return { ...fetchedStructure, image: imageUrl };
+        }
+        return { ...fetchedStructure, image: "/" };
+      })
+    );
+
+    setFetchedData(structuresWithImage);
+  }, []);
+
+  useEffect(() => {
+    fetchAndSetStructureDataWithImages();
+  }, [fetchAndSetStructureDataWithImages]);
+
+  // By now we have fetched all the data that we need. Now time to implement search
 
   enum SEARCH_BY {
     TITLE = "Title",
@@ -29,103 +71,64 @@ export default function Browse() {
     { id: 4, name: SEARCH_BY.DESCRIPTION },
   ];
 
-  const [searchByParameter, setSearchByParameter] = useState(
+  const [searchByParameter, setSearchByParameter] = useState<SEARCH_BY>(
     SEARCH_BY.TITLE
   );
-  const [queryValue, setQueryValue] = useState("");
+  const [serachQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    (async () => {
-      const response = await fetch(
-        "http://localhost:3002/api/v1/structure/getAllPublicStructures_paginated",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      const fetchedStructures: STRUCTURE_CARD_DATA[] = (
-        await response.json()
-      ).structures as STRUCTURE_CARD_DATA[];
+    if (fetchedData) {
+      if (serachQuery === "") {
+        setCardsToDisplay(fetchedData);
+      } else {
+        const filteredCards = fetchedData.filter((dataToCheck) => {
+          if (searchByParameter === SEARCH_BY.APPLICATION) {
+          } else if (searchByParameter === SEARCH_BY.AUTHOR) {
+            let doesInclude = false;
+            dataToCheck.structure.authors.map((author) => {
+              if (
+                author.toLowerCase().includes(serachQuery.toLowerCase())
+              ) {
+                doesInclude = true;
+              }
+            });
+            return doesInclude;
+          } else if (searchByParameter === SEARCH_BY.DESCRIPTION) {
+            return dataToCheck.structure.description
+              .toLowerCase()
+              .includes(serachQuery.toLowerCase());
+          } else if (searchByParameter === SEARCH_BY.KEYWORD) {
+            let doesInclude = false;
+            dataToCheck.structure.keywords.map((keyword) => {
+              if (
+                keyword.toLowerCase().includes(serachQuery.toLowerCase())
+              ) {
+                doesInclude = true;
+              }
+            });
+            return doesInclude;
+          } else if (searchByParameter === SEARCH_BY.TITLE) {
+            return dataToCheck.structure.title
+              .toLowerCase()
+              .includes(serachQuery.toLowerCase());
+          }
 
-      setFetchedData(fetchedStructures);
-    })();
-  }, []);
+          return false;
+        });
 
-  useEffect(() => {
-    if (queryValue === "" && queryValue.length === 0) {
-      setCardsToDisplay(fetchedData);
-    } else {
-      const setVal = fetchedData.filter((data) => {
-        switch (searchByParameter) {
-          case SEARCH_BY.TITLE:
-            if (data.title) {
-              return data.title
-                .toLowerCase()
-                .includes(queryValue.toLowerCase());
-            } else {
-              return true;
-            }
-          case SEARCH_BY.AUTHOR:
-            if (data.authors) {
-              let ret = false;
-
-              data.authors.map((application) => {
-                ret = application
-                  .toLowerCase()
-                  .includes(queryValue.toLowerCase());
-              });
-
-              return ret;
-            } else {
-              return true;
-            }
-          case SEARCH_BY.DESCRIPTION:
-            if (data.description) {
-              return data.description
-                .toLowerCase()
-                .includes(queryValue.toLowerCase());
-            } else {
-              return true;
-            }
-          case SEARCH_BY.APPLICATION:
-            if (data.applications) {
-              let ret = false;
-
-              data.applications.map((application) => {
-                ret = application
-                  .toLowerCase()
-                  .includes(queryValue.toLowerCase());
-              });
-
-              return ret;
-            } else {
-              return true;
-            }
-          case SEARCH_BY.KEYWORD:
-            if (data.keywords) {
-              let ret = false;
-
-              data.keywords.map((keyword) => {
-                ret = keyword.name
-                  .toLowerCase()
-                  .includes(queryValue.toLowerCase());
-              });
-
-              return ret;
-            } else {
-              return true;
-            }
-        }
-      });
-
-      setCardsToDisplay(setVal);
+        setCardsToDisplay(filteredCards);
+      }
     }
-  }, [queryValue, fetchedData, searchByParameter, SEARCH_BY]);
-  useEffect(() => {
-    console.log(fetchedData[0]);
-  }, [fetchedData]);
+  }, [
+    fetchedData,
+    serachQuery,
+    searchByParameter,
+    SEARCH_BY.APPLICATION,
+    SEARCH_BY.AUTHOR,
+    SEARCH_BY.DESCRIPTION,
+    SEARCH_BY.KEYWORD,
+    SEARCH_BY.TITLE,
+  ]);
 
   return (
     <div className="mx-auto w-11/12">
@@ -135,8 +138,8 @@ export default function Browse() {
           type="text"
           placeholder="Search..."
           className={"bg-gray-400/20 rounded-xl p-2"}
-          value={queryValue}
-          onChange={(e) => setQueryValue(e.target.value)}
+          value={serachQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
         />
 
         <Select
@@ -156,40 +159,15 @@ export default function Browse() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
-        {cardsToDisplay.map(
-          ({
-            authors,
-            description,
-            title,
-            slug,
-            id,
-            uploaded_by,
-            uploaded_date,
-            applications,
-            keywords,
-            citation,
-            datePublished,
-            type,
-            uploadDate,
-          }) => (
-            <StructureCard
-              id={id}
-              citation={citation}
-              datePublished={datePublished}
-              type={type}
-              uploadDate={uploadDate}
-              authors={authors}
-              description={description}
-              title={title}
-              slug={slug}
-              uploaded_by={uploaded_by}
-              uploaded_date={uploaded_date}
-              key={id}
-              applications={applications}
-              keywords={keywords}
-            />
-          )
-        )}
+        {cardsToDisplay?.map(({ User, structure, isOld, image }) => (
+          <StructureCard
+            User={User}
+            isOld={isOld}
+            structure={structure}
+            key={structure.id}
+            image={image}
+          />
+        ))}
       </div>
     </div>
   );

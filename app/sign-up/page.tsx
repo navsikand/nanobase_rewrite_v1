@@ -2,6 +2,7 @@
 
 import { ChangeEvent, useState } from "react";
 import { Button, Transition } from "@headlessui/react";
+import Link from "next/link";
 
 export default function Signup() {
   const [formData, setFormData] = useState({
@@ -127,7 +128,13 @@ export default function Signup() {
               />
             </div>
 
-            <div className="w-full flex justify-end">
+            <div className="w-full flex justify-between">
+              <p className="text-sm mt-3">
+                Already have an account?{" "}
+                <Link href="/sign-in" className="underline text-blue-800">
+                  Sign in
+                </Link>
+              </p>
               <Button
                 className={
                   "rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200"

@@ -89,18 +89,35 @@ interface local_User {
   Structures: Structure[];
 }
 
+// export interface STRUCTURE_CARD_DATA {
+//   title: string;
+//   description: string;
+//   uploadDate: Date;
+//   slug: string;
+//   id: number;
+//   applications: string[];
+//   authors: string[];
+//   keywords: Keywords[];
+//   citation: string;
+//   datePublished: string;
+//   type: string;
+// }
+
 export interface STRUCTURE_CARD_DATA {
-  title: string;
-  uploaded_by: string;
-  description: string;
-  uploaded_date: Date;
-  slug: string;
-  id: number;
-  applications: string[];
-  authors: string[];
-  keywords: Keywords[];
-  citation: string;
-  datePublished: string;
-  type: string;
-  uploadDate: string;
+  structure: {
+    id: number;
+    title: string;
+    description: string;
+    applications: string[];
+    authors: string[];
+    keywords: string[];
+    citation: string;
+    datePublished: string;
+    type: string;
+    uploadDate: string;
+    paperLink: string;
+    oldId: number;
+  };
+  User: { firstName: string; lastName: string };
+  isOld: boolean;
 }
