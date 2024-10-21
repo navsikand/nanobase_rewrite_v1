@@ -141,6 +141,7 @@ export default function StructurePage({
         <iframe
           src="https://sulcgroup.github.io/oxdna-viewer/"
           ref={oxviewIframeRef}
+          onLoad={() => fetchAndSetOxViewFiles()}
         />
       </div>
       <div>
