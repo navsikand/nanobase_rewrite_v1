@@ -44,6 +44,7 @@ export const UploadImages = ({
     const files = e.target.files;
     setUploadedImages(Array.from(files ? files : []));
   };
+
   return (
     <div>
       <div>

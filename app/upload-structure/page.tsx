@@ -4,6 +4,7 @@ import { UploadDisplayImage } from "@/components/upload/upload_display_image";
 import { UploadImages } from "@/components/upload/upload_others_images";
 import { UploadStructureInformation } from "@/components/upload/upload_structure_data";
 import {
+  Select,
   Tab,
   TabGroup,
   TabList,
@@ -51,6 +52,22 @@ export default function UploadStructure() {
   useEffect(() => {
     console.log(structureId);
   }, [structureId]);
+
+  enum ACCEPT {
+    OXVIEW = ".oxview",
+    DATTOP = ".dat, .top",
+    PDB = ".pdb",
+  }
+
+  const serachByFields = [
+    { id: 0, name: ACCEPT.OXVIEW },
+    { id: 1, name: ACCEPT.DATTOP },
+    { id: 2, name: ACCEPT.PDB },
+  ];
+
+  const [fileTypeParameter, setFileTypeParameter] = useState<ACCEPT>(
+    ACCEPT.OXVIEW
+  );
 
   return (
     <div className="">
@@ -102,11 +119,27 @@ export default function UploadStructure() {
                 <input
                   type="file"
                   multiple
-                  name="images"
+                  accept={fileTypeParameter}
+                  name="files"
                   onChange={handleFileChange}
                 />
                 <button type="submit">Upload Files</button>
               </form>
+              <Select
+                onChange={(e) =>
+                  setFileTypeParameter(
+                    serachByFields[parseInt(e.target.value)].name
+                  )
+                }
+                className="rounded-lg"
+              >
+                {serachByFields.map((field) => (
+                  <option value={field.id} key={field.id}>
+                    {field.name}
+                  </option>
+                ))}
+              </Select>
+              ;
             </div>
           </TabPanel>
         </TabPanels>
