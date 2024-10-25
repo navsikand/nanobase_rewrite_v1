@@ -11,7 +11,7 @@ import {
   TabPanel,
   TabPanels,
 } from "@headlessui/react";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useState } from "react";
 
 export default function UploadStructure() {
   const [structureId, setStructureId] = useState<number | null>();
@@ -49,10 +49,6 @@ export default function UploadStructure() {
     console.log("Files WORKED");
   };
 
-  useEffect(() => {
-    console.log(structureId);
-  }, [structureId]);
-
   enum ACCEPT {
     OXVIEW = ".oxview",
     DATTOP = ".dat, .top",
@@ -71,30 +67,34 @@ export default function UploadStructure() {
 
   return (
     <div className="">
-      <TabGroup selectedIndex={selectedIndex} onChange={setSelectedIndex}>
-        <TabList className={`space-x-3`}>
+      <TabGroup
+        selectedIndex={selectedIndex}
+        onChange={setSelectedIndex}
+        className={"flex flex-col justify-center items-center"}
+      >
+        <TabList className={`space-x-3 mx-auto`}>
           <Tab
             disabled={structureId !== undefined}
-            className={`bg-gray-400 rounded-lg p-2`}
+            className={`bg-indigo-300/10 data-[selected]:bg-indigo-300/50 rounded-lg p-2`}
           >
             Create structure
           </Tab>
 
           <Tab
             disabled={structureId === undefined}
-            className={`bg-gray-400 rounded-lg p-2`}
+            className={`bg-indigo-300/10 data-[selected]:bg-indigo-300/50 rounded-lg p-2`}
           >
             Upload images
           </Tab>
 
           <Tab
             disabled={!displayImageUploaded}
-            className={`bg-gray-400 rounded-lg p-2`}
+            className={`bg-indigo-300/10 data-[selected]:bg-indigo-300/50 rounded-lg p-2`}
           >
             Upload files
           </Tab>
         </TabList>
-        <TabPanels>
+        <TabPanels className="flex-1 w-full">
           <TabPanel>
             <UploadStructureInformation
               selectedIndex={selectedIndex}

@@ -46,7 +46,6 @@ export default function Signup() {
                 },
                 body: JSON.stringify(formData),
               });
-              console.log(formData);
               setSubmitted(true);
             }}
           >

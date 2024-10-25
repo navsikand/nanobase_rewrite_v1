@@ -1,6 +1,5 @@
 import "./globals.css";
 
-import { Footer } from "@/components/Footer";
 import { TopNavbar } from "@/components/TopNavbar";
 import type { Metadata } from "next";
 
@@ -25,7 +24,7 @@ export default function RootLayout({
           <div className="flex flex-col flex-1">
             <span className="flex-1">{children}</span>
 
-            <Footer />
+            {/* <Footer /> */}
           </div>
         </div>
       </body>

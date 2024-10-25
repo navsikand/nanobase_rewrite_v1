@@ -48,8 +48,6 @@ export default function SignIn() {
             } else {
               console.log("Authentication failed");
             }
-
-            console.log(formData);
           }}
         >
           <div className="flex flex-col">

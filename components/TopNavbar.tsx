@@ -18,7 +18,7 @@ const LINKS: { title: string; slug: string }[] = [
 export const TopNavbar = (): JSX.Element => {
   const router = useRouter();
   const pathName = usePathname();
-  const [userAuthState, setUserAuthState] = useState<boolean>(false);
+  const [userAuthState, setUserAuthState] = useState<string | null>(null);
 
   useEffect(() => {
     router.prefetch("/browse");
@@ -26,12 +26,14 @@ export const TopNavbar = (): JSX.Element => {
     const token = localStorage.getItem("token");
     if (token) {
       try {
-        const { exp } = decode(token) as { exp: number };
+        const { exp, name } = decode(token) as {
+          exp: number;
+          name: string;
+        };
         if (Date.now() < exp * 1000) {
-          console.log(pathName);
           if (pathName === "/sign-in" || pathName === "/sign-up")
             router.push("/browse");
-          setUserAuthState(true);
+          setUserAuthState(name);
         }
       } catch (e) {
         console.log(e);
@@ -64,7 +66,9 @@ export const TopNavbar = (): JSX.Element => {
         ))}
       </div>
 
-      {!userAuthState && (
+      {userAuthState ? (
+        <p>Signed in as {userAuthState}</p>
+      ) : (
         <Button
           className={
             "rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200"
