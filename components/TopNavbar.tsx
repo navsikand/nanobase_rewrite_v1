@@ -9,10 +9,11 @@ import { useEffect, useState } from "react";
 
 const LINKS: { title: string; slug: string }[] = [
   { title: "Upload structure", slug: "/upload-structure" },
-  { title: "Profile", slug: "/profile" },
+  // { title: "Profile", slug: "/profile" },
   { title: "About", slug: "/about" },
-  { title: "How to upload", slug: "/how-to-upload" },
-  { title: "Quick download", slug: "/quick-download" },
+  // { title: "How to upload", slug: "/how-to-upload" },
+  { title: "Browse", slug: "/browse" },
+  { title: "Submit job", slug: "/submit-oxdna-jobs" },
 ];
 
 export const TopNavbar = (): JSX.Element => {

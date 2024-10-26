@@ -1,6 +1,15 @@
 "use client";
 
-import { STRUCTURE_CARD_DATA } from "@/types";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
+
+import {
+  fetchImageByName,
+  getAllImageNamesFetcher,
+  getAllStructureFilesFetcher,
+  getStructureByIdFetcher,
+  getStructureOxdnaFilesFetcher,
+} from "@/helpers/fetchHelpers";
 import {
   Tab,
   TabGroup,
@@ -12,174 +21,91 @@ import {
   ArrowLeftCircleIcon,
   ArrowRightCircleIcon,
 } from "@heroicons/react/16/solid";
-import JSZip from "jszip";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
+import useSWR from "swr";
 
 export default function StructurePage({
   params: { id: structureId },
 }: {
-  params: { id: string };
+  params: { id: number };
 }) {
   const oxviewIframeRef = useRef<HTMLIFrameElement>(null);
 
-  const [fetchedStructureDataOxView, setFetchedStructureDataOxView] =
-    useState<{
-      files: File[];
-      message: string;
-    } | null>(null);
+  const { data: allStructureFiles } = useSWR(
+    structureId ? ["getAllStructureFiles", structureId] : null,
+    ([key, id]) => getAllStructureFilesFetcher(key, id)
+  );
 
-  const [allStructureFiles, setAllStructureFiles] = useState<
-    { name: string; url: string }[]
-  >([]);
+  const { data: fetchedStructureDataOxView, isLoading } = useSWR(
+    structureId ? ["getStructureOxdnaFiles", structureId] : null,
+    ([key, id]) => getStructureOxdnaFilesFetcher(key, id)
+  );
 
-  const [structureData, setStructureData] =
-    useState<STRUCTURE_CARD_DATA | null>(null);
+  const { data: structureData } = useSWR(
+    structureId ? ["getStructureById", structureId] : null,
+    ([key, id]) => getStructureByIdFetcher(key, id)
+  );
 
-  const [allStructureImages, setAllStructureImages] = useState<string[]>(
-    []
+  const { data: imageNames } = useSWR(
+    structureId ? `getAllStructureImagesPaths-${structureId}` : null,
+    getAllImageNamesFetcher(structureId)
+  );
+
+  const { data: allStructureImages } = useSWR(
+    imageNames && structureId
+      ? `getAllStructureImages-${structureId}`
+      : null,
+    async () => {
+      if (!imageNames) return []; // Early return if no images
+      const allImages = await Promise.all(
+        imageNames.map((imageName) =>
+          fetchImageByName(imageName, structureId)
+        )
+      );
+      return allImages;
+    }
   );
 
   const [imageToDisplayIndex, setImageToDisplayIndex] = useState(0);
 
+  const [haveSubmittedOxViewFile, setHaveSubmittedOxViewFile] =
+    useState(false);
+
   const imageToDisplayIndexSetter = (n: number) => {
-    if (n === 1) {
-      if (imageToDisplayIndex !== allStructureImages.length - 1) {
-        setImageToDisplayIndex(imageToDisplayIndex + 1);
+    if (allStructureImages)
+      if (n === 1) {
+        if (imageToDisplayIndex !== allStructureImages.length - 1) {
+          setImageToDisplayIndex(imageToDisplayIndex + 1);
+        } else {
+          setImageToDisplayIndex(0);
+        }
       } else {
-        setImageToDisplayIndex(0);
+        if (imageToDisplayIndex !== 0) {
+          setImageToDisplayIndex(imageToDisplayIndex - 1);
+        } else {
+          setImageToDisplayIndex(allStructureImages.length - 1);
+        }
       }
-    } else {
-      if (imageToDisplayIndex !== 0) {
-        setImageToDisplayIndex(imageToDisplayIndex - 1);
-      } else {
-        setImageToDisplayIndex(allStructureImages.length - 1);
-      }
-    }
   };
 
-  const fetchAndSetAllStructureFiles = useCallback(async () => {
-    const retFiles: { name: string; url: string }[] = [];
-
-    try {
-      const response = await fetch(
-        `http://localhost:3002/api/v1/structure/getAllStructureFiles?id=${structureId}`
-      );
-      const fileDataBlob = await response.blob();
-
-      const zip = await JSZip.loadAsync(fileDataBlob);
-      const theKeys = Object.keys(zip.files);
-
-      for (let i = 0; i < theKeys.length; i++) {
-        const key = theKeys[i];
-        const file = zip.files[key];
-        const blob = await file.async("blob");
-        const fileObjectURL = URL.createObjectURL(blob);
-
-        retFiles.push({ name: key, url: fileObjectURL });
+  useEffect(() => {
+    if (!haveSubmittedOxViewFile) {
+      if (oxviewIframeRef.current && fetchedStructureDataOxView) {
+        oxviewIframeRef.current.contentWindow?.postMessage(
+          fetchedStructureDataOxView,
+          "*"
+        );
+        setHaveSubmittedOxViewFile(true);
       }
-
-      setAllStructureFiles(retFiles);
-    } catch (error) {
-      console.error("Error fetching or extracting ZIP file:", error);
     }
-  }, [structureId]);
-
-  const fetchAndSetOxViewFiles = useCallback(async () => {
-    const retFiles: File[] = [];
-
-    try {
-      const response = await fetch(
-        `http://localhost:3002/api/v1/structure/getStructureOxdnaFiles?id=${structureId}`
-      );
-      const fileDataBlob = await response.blob();
-
-      const zip = await JSZip.loadAsync(fileDataBlob);
-      const theKeys = Object.keys(zip.files);
-
-      for (let i = 0; i < theKeys.length; i++) {
-        const key = theKeys[i];
-        const file = zip.files[key];
-        const blob = await file.async("blob");
-        retFiles.push(new File([blob], key));
-      }
-
-      setFetchedStructureDataOxView({ files: retFiles, message: "drop" });
-    } catch (error) {
-      console.error("Error fetching or extracting ZIP file:", error);
-    }
-  }, [structureId]);
-
-  const fetchAndSetStructureData = useCallback(async () => {
-    const response = await fetch(
-      `http://localhost:3002/api/v1/structure/getStructureById?id=${structureId}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    const fetchedStructure: STRUCTURE_CARD_DATA = await response.json();
-    setStructureData(fetchedStructure);
-  }, [structureId]);
-
-  const fetchAndSetStructureImages = useCallback(async () => {
-    const allImageNamesResponse = await fetch(
-      `http://localhost:3002/api/v1/structure/getAllStructureImagesPaths?id=${structureId}`
-    );
-
-    const allImageNames: string[] = await allImageNamesResponse.json();
-    const allImages: string[] = [];
-
-    allImageNames.map(async (imageName) => {
-      const response = await fetch(
-        `http://localhost:3002/api/v1/structure/getStructureImageByName/${imageName}?id=${structureId}`
-      );
-
-      if (!response.ok) {
-        throw new Error("Image not found");
-      }
-      const imageBlob = await response.blob();
-      const imageObjectURL = URL.createObjectURL(imageBlob);
-      allImages.push(imageObjectURL);
-    });
-    setAllStructureImages(allImages);
-  }, [structureId]);
-
-  useEffect(() => {
-    if (structureId) {
-      fetchAndSetAllStructureFiles();
-    }
-  }, [structureId, fetchAndSetAllStructureFiles]);
-
-  useEffect(() => {
-    if (structureId) {
-      fetchAndSetOxViewFiles();
-    }
-  }, [structureId, fetchAndSetOxViewFiles]);
-
-  useEffect(() => {
-    if (structureId) {
-      fetchAndSetStructureData();
-    }
-  }, [structureId, fetchAndSetStructureData]);
-
-  useEffect(() => {
-    if (structureId) {
-      fetchAndSetStructureImages();
-    }
-  }, [structureId, fetchAndSetStructureImages]);
-
-  useEffect(() => {
-    if (oxviewIframeRef.current && fetchedStructureDataOxView) {
-      oxviewIframeRef.current.contentWindow?.postMessage(
-        fetchedStructureDataOxView,
-        "*"
-      );
-    }
-  }, [fetchedStructureDataOxView, oxviewIframeRef]);
+  }, [
+    fetchedStructureDataOxView,
+    oxviewIframeRef,
+    isLoading,
+    haveSubmittedOxViewFile,
+  ]);
 
   return (
     <div className="flex flex-col w-11/12 mx-auto justify-center items-center mt-20 lg:w-[65%] ">
@@ -187,7 +113,7 @@ export default function StructurePage({
         {structureData?.structure.title}
       </h1>
 
-      <div className="grid grid-cols-2 mt-8 w-full gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 mt-8 w-full gap-2">
         <div className="w-full">
           <h2 className="text-4xl font-semibold">Details</h2>
           <div className="space-y-2 mt-3">
@@ -235,31 +161,37 @@ export default function StructurePage({
         <iframe
           src="https://sulcgroup.github.io/oxdna-viewer/"
           ref={oxviewIframeRef}
-          onLoad={() => fetchAndSetOxViewFiles()}
-          className="w-full"
+          className="w-full h-full min-h-60"
         />
       </div>
 
       <div className="mt-12 w-full">
         <h2 className="text-4xl font-semibold">Images</h2>
         <div className="flex justify-center items-center">
-          <ArrowLeftCircleIcon
-            className="size-14"
-            onClick={() => imageToDisplayIndexSetter(-1)}
-          />
-          <div className="w-full size-64 flex-1 relative">
-            <Image
-              src={allStructureImages[imageToDisplayIndex]}
-              alt="structure_image"
-              fill={true}
-              className="object-contain"
+          <button>
+            <ArrowLeftCircleIcon
+              className="size-14"
+              onClick={() => imageToDisplayIndexSetter(-1)}
             />
+          </button>
+          <div className="w-full size-64 flex-1 relative">
+            {allStructureImages ? (
+              <Image
+                src={allStructureImages[imageToDisplayIndex]}
+                alt="structure_image"
+                fill={true}
+                className="object-contain"
+              />
+            ) : (
+              <Skeleton />
+            )}
           </div>
-
-          <ArrowRightCircleIcon
-            className="size-14"
-            onClick={() => imageToDisplayIndexSetter(1)}
-          />
+          <button>
+            <ArrowRightCircleIcon
+              className="size-14"
+              onClick={() => imageToDisplayIndexSetter(1)}
+            />
+          </button>
         </div>
       </div>
 
@@ -282,19 +214,27 @@ export default function StructurePage({
 
           <TabPanels>
             <TabPanel>
-              {allStructureImages.map((image) => (
-                <div key={image}>
-                  <Link href={image}>image</Link>
-                </div>
-              ))}
+              {allStructureImages ? (
+                allStructureImages.map((image) => (
+                  <div key={image}>
+                    <Link href={image}>image</Link>
+                  </div>
+                ))
+              ) : (
+                <Skeleton />
+              )}
             </TabPanel>
 
             <TabPanel>
-              {allStructureFiles.map((file) => (
-                <div key={file.url}>
-                  <Link href={file.url}>{file.name}</Link>
-                </div>
-              ))}
+              {allStructureFiles ? (
+                allStructureFiles.map((file) => (
+                  <div key={file.url}>
+                    <Link href={file.url}>{file.name}</Link>
+                  </div>
+                ))
+              ) : (
+                <Skeleton />
+              )}
             </TabPanel>
           </TabPanels>
         </TabGroup>

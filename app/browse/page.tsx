@@ -1,59 +1,47 @@
 "use client";
 
 import { StructureCard } from "@/components/home/StructureCard";
+import {
+  getAllPublicStructuresFetcher,
+  getStructureImageFetcher,
+} from "@/helpers/fetchHelpers";
 import { STRUCTURE_CARD_DATA } from "@/types";
 import { Input, Select } from "@headlessui/react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import useSWR from "swr";
 
 export default function FreshBrowse() {
-  const [fetchedData, setFetchedData] = useState<
-    (STRUCTURE_CARD_DATA & { image: string })[] | null
-  >(null);
-
   const [cardsToDisplay, setCardsToDisplay] = useState<
     (STRUCTURE_CARD_DATA & { image: string })[]
   >([]);
 
-  const fetchStructureData = async (): Promise<STRUCTURE_CARD_DATA[]> => {
-    const response = await fetch(
-      "http://localhost:3002/api/v1/structure/getAllPublicStructures_paginated",
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    return (await response.json()).structures as STRUCTURE_CARD_DATA[];
-  };
+  const { data: fetchedStructures } = useSWR(
+    "getAllPublicStructures_paginated",
+    getAllPublicStructuresFetcher
+  );
 
-  const fetchAndSetStructureDataWithImages = useCallback(async () => {
-    const fetchedStructures = await fetchStructureData();
+  const { data: fetchedData } = useSWR(
+    fetchedStructures ? "getStructuresWithImages" : null,
+    async () => {
+      if (!fetchedStructures) return [];
 
-    const structuresWithImage = await Promise.all(
-      fetchedStructures.map(async (fetchedStructure) => {
-        const structureId = fetchedStructure.structure.id;
-        if (structureId) {
-          const response = await fetch(
-            `http://localhost:3002/api/v1/structure/getStructureDisplayImage?id=${structureId}`
-          );
-          const fetchedImageBlob = await response.blob();
-          const imageUrl = URL.createObjectURL(fetchedImageBlob);
-
-          return { ...fetchedStructure, image: imageUrl };
-        }
-        return { ...fetchedStructure, image: "/" };
-      })
-    );
-
-    setFetchedData(structuresWithImage);
-  }, []);
-
-  useEffect(() => {
-    fetchAndSetStructureDataWithImages();
-  }, [fetchAndSetStructureDataWithImages]);
-
-  // By now we have fetched all the data that we need. Now time to implement search
+      const structures = await Promise.all(
+        fetchedStructures.map(async (structure) => {
+          const structureId = structure.structure.id;
+          try {
+            const imageUrl = structureId
+              ? await getStructureImageFetcher(structureId)
+              : "/";
+            return { ...structure, image: imageUrl };
+          } catch (error) {
+            console.error("Error fetching image:", error);
+            return { ...structure, image: "/" };
+          }
+        })
+      );
+      return structures;
+    }
+  );
 
   enum SEARCH_BY {
     TITLE = "Title",
@@ -159,7 +147,7 @@ export default function FreshBrowse() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
-        {cardsToDisplay?.map(({ User, structure, isOld, image }) => (
+        {cardsToDisplay.map(({ User, structure, isOld, image }) => (
           <StructureCard
             User={User}
             isOld={isOld}
