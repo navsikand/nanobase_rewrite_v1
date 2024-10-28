@@ -18,7 +18,7 @@ const db = new Dexie("MyStructuresDatabase") as Dexie & {
 
 db.version(1).stores({
   structures: "flatStructureId, structure.title, structure.citation, structure.datePublished, structure.uploadDate, structure.paperLink, structure.oldId, User.firstName, User.lastName",
-  structurePageDatas: "flatStructureIdPage"
+  structurePageData: "flatStructureIdPage"
 });
 
 export { db as DexieDB };

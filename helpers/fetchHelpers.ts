@@ -35,8 +35,7 @@ export const getAllStructureFilesFetcher = async (
   const files = await Promise.all(
     Object.keys(zip.files).map(async (fileName) => {
       const fileBlob = await zip.files[fileName].async("blob");
-      const fileUrl = URL.createObjectURL(fileBlob);
-      return { name: fileName, url: fileUrl };
+      return { name: fileName, data: fileBlob };
     })
   );
 
@@ -59,11 +58,11 @@ export const getStructureOxdnaFilesFetcher = async (
   const files = await Promise.all(
     Object.keys(zip.files).map(async (fileName) => {
       const blob = await zip.files[fileName].async("blob");
-      return new File([blob], fileName);
+      return { data: blob, name: fileName };
     })
   );
 
-  return { files, message: "drop" };
+  return files
 };
 
 export const getStructureByIdFetcher = async (
@@ -105,5 +104,5 @@ export const fetchImageByName = async (
   );
   if (!response.ok) throw new Error("Image not found");
   const imageBlob = await response.blob();
-  return URL.createObjectURL(imageBlob);
+  return imageBlob
 };

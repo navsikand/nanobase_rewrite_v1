@@ -1,4 +1,4 @@
-import { DexieDB } from "@/db";
+import { DexieDB, StructurePageData } from "@/db";
 import { STRUCTURE_CARD_DATA } from "@/types";
 
 export const dexie_syncDexieWithServer = async (server_data: (STRUCTURE_CARD_DATA & { image: Blob })[]) => {
@@ -27,4 +27,17 @@ export const dexie_syncDexieWithServer = async (server_data: (STRUCTURE_CARD_DAT
 
 export const dexie_getAllStructureCardData = async () => {
   return await DexieDB.structures.toArray()
+}
+
+export const dexie_syncPageWithServer = async (server_data: StructurePageData) => {
+  const dexieCounterPart = await DexieDB.structures.get(server_data.flatStructureIdPage);
+
+  if (dexieCounterPart) {
+    if (dexieCounterPart.structure.lastUpdated !== server_data.structureData.structure.lastUpdated) {
+      await DexieDB.structurePageData.delete(server_data.flatStructureIdPage)
+      await DexieDB.structurePageData.add(server_data)
+    }
+  } else {
+    await DexieDB.structurePageData.add(server_data)
+  }
 }
