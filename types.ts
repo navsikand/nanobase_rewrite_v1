@@ -89,21 +89,9 @@ interface local_User {
   Structures: Structure[];
 }
 
-// export interface STRUCTURE_CARD_DATA {
-//   title: string;
-//   description: string;
-//   uploadDate: Date;
-//   slug: string;
-//   id: number;
-//   applications: string[];
-//   authors: string[];
-//   keywords: Keywords[];
-//   citation: string;
-//   datePublished: string;
-//   type: string;
-// }
 
 export interface STRUCTURE_CARD_DATA {
+  flatStructureId: number; // For dexie
   structure: {
     id: number;
     title: string;
@@ -117,6 +105,7 @@ export interface STRUCTURE_CARD_DATA {
     uploadDate: string;
     paperLink: string;
     oldId: number;
+    lastUpdated: string;
   };
   User: { firstName: string; lastName: string };
   isOld: boolean;

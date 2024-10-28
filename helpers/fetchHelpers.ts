@@ -16,8 +16,7 @@ export const getStructureImageFetcher = async (structureId: number) => {
 
   if (!response.ok) throw new Error("Image fetch failed");
 
-  const blob = await response.blob();
-  return URL.createObjectURL(blob);
+  return await response.blob();
 };
 
 export const getAllStructureFilesFetcher = async (

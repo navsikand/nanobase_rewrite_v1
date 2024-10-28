@@ -1,47 +1,45 @@
 "use client";
 
 import { StructureCard } from "@/components/home/StructureCard";
+import { DexieDB } from "@/db";
+import { dexie_syncDexieWithServer } from "@/helpers/dexieHelpers";
 import {
   getAllPublicStructuresFetcher,
   getStructureImageFetcher,
 } from "@/helpers/fetchHelpers";
 import { STRUCTURE_CARD_DATA } from "@/types";
 import { Input, Select } from "@headlessui/react";
+import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 
-export default function FreshBrowse() {
+export default function Browse() {
   const [cardsToDisplay, setCardsToDisplay] = useState<
     (STRUCTURE_CARD_DATA & { image: string })[]
   >([]);
 
-  const { data: fetchedStructures } = useSWR(
-    "getAllPublicStructures_paginated",
-    getAllPublicStructuresFetcher
-  );
+  const dexieData = useLiveQuery(() => DexieDB.structures.toArray());
 
-  const { data: fetchedData } = useSWR(
-    fetchedStructures ? "getStructuresWithImages" : null,
-    async () => {
-      if (!fetchedStructures) return [];
+  const [dexieDataWithImages, setDexieDataWithImages] = useState<
+    (STRUCTURE_CARD_DATA & { image: string })[]
+  >([]);
 
-      const structures = await Promise.all(
-        fetchedStructures.map(async (structure) => {
-          const structureId = structure.structure.id;
-          try {
-            const imageUrl = structureId
-              ? await getStructureImageFetcher(structureId)
-              : "/";
-            return { ...structure, image: imageUrl };
-          } catch (error) {
-            console.error("Error fetching image:", error);
-            return { ...structure, image: "/" };
-          }
-        })
+  useEffect(() => {
+    if (dexieData && dexieData.length !== 0) {
+      const sortedDexieData = dexieData.sort((a, b) =>
+        new Date(a.structure.uploadDate) < new Date(b.structure.uploadDate)
+          ? 1
+          : -1
       );
-      return structures;
+      const ret: (STRUCTURE_CARD_DATA & { image: string })[] = [];
+
+      sortedDexieData.map((i) => {
+        ret.push({ ...i, image: URL.createObjectURL(i.image) });
+      });
+
+      setDexieDataWithImages(ret);
     }
-  );
+  }, [dexieData]);
 
   enum SEARCH_BY {
     TITLE = "Title",
@@ -65,11 +63,11 @@ export default function FreshBrowse() {
   const [serachQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    if (fetchedData) {
+    if (dexieDataWithImages) {
       if (serachQuery === "") {
-        setCardsToDisplay(fetchedData);
+        setCardsToDisplay(dexieDataWithImages);
       } else {
-        const filteredCards = fetchedData.filter((dataToCheck) => {
+        const filteredCards = dexieDataWithImages.filter((dataToCheck) => {
           if (searchByParameter === SEARCH_BY.APPLICATION) {
           } else if (searchByParameter === SEARCH_BY.AUTHOR) {
             let doesInclude = false;
@@ -108,19 +106,53 @@ export default function FreshBrowse() {
       }
     }
   }, [
-    fetchedData,
-    serachQuery,
-    searchByParameter,
     SEARCH_BY.APPLICATION,
     SEARCH_BY.AUTHOR,
     SEARCH_BY.DESCRIPTION,
     SEARCH_BY.KEYWORD,
     SEARCH_BY.TITLE,
+    dexieDataWithImages,
+    searchByParameter,
+    serachQuery,
   ]);
+
+  const { data: fetchedStructures } = useSWR(
+    "getAllPublicStructures_paginated",
+    getAllPublicStructuresFetcher
+  );
+
+  const { data: fetchedData } = useSWR(
+    fetchedStructures ? "getStructuresWithImages" : null,
+    async () => {
+      if (!fetchedStructures) return [];
+
+      const structures = await Promise.all(
+        fetchedStructures.map(async (structure) => {
+          const structureId = structure.structure.id;
+          try {
+            const imageBlob = structureId
+              ? await getStructureImageFetcher(structureId)
+              : new Blob();
+            return { ...structure, image: imageBlob };
+          } catch (error) {
+            console.error("Error fetching image:", error);
+            return { ...structure, image: new Blob() };
+          }
+        })
+      );
+      return structures;
+    }
+  );
+
+  useEffect(() => {
+    (async () => {
+      if (fetchedData) await dexie_syncDexieWithServer(fetchedData);
+    })();
+  }, [fetchedData]);
 
   return (
     <div className="mx-auto w-11/12">
-      <div className="flex justify-center mb-2">
+      <div className="flex justify-center mb-2 space-x-2">
         <Input
           name="full_name"
           type="text"
@@ -147,15 +179,18 @@ export default function FreshBrowse() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
-        {cardsToDisplay.map(({ User, structure, isOld, image }) => (
-          <StructureCard
-            User={User}
-            isOld={isOld}
-            structure={structure}
-            key={structure.id}
-            image={image}
-          />
-        ))}
+        {cardsToDisplay.map(
+          ({ User, structure, isOld, image, flatStructureId }) => (
+            <StructureCard
+              flatStructureId={flatStructureId}
+              User={User}
+              isOld={isOld}
+              structure={structure}
+              key={structure.id}
+              image={image}
+            />
+          )
+        )}
       </div>
     </div>
   );
