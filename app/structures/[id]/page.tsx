@@ -23,7 +23,7 @@ import {
 } from "@heroicons/react/16/solid";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import useSWR from "swr";
 
 export default function StructurePage({
@@ -89,18 +89,22 @@ export default function StructurePage({
         }
       }
   };
+  const sendToIframe = useCallback(() => {
+    if (oxviewIframeRef.current && fetchedStructureDataOxView) {
+      oxviewIframeRef.current.contentWindow?.postMessage(
+        fetchedStructureDataOxView,
+        "*"
+      );
+      setHaveSubmittedOxViewFile(true);
+    }
+  }, [fetchedStructureDataOxView]);
 
   useEffect(() => {
     if (!haveSubmittedOxViewFile) {
-      if (oxviewIframeRef.current && fetchedStructureDataOxView) {
-        oxviewIframeRef.current.contentWindow?.postMessage(
-          fetchedStructureDataOxView,
-          "*"
-        );
-        setHaveSubmittedOxViewFile(true);
-      }
+      sendToIframe();
     }
   }, [
+    sendToIframe,
     fetchedStructureDataOxView,
     oxviewIframeRef,
     isLoading,
@@ -161,6 +165,7 @@ export default function StructurePage({
         <iframe
           src="https://sulcgroup.github.io/oxdna-viewer/"
           ref={oxviewIframeRef}
+          onLoad={() => sendToIframe()}
           className="w-full h-full min-h-60"
         />
       </div>
