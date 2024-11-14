@@ -35,6 +35,10 @@ export const TopNavbar = (): JSX.Element => {
           if (pathName === "/sign-in" || pathName === "/sign-up")
             router.push("/browse");
           setUserAuthState(name);
+        } else {
+          if (pathName === "/upload-structure") {
+            router.push("/sign-up");
+          }
         }
       } catch (e) {
         console.log(e);

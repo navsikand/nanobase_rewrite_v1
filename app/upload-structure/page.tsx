@@ -28,11 +28,9 @@ export default function UploadStructure() {
     e.preventDefault();
     const token = localStorage.getItem("token");
 
-    // Create FormData object to send structureId and images
     const imageFormData = new FormData();
     imageFormData.append("structure_id", structureId?.toString() || "");
 
-    // Ensure uploadedImages is an array of File objects
     uploadedFiles.forEach((file) => {
       imageFormData.append("files", file);
     });
@@ -139,7 +137,6 @@ export default function UploadStructure() {
                   </option>
                 ))}
               </Select>
-              ;
             </div>
           </TabPanel>
         </TabPanels>
