@@ -106,3 +106,54 @@ export const fetchImageByName = async (
   const imageBlob = await response.blob();
   return imageBlob
 };
+
+
+export const getUserProfileFetcher = async (key: string) => {
+
+  // Retrieve JWT from localStorage
+  const token = localStorage.getItem("token");
+
+  // Check if token exists, and throw an error if it's missing
+  if (!token) {
+    throw new Error("No authentication token found");
+  }
+
+  // Make the fetch request with the Authorization header
+  const response = await fetch(`${apiRoot}/auth/${key}`, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json"
+    }
+  });
+
+  if (!response.ok) throw new Error("Failed to fetch user profile");
+
+  const profileData = await response.json();
+  return profileData;
+};
+
+export const getAllUserStructuresFetcher = async (key: string): Promise<STRUCTURE_CARD_DATA[]> => {
+
+  // Retrieve JWT from localStorage
+  const token = localStorage.getItem("token");
+
+  // Check if token exists, and throw an error if it's missing
+  if (!token) {
+    throw new Error("No authentication token found");
+  }
+
+  // Make the fetch request with the Authorization header
+  const response = await fetch(`${apiRoot}/structure/${key}`, {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json"
+    }
+  });
+
+  if (!response.ok) throw new Error("Failed to fetch structures");
+
+  const structures = await response.json();
+  return structures.structures;
+};

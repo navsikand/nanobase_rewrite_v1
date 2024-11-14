@@ -6,20 +6,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
-const LINKS: { title: string; slug: string }[] = [
-  { title: "Upload structure", slug: "/upload-structure" },
-  // { title: "Profile", slug: "/profile" },
-  { title: "About", slug: "/about" },
-  // { title: "How to upload", slug: "/how-to-upload" },
-  { title: "Browse", slug: "/browse" },
-  { title: "Submit job", slug: "/submit-oxdna-jobs" },
-];
+import { Highlighted_Underline } from "./utils/layout/highlightedUnderline";
 
 export const TopNavbar = (): JSX.Element => {
   const router = useRouter();
   const pathName = usePathname();
-  const [userAuthState, setUserAuthState] = useState<string | null>(null);
+  const [userAuthState, setUserAuthState] = useState<{
+    name: string;
+    id: string;
+  } | null>(null);
 
   useEffect(() => {
     router.prefetch("/browse");
@@ -27,14 +22,15 @@ export const TopNavbar = (): JSX.Element => {
     const token = localStorage.getItem("token");
     if (token) {
       try {
-        const { exp, name } = decode(token) as {
+        const { exp, name, id } = decode(token) as {
           exp: number;
           name: string;
+          id: string;
         };
         if (Date.now() < exp * 1000) {
           if (pathName === "/sign-in" || pathName === "/sign-up")
             router.push("/browse");
-          setUserAuthState(name);
+          setUserAuthState({ name, id });
         } else {
           if (pathName === "/upload-structure") {
             router.push("/sign-up");
@@ -46,6 +42,17 @@ export const TopNavbar = (): JSX.Element => {
     }
   }, [pathName, router]);
 
+  const LINKS: { title: string; slug: string }[] = [
+    { title: "Upload structure", slug: "/upload-structure" },
+    {
+      title: "Profile",
+      slug: userAuthState ? `/profile` : "/sign-in",
+    },
+    { title: "About us", slug: "/about-us" },
+    // { title: "How to upload", slug: "/how-to-upload" },
+    { title: "Browse", slug: "/browse" },
+    // { title: "Submit job", slug: "/submit-oxdna-jobs" },
+  ];
   return (
     <div className="p-4 px-8 flex items-center">
       {/* Logo */}
@@ -63,16 +70,17 @@ export const TopNavbar = (): JSX.Element => {
         </Link>
       </div>
 
-      <div className="mx-auto space-x-3">
+      <div className="mx-auto space-x-3 flex text-lg font-semibold">
         {LINKS.map((link) => (
-          <Link href={link.slug} key={link.slug}>
+          <Link href={link.slug} key={link.slug} className="group">
             {link.title}
+            <Highlighted_Underline />
           </Link>
         ))}
       </div>
 
       {userAuthState ? (
-        <p>Signed in as {userAuthState}</p>
+        <p>Signed in as {userAuthState.name}</p>
       ) : (
         <Button
           className={

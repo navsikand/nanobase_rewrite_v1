@@ -1,6 +1,7 @@
 import { STRUCTURE_CARD_DATA } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
+import { oldCleanup } from "../utils/misc";
 
 export const StructureCard = ({
   structure: { description, id, title, uploadDate },
@@ -13,7 +14,8 @@ export const StructureCard = ({
     <div className="border-2 px-5 pt-5 rounded-lg bg-stone-50 hover:-translate-y-1 hover:shadow-xl duration-200">
       <div className="w-11/12 mx-auto">
         <p className="text-xs font-extralight text-right">
-          Uploaded by {User.firstName} {User.lastName}
+          Uploaded by {oldCleanup(User.firstName)}{" "}
+          {oldCleanup(User.lastName)} on{" "}
           {uploadDate
             ?.toLocaleString()
             .split(":")[0]
@@ -28,7 +30,7 @@ export const StructureCard = ({
         <div className="flex">
           <Link
             href={"/structures/" + id}
-            className="aspect-square w-full border-2 rounded-lg relative"
+            className="aspect-[9/16] w-full border-2 rounded-lg relative max-h-72"
           >
             <span className="sr-only">{title}</span>
             {image && (
