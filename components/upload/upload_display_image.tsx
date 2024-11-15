@@ -1,5 +1,6 @@
 "use client";
 
+import { apiRoot } from "@/helpers/fetchHelpers";
 import { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
 
 type props = {
@@ -32,16 +33,13 @@ export const UploadDisplayImage = ({
     });
 
     // Send the request
-    await fetch(
-      "http://localhost:3002/api/v1/structure/uploadDisplayImage",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`, // Attach token here
-        },
-        body: imageFormData, // Send FormData with structureId and images
-      }
-    );
+    await fetch(`${apiRoot}/structure/uploadDisplayImage`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`, // Attach token here
+      },
+      body: imageFormData, // Send FormData with structureId and images
+    });
 
     setDisplayImageUploaded(true);
   };

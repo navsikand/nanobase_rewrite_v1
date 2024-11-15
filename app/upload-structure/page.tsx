@@ -3,6 +3,7 @@
 import { UploadDisplayImage } from "@/components/upload/upload_display_image";
 import { UploadImages } from "@/components/upload/upload_others_images";
 import { UploadStructureInformation } from "@/components/upload/upload_structure_data";
+import { apiRoot } from "@/helpers/fetchHelpers";
 import {
   Select,
   Tab,
@@ -36,7 +37,7 @@ export default function UploadStructure() {
     });
 
     // Send the request
-    await fetch("http://localhost:3002/api/v1/structure/uploadFiles", {
+    await fetch(`${apiRoot}/structure/uploadFiles`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`, // Attach token here

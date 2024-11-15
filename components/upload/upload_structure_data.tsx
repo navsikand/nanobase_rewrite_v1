@@ -1,5 +1,6 @@
 "use client";
 
+import { apiRoot } from "@/helpers/fetchHelpers";
 import { StructureTypes } from "@/types";
 import {
   Button,
@@ -53,22 +54,19 @@ export const UploadStructureInformation = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
-    const response = await fetch(
-      "http://localhost:3002/api/v1/structure/createStructure",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`, // Attach token here
+    const response = await fetch(`${apiRoot}/structure/createStructure`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`, // Attach token here
 
-          "Content-Type": "application/json",
-        },
+        "Content-Type": "application/json",
+      },
 
-        body: JSON.stringify({
-          keywords: [],
-          structure_data: formData,
-        }),
-      }
-    );
+      body: JSON.stringify({
+        keywords: [],
+        structure_data: formData,
+      }),
+    });
     const id: number = (await response.json()).structure_id;
     setStructureId(id);
     setSelectedIndex(selectedIndex + 1);

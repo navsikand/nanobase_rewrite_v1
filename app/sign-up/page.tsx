@@ -3,6 +3,7 @@
 import { ChangeEvent, useState } from "react";
 import { Button, Transition } from "@headlessui/react";
 import Link from "next/link";
+import { apiRoot } from "@/helpers/fetchHelpers";
 
 export default function Signup() {
   const [formData, setFormData] = useState({
@@ -39,7 +40,7 @@ export default function Signup() {
             className="space-y-6"
             onSubmit={async (e) => {
               e.preventDefault();
-              await fetch("http://localhost:3002/api/v1/auth/signup", {
+              await fetch(`${apiRoot}/auth/signup`, {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",

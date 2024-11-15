@@ -1,5 +1,6 @@
 "use client";
 
+import { apiRoot } from "@/helpers/fetchHelpers";
 import { Button } from "@headlessui/react";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useState } from "react";
@@ -27,16 +28,13 @@ export default function SignIn() {
           className="space-y-6"
           onSubmit={async (e) => {
             e.preventDefault();
-            const response = await fetch(
-              "http://localhost:3002/api/v1/auth/login",
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(formData),
-              }
-            );
+            const response = await fetch(`${apiRoot}/auth/login`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(formData),
+            });
 
             if (response.ok) {
               const data = await response.json();

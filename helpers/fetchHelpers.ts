@@ -2,11 +2,9 @@ import { STRUCTURE_CARD_DATA } from "@/types";
 import JSZip from "jszip";
 
 
-const apiRoot = process.env.NODE_ENV === 'production'
+export const apiRoot = process.env.NODE_ENV === 'production'
   ? "https://api.nanobase.org/api/v1"
-  : "http://localhost:3002/api/v1"
-
-
+  : "http://localhost:3002/api/v1";
 
 export const getAllPublicStructuresFetcher = async (key: string) => {
   const response = await fetch(`${apiRoot}/structure/${key}`);

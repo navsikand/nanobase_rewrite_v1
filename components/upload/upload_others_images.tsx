@@ -1,5 +1,6 @@
 "use client";
 
+import { apiRoot } from "@/helpers/fetchHelpers";
 import { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
 
 type props = {
@@ -29,7 +30,7 @@ export const UploadImages = ({
     });
 
     // Send the request
-    await fetch("http://localhost:3002/api/v1/structure/uploadImages", {
+    await fetch(`${apiRoot}/structure/uploadImages`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`, // Attach token here
