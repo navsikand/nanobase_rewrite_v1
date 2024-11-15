@@ -2,6 +2,7 @@
 
 import { apiRoot } from "@/helpers/fetchHelpers";
 import { Button } from "@headlessui/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useState } from "react";
 
@@ -78,7 +79,13 @@ export default function SignIn() {
             />
           </div>
 
-          <div className="w-full flex justify-end">
+          <div className="w-full flex justify-between">
+            <p className="text-sm mt-3">
+              Don&apos;t have an account?{" "}
+              <Link href="/sign-up" className="underline text-blue-800">
+                Sign up
+              </Link>
+            </p>
             <Button
               className={
                 "rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200"
