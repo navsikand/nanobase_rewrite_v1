@@ -61,10 +61,10 @@ export const TopNavbar = (): JSX.Element => {
           <span className="sr-only">Nanobase</span>
 
           <Image
-            src="/images/rounded_logo-min.png"
+            src="/images/favicon.png"
             fill={true}
             sizes="100%"
-            className="object-contain rounded-full shadow-lg"
+            className="object-contain"
             alt="Nanobase"
           />
         </Link>
