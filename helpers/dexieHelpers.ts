@@ -45,6 +45,7 @@ export const dexie_syncPageWithServer = async (server_data: StructurePageData) =
 export const dexie_getLatestStructure = async () => {
   const allStructures = await DexieDB.structures
     .orderBy("structure.uploadDate")
+    .reverse()
     .limit(1)
     .toArray();
   return allStructures[0];
