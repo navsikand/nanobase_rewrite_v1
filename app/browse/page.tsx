@@ -27,7 +27,7 @@ export default function Browse() {
   useEffect(() => {
     if (dexieData && dexieData.length !== 0) {
       const sortedDexieData = dexieData.sort((a, b) =>
-        new Date(a.structure.uploadDate) < new Date(b.structure.uploadDate)
+        new Date(a.structure.uploadDate) > new Date(b.structure.uploadDate)
           ? 1
           : -1
       );
