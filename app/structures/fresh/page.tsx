@@ -76,7 +76,11 @@ export default function StructurePage({
   useEffect(() => {
     if (dexieData) {
       setAllStructureImages(
-        dexieData.allStructureImages.map((i) => URL.createObjectURL(i))
+        dexieData.allStructureImages.map((i) =>
+          i.size === 0
+            ? "/images/no-structure-img.png"
+            : URL.createObjectURL(i)
+        )
       );
     }
   }, [dexieData]);

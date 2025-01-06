@@ -33,14 +33,12 @@ export const StructureCard = ({
             className="aspect-[9/16] w-full border-2 rounded-lg relative max-h-72"
           >
             <span className="sr-only">{title}</span>
-            {image && (
-              <Image
-                src={image}
-                fill={true}
-                className="object-contain"
-                alt={title}
-              />
-            )}
+            <Image
+              src={image}
+              fill={true}
+              className="object-contain"
+              alt={title}
+            />
           </Link>
         </div>
 
@@ -51,7 +49,7 @@ export const StructureCard = ({
 
         {/* Card footer */}
         <div className="pb-2">
-          <p>{description}</p>
+          <p className="line-clamp-2">{description}</p>
         </div>
       </div>
     </div>

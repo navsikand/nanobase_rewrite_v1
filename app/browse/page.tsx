@@ -34,7 +34,13 @@ export default function Browse() {
       const ret: (STRUCTURE_CARD_DATA & { image: string })[] = [];
 
       sortedDexieData.map((i) => {
-        ret.push({ ...i, image: URL.createObjectURL(i.image) });
+        ret.push({
+          ...i,
+          image:
+            i.image.size === 0
+              ? "/images/no-structure-img.png"
+              : URL.createObjectURL(i.image),
+        });
       });
 
       setDexieDataWithImages(ret);

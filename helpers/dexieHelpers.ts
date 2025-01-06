@@ -1,6 +1,8 @@
 import { DexieDB, StructurePageData } from "@/db";
 import { STRUCTURE_CARD_DATA } from "@/types";
 
+
+// TODO: Add pako support so compress the data before its stored
 export const dexie_syncDexieWithServer = async (server_data: (STRUCTURE_CARD_DATA & { image: Blob })[]) => {
   const noMatchesFoundIndexes = []
   for (let i = 0; i < server_data.length; i++) {

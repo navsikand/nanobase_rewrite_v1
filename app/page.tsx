@@ -27,7 +27,10 @@ export default function Home() {
     (async () => {
       const latestDexieStructure = await dexie_getLatestStructure();
       if (latestDexieStructure) {
-        const imageUrl = URL.createObjectURL(latestDexieStructure.image);
+        const imageUrl =
+          latestDexieStructure.image.size === 0
+            ? "/images/no-structure-img.png"
+            : URL.createObjectURL(latestDexieStructure.image);
         setLatestStructureWithImage({
           ...latestDexieStructure,
           image: imageUrl,
