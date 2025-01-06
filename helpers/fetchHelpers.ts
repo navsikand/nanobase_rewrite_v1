@@ -64,8 +64,7 @@ export const getStructureOxdnaFilesFetcher = async (
       return { data: blob, name: fileName };
     })
   );
-
-  return files
+  return files || []
 };
 
 export const getStructureByIdFetcher = async (
@@ -93,9 +92,11 @@ export const getAllImageNamesFetcher =
     const response = await fetch(
       `${apiRoot}/structure/getAllStructureImagesPaths?id=${structureId}`
     );
-    if (!response.ok) throw new Error("Failed to fetch image paths");
-    const allImageNames = await response.json();
-    return allImageNames as string[];
+    // if (!response.ok) throw new Error("Failed to fetch image paths");
+    if (response.ok)
+      return await response.json() as string[];
+    else
+      return [];
   };
 
 export const fetchImageByName = async (
