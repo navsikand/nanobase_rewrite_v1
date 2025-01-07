@@ -13,13 +13,7 @@ import {
   getStructureOxdnaFilesFetcher,
 } from "@/helpers/fetchHelpers";
 import { STRUCTURE_CARD_DATA } from "@/types";
-import {
-  Tab,
-  TabGroup,
-  TabList,
-  TabPanel,
-  TabPanels,
-} from "@headlessui/react";
+import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import {
   ArrowLeftCircleIcon,
   ArrowRightCircleIcon,
@@ -46,9 +40,9 @@ export default function StructurePage({
   const [allStructureFiles, setAllStructureFiles] = useState<
     { name: string; url: string }[] | null
   >(null);
-  const [allStructureImages, setAllStructureImages] = useState<
-    string[] | null
-  >(null);
+  const [allStructureImages, setAllStructureImages] = useState<string[] | null>(
+    null
+  );
   const [structureDataOxview, setStructureDataOxview] = useState<{
     files: File[];
     message: string;
@@ -77,9 +71,7 @@ export default function StructurePage({
     if (dexieData) {
       setAllStructureImages(
         dexieData.allStructureImages.map((i) =>
-          i.size === 0
-            ? "/images/no-structure-img.png"
-            : URL.createObjectURL(i)
+          i.size === 0 ? "/images/no-structure-img.png" : URL.createObjectURL(i)
         )
       );
     }
@@ -102,8 +94,7 @@ export default function StructurePage({
 
   const [imageToDisplayIndex, setImageToDisplayIndex] = useState(0);
 
-  const [haveSubmittedOxViewFile, setHaveSubmittedOxViewFile] =
-    useState(false);
+  const [haveSubmittedOxViewFile, setHaveSubmittedOxViewFile] = useState(false);
 
   const imageToDisplayIndexSetter = (n: number) => {
     if (allStructureImages)
@@ -200,9 +191,7 @@ export default function StructurePage({
 
   return (
     <div className="flex flex-col w-11/12 mx-auto justify-center items-center mt-20 lg:w-[65%] ">
-      <h1 className="text-6xl font-bold">
-        {structureData?.structure.title}
-      </h1>
+      <h1 className="text-6xl font-bold">{structureData?.structure.title}</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 mt-8 w-full gap-2">
         <div className="w-full">
@@ -239,11 +228,10 @@ export default function StructurePage({
             <div>
               <p>
                 <b>Applications:</b>{" "}
-                {structureData?.structure.applications.map(
-                  (application, i) =>
-                    i < structureData.structure.applications.length - 1
-                      ? application + " | "
-                      : application
+                {structureData?.structure.applications.map((application, i) =>
+                  i < structureData.structure.applications.length - 1
+                    ? application + " | "
+                    : application
                 )}
               </p>
             </div>

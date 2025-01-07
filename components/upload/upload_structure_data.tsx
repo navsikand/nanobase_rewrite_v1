@@ -161,9 +161,7 @@ export const UploadStructureInformation = ({
           <ComboboxInput
             aria-label="Assignee"
             className={"p-2 bg-stone-400/20 rounded-2xl"}
-            displayValue={(type: { id: number; name: string }) =>
-              type?.name
-            }
+            displayValue={(type: { id: number; name: string }) => type?.name}
             placeholder="Type..."
             onChange={(event) => setStructureTypeQuery(event.target.value)}
           />

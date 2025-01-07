@@ -89,7 +89,6 @@ interface local_User {
   Structures: Structure[];
 }
 
-
 export interface STRUCTURE_CARD_DATA {
   flatStructureId: number; // For dexie
   structure: {

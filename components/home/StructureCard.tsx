@@ -11,22 +11,18 @@ export const StructureCard = ({
   image: string;
 }): JSX.Element => {
   return (
-    <div className="border-2 px-5 pt-5 rounded-lg bg-stone-50 hover:-translate-y-1 hover:shadow-xl duration-200">
+    <div className="border-2 px-5 rounded-lg bg-stone-50 hover:-translate-y-1 hover:shadow-xl duration-200">
       <div className="w-11/12 mx-auto">
-        <p className="text-xs font-extralight text-right">
-          Uploaded by {oldCleanup(User.firstName)}{" "}
-          {oldCleanup(User.lastName)} on{" "}
+        <p className="text-xs font-extralight text-right pt-3 pb-1">
+          Uploaded by {oldCleanup(User.firstName)} {oldCleanup(User.lastName)}{" "}
+          on{" "}
           {uploadDate
             ?.toLocaleString()
             .split(":")[0]
-            .substring(
-              0,
-              uploadDate.toLocaleString().split(":")[0].length - 3
-            )}
+            .substring(0, uploadDate.toLocaleString().split(":")[0].length - 3)}
         </p>
 
         {/* Image */}
-
         <div className="flex">
           <Link
             href={"/structures/" + id}
@@ -44,12 +40,12 @@ export const StructureCard = ({
 
         {/* Card header */}
         <div className="flex justify-between text-sm font-extralight mt-2">
-          <h2>{title}</h2>
+          <h2 className="line-clamp-1">{title}</h2>
         </div>
 
         {/* Card footer */}
         <div className="pb-2">
-          <p className="line-clamp-2">{description}</p>
+          <p className="line-clamp-3">{description}</p>
         </div>
       </div>
     </div>

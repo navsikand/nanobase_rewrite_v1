@@ -47,7 +47,7 @@ export default function Browse() {
     }
   }, [dexieData]);
 
-  enum SEARCH_BY {
+  const enum SEARCH_BY {
     TITLE = "Title",
     AUTHOR = "Author",
     APPLICATION = "Application",
@@ -58,9 +58,9 @@ export default function Browse() {
   const serachByFields = [
     { id: 0, name: SEARCH_BY.TITLE },
     { id: 1, name: SEARCH_BY.AUTHOR },
-    { id: 2, name: SEARCH_BY.APPLICATION },
-    { id: 3, name: SEARCH_BY.KEYWORD },
-    { id: 4, name: SEARCH_BY.DESCRIPTION },
+    // { id: 2, name: SEARCH_BY.APPLICATION },
+    { id: 2, name: SEARCH_BY.KEYWORD },
+    { id: 3, name: SEARCH_BY.DESCRIPTION },
   ];
 
   const [searchByParameter, setSearchByParameter] = useState<SEARCH_BY>(
@@ -74,38 +74,52 @@ export default function Browse() {
         setCardsToDisplay(dexieDataWithImages);
       } else {
         const filteredCards = dexieDataWithImages.filter((dataToCheck) => {
-          if (searchByParameter === SEARCH_BY.APPLICATION) {
-          } else if (searchByParameter === SEARCH_BY.AUTHOR) {
-            let doesInclude = false;
-            dataToCheck.structure.authors.map((author) => {
-              if (
-                author.toLowerCase().includes(serachQuery.toLowerCase())
-              ) {
-                doesInclude = true;
-              }
-            });
-            return doesInclude;
-          } else if (searchByParameter === SEARCH_BY.DESCRIPTION) {
-            return dataToCheck.structure.description
-              .toLowerCase()
-              .includes(serachQuery.toLowerCase());
-          } else if (searchByParameter === SEARCH_BY.KEYWORD) {
-            let doesInclude = false;
-            dataToCheck.structure.keywords.map((keyword) => {
-              if (
-                keyword.toLowerCase().includes(serachQuery.toLowerCase())
-              ) {
-                doesInclude = true;
-              }
-            });
-            return doesInclude;
-          } else if (searchByParameter === SEARCH_BY.TITLE) {
-            return dataToCheck.structure.title
-              .toLowerCase()
-              .includes(serachQuery.toLowerCase());
-          }
+          switch (searchByParameter) {
+            case SEARCH_BY.APPLICATION:
+              return false;
 
-          return false;
+            case SEARCH_BY.AUTHOR: {
+              let doesInclude = false;
+              dataToCheck.structure.authors.forEach((author) => {
+                if (author.toLowerCase().includes(serachQuery.toLowerCase())) {
+                  doesInclude = true;
+                }
+              });
+              return doesInclude;
+            }
+
+            case SEARCH_BY.DESCRIPTION:
+              return dataToCheck.structure.description
+                .toLowerCase()
+                .includes(serachQuery.toLowerCase());
+
+            case SEARCH_BY.KEYWORD: {
+              const splitup = serachQuery.toLowerCase().split(" ");
+              // splitup.map((q) => {
+              //   dataToCheck.structure.keywords.map((keyword) => {
+              //     if (!keyword.toLowerCase().includes(q)) {
+              //       return false;
+              //     }
+              //   });
+              // });
+              const allMatch = splitup.every((queryWord) =>
+                dataToCheck.structure.keywords.some((keyword) =>
+                  keyword.toLowerCase().includes(queryWord)
+                )
+              );
+
+              return allMatch;
+              return true;
+            }
+
+            case SEARCH_BY.TITLE:
+              return dataToCheck.structure.title
+                .toLowerCase()
+                .includes(serachQuery.toLowerCase());
+
+            default:
+              return false;
+          }
         });
 
         setCardsToDisplay(filteredCards);
@@ -170,9 +184,7 @@ export default function Browse() {
 
         <Select
           onChange={(e) =>
-            setSearchByParameter(
-              serachByFields[parseInt(e.target.value)].name
-            )
+            setSearchByParameter(serachByFields[parseInt(e.target.value)].name)
           }
           className="rounded-lg"
         >

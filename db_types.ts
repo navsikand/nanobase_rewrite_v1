@@ -30,43 +30,42 @@ export interface OLD_DB_STRUCTURE {
 }
 
 export interface TEMP_STRUCTURE {
-  id: number,
-  title: string,
-  type: string,
-  description: string,
-  datePublished: Date,
-  citation: string,
-  paperLink: string,
-  licensing: string,
-  uploadDate: Date,
-  private: boolean,
-  applications: string[],
-  authors: string[],
-  structureFilePaths: string[],
-  expProtocolFilePaths: string[],
-  expResultsFilesPaths: string[],
-  simProtocolFilePaths: string[],
-  simResultsFilePaths: string[],
-  oxdnaFilePaths: string[],
-  displayImageIndex: number,
-  images: string[],
-  statsData: JSON | null,
-  userId: string,
-  oldUserId: number | null,
-  oldId: number,
+  id: number;
+  title: string;
+  type: string;
+  description: string;
+  datePublished: Date;
+  citation: string;
+  paperLink: string;
+  licensing: string;
+  uploadDate: Date;
+  private: boolean;
+  applications: string[];
+  authors: string[];
+  structureFilePaths: string[];
+  expProtocolFilePaths: string[];
+  expResultsFilesPaths: string[];
+  simProtocolFilePaths: string[];
+  simResultsFilePaths: string[];
+  oxdnaFilePaths: string[];
+  displayImageIndex: number;
+  images: string[];
+  statsData: JSON | null;
+  userId: string;
+  oldUserId: number | null;
+  oldId: number;
 }
-
 
 export interface NEW_DB_STRUCTURE {
   id: number;
   userId: string;
   title: string;
   type:
-  | "DNA"
-  | "RNA"
-  | "DNA RNA hybrid"
-  | "Nucleic acid/protein hybrid"
-  | string;
+    | "DNA"
+    | "RNA"
+    | "DNA RNA hybrid"
+    | "Nucleic acid/protein hybrid"
+    | string;
   description: string;
   size: number;
   datePublished: Date;

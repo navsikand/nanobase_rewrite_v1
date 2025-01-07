@@ -2,9 +2,11 @@ import { STRUCTURE_CARD_DATA } from "@/types";
 import JSZip from "jszip";
 
 
-export const apiRoot = process.env.NODE_ENV === 'production'
-  ? "https://api.nanobase.org/api/v1"
-  : "http://localhost:3002/api/v1";
+
+export const apiRoot =
+  process.env.NODE_ENV === "production"
+    ? "https://api.nanobase.org/api/v1"
+    : "http://localhost:3002/api/v1";
 
 export const getAllPublicStructuresFetcher = async (key: string) => {
   const response = await fetch(`${apiRoot}/structure/${key}`);
@@ -26,9 +28,7 @@ export const getAllStructureFilesFetcher = async (
   key: string,
   structureId: number
 ) => {
-  const response = await fetch(
-    `${apiRoot}/structure/${key}?id=${structureId}`
-  );
+  const response = await fetch(`${apiRoot}/structure/${key}?id=${structureId}`);
 
   if (!response.ok) throw new Error("Failed to fetch structure files");
 
@@ -49,9 +49,7 @@ export const getStructureOxdnaFilesFetcher = async (
   key: string,
   structureId: number
 ) => {
-  const response = await fetch(
-    `${apiRoot}/structure/${key}?id=${structureId}`
-  );
+  const response = await fetch(`${apiRoot}/structure/${key}?id=${structureId}`);
 
   if (!response.ok) throw new Error("Failed to fetch oxdna files");
 
@@ -64,7 +62,7 @@ export const getStructureOxdnaFilesFetcher = async (
       return { data: blob, name: fileName };
     })
   );
-  return files || []
+  return files || [];
 };
 
 export const getStructureByIdFetcher = async (
@@ -87,17 +85,14 @@ export const getStructureByIdFetcher = async (
   return fetchedStructure;
 };
 
-export const getAllImageNamesFetcher =
-  (structureId: number) => async () => {
-    const response = await fetch(
-      `${apiRoot}/structure/getAllStructureImagesPaths?id=${structureId}`
-    );
-    // if (!response.ok) throw new Error("Failed to fetch image paths");
-    if (response.ok)
-      return await response.json() as string[];
-    else
-      return [];
-  };
+export const getAllImageNamesFetcher = (structureId: number) => async () => {
+  const response = await fetch(
+    `${apiRoot}/structure/getAllStructureImagesPaths?id=${structureId}`
+  );
+  // if (!response.ok) throw new Error("Failed to fetch image paths");
+  if (response.ok) return (await response.json()) as string[];
+  else return [];
+};
 
 export const fetchImageByName = async (
   imageName: string,
@@ -108,12 +103,10 @@ export const fetchImageByName = async (
   );
   if (!response.ok) throw new Error("Image not found");
   const imageBlob = await response.blob();
-  return imageBlob
+  return imageBlob;
 };
 
-
 export const getUserProfileFetcher = async (key: string) => {
-
   // Retrieve JWT from localStorage
   const token = localStorage.getItem("token");
 
@@ -126,9 +119,9 @@ export const getUserProfileFetcher = async (key: string) => {
   const response = await fetch(`${apiRoot}/auth/${key}`, {
     method: "POST",
     headers: {
-      "Authorization": `Bearer ${token}`,
-      "Content-Type": "application/json"
-    }
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
   });
 
   if (!response.ok) throw new Error("Failed to fetch user profile");
@@ -137,8 +130,9 @@ export const getUserProfileFetcher = async (key: string) => {
   return profileData;
 };
 
-export const getAllUserStructuresFetcher = async (key: string): Promise<STRUCTURE_CARD_DATA[]> => {
-
+export const getAllUserStructuresFetcher = async (
+  key: string
+): Promise<STRUCTURE_CARD_DATA[]> => {
   // Retrieve JWT from localStorage
   const token = localStorage.getItem("token");
 
@@ -151,9 +145,9 @@ export const getAllUserStructuresFetcher = async (key: string): Promise<STRUCTUR
   const response = await fetch(`${apiRoot}/structure/${key}`, {
     method: "GET",
     headers: {
-      "Authorization": `Bearer ${token}`,
-      "Content-Type": "application/json"
-    }
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
   });
 
   if (!response.ok) throw new Error("Failed to fetch structures");

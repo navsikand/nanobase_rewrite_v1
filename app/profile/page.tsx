@@ -25,9 +25,7 @@ export default function ProfilePage() {
           const structureId = structure.structure.id;
           try {
             const imageUrl = structureId
-              ? URL.createObjectURL(
-                  await getStructureImageFetcher(structureId)
-                )
+              ? URL.createObjectURL(await getStructureImageFetcher(structureId))
               : "";
             return { ...structure, image: imageUrl };
           } catch (error) {
@@ -59,8 +57,7 @@ export default function ProfilePage() {
               <b>Credits:</b> {ProfileData.credits}
             </p>
             <p>
-              <b>Simulation Status:</b>{" "}
-              {ProfileData.simulationBackendStatus}
+              <b>Simulation Status:</b> {ProfileData.simulationBackendStatus}
             </p>
             <p>
               <b>Verified status:</b>{" "}

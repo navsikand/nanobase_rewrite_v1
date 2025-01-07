@@ -45,9 +45,9 @@ export default function StructurePage({
   const [allStructureFiles, setAllStructureFiles] = useState<
     { name: string; url: string }[] | null
   >(null);
-  const [allStructureImages, setAllStructureImages] = useState<
-    string[] | null
-  >(null);
+  const [allStructureImages, setAllStructureImages] = useState<string[] | null>(
+    null
+  );
   const [structureDataOxview, setStructureDataOxview] = useState<{
     files: File[];
     message: string;
@@ -76,9 +76,7 @@ export default function StructurePage({
     if (dexieData) {
       setAllStructureImages(
         dexieData.allStructureImages.map((i) =>
-          i.size === 0
-            ? "/images/no-structure-img.png"
-            : URL.createObjectURL(i)
+          i.size === 0 ? "/images/no-structure-img.png" : URL.createObjectURL(i)
         )
       );
     }
@@ -99,8 +97,7 @@ export default function StructurePage({
     }
   }, [dexieData]);
 
-  const [haveSubmittedOxViewFile, setHaveSubmittedOxViewFile] =
-    useState(false);
+  const [haveSubmittedOxViewFile, setHaveSubmittedOxViewFile] = useState(false);
 
   const sendToIframe = useCallback(() => {
     if (oxviewIframeRef.current && structureDataOxview) {
@@ -239,9 +236,7 @@ export default function StructurePage({
 
             <div className="mt-3">
               <h2 className="sr-only">Product information</h2>
-              <p className="text-3xl tracking-tight text-gray-900">
-                Details
-              </p>
+              <p className="text-3xl tracking-tight text-gray-900">Details</p>
             </div>
 
             <div className="mt-6">

@@ -3,8 +3,8 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'nanobase.org',
+        protocol: "https",
+        hostname: "nanobase.org",
         // port: '',
         // pathname: '',
       },
