@@ -2,6 +2,7 @@ import { STRUCTURE_CARD_DATA } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
 import { oldCleanup } from "../utils/misc";
+import Skeleton from "react-loading-skeleton";
 
 export const StructureCard = ({
   structure: { description, id, title, uploadDate },
@@ -29,12 +30,15 @@ export const StructureCard = ({
             className="aspect-[9/16] w-full border-2 rounded-lg relative max-h-72"
           >
             <span className="sr-only">{title}</span>
-            <Image
-              src={image}
-              fill={true}
-              className="object-contain"
-              alt={title}
-            />
+            {image ? (
+
+              <Image
+                src={image}
+                fill={true}
+                className="object-contain"
+                alt={title}
+              />
+            ) : (<Skeleton />)}
           </Link>
         </div>
 

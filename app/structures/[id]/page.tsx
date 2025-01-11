@@ -76,7 +76,7 @@ export default function StructurePage({
     if (dexieData) {
       setAllStructureImages(
         dexieData.allStructureImages.map((i) =>
-          i.size === 0 ? "/images/no-structure-img.png" : URL.createObjectURL(i)
+          i.size === 0 ? "/images/no-structure-img.webp" : URL.createObjectURL(i)
         )
       );
     }
@@ -189,7 +189,8 @@ export default function StructurePage({
                   allStructureImages.map((image) => (
                     <Tab
                       key={image}
-                      className="group relative flex h-24 cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium uppercase text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-indigo-500/50 focus:ring-offset-4"
+                      className="group relative flex h-24 bg-white/30"
+                    //className="group relative flex h-24 cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium uppercase text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-indigo-500/50 focus:ring-offset-4"
                     >
                       <span className="sr-only">{image}</span>
                       <span className="absolute inset-0 overflow-hidden rounded-md">
@@ -214,7 +215,7 @@ export default function StructurePage({
 
             <TabPanels>
               {allStructureImages?.map((image) => (
-                <TabPanel as="div" className={"w-full flex"} key={image}>
+                <TabPanel as="div" className={"w-full flex bg-white/30 rounded-xl"} key={image}>
                   <div className="relative h-full w-full min-h-60 aspect-square mx-auto flex-1">
                     <Image
                       alt={image}

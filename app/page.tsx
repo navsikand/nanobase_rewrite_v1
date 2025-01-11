@@ -3,7 +3,6 @@
 import { StructureCard } from "@/components/home/StructureCard";
 import { DexieDB } from "@/db";
 import {
-  dexie_getLatestStructure,
   dexie_syncDexieWithServer,
 } from "@/helpers/dexieHelpers";
 import {
@@ -40,7 +39,7 @@ export default function Home() {
 
         const imageUrl =
           latest.image.size === 0
-            ? "/images/no-structure-img.png"
+            ? "/images/no-structure-img.webp"
             : URL.createObjectURL(latest.image);
         setLatestStructureWithImage({
           ...latest,

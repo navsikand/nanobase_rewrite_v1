@@ -38,7 +38,7 @@ export default function Browse() {
           ...i,
           image:
             i.image.size === 0
-              ? "/images/no-structure-img.png"
+              ? "/images/no-structure-img.webp"
               : URL.createObjectURL(i.image),
         });
       });
