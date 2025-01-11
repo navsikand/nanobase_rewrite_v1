@@ -45,7 +45,7 @@ export const dexie_syncDexieWithServer = async (
     } else {
       if (
         (current_server_data.structure.lastUpdated !==
-          dexieCounterPart.structure.lastUpdated) && !deepEqual(current_server_data.structure, dexieCounterPart.structure)
+          dexieCounterPart.structure.lastUpdated) || !deepEqual(current_server_data.structure, dexieCounterPart.structure)
       ) {
         await DexieDB.structures.delete(dexieCounterPart.flatStructureId);
         await DexieDB.structures.add(current_server_data);
