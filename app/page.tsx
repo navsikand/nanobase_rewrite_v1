@@ -1,6 +1,7 @@
 "use client";
 
 import { StructureCard } from "@/components/home/StructureCard";
+import { DexieDB } from "@/db";
 import {
   dexie_getLatestStructure,
   dexie_syncDexieWithServer,
@@ -11,6 +12,7 @@ import {
 } from "@/helpers/fetchHelpers";
 import { STRUCTURE_CARD_DATA } from "@/types";
 import { Button } from "@headlessui/react";
+import { useLiveQuery } from "dexie-react-hooks";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -19,25 +21,34 @@ import useSWR from "swr";
 export default function Home() {
   const router = useRouter();
 
+  const latestDexieStructure = useLiveQuery(() => DexieDB.structures
+    .orderBy("structure.uploadDate")
+    .reverse()
+    .limit(1)
+    .toArray());
+
+
+
   const [latestStructureWithImage, setLatestStructureWithImage] = useState<
     (STRUCTURE_CARD_DATA & { image: string }) | null
   >(null);
 
   useEffect(() => {
     (async () => {
-      const latestDexieStructure = await dexie_getLatestStructure();
-      if (latestDexieStructure) {
+      if (latestDexieStructure && latestDexieStructure[0]) {
+        const latest = latestDexieStructure[0]
+
         const imageUrl =
-          latestDexieStructure.image.size === 0
+          latest.image.size === 0
             ? "/images/no-structure-img.png"
-            : URL.createObjectURL(latestDexieStructure.image);
+            : URL.createObjectURL(latest.image);
         setLatestStructureWithImage({
-          ...latestDexieStructure,
+          ...latest,
           image: imageUrl,
         });
       }
     })();
-  }, []);
+  }, [latestDexieStructure]);
 
   const { data: fetchedStructures } = useSWR(
     "getAllPublicStructures_paginated",
