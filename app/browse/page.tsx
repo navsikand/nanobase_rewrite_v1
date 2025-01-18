@@ -8,14 +8,32 @@ import {
   getStructureImageFetcher,
 } from "@/helpers/fetchHelpers";
 import { STRUCTURE_CARD_DATA } from "@/types";
-import { Input, Select } from "@headlessui/react";
+import {
+  Input,
+  Select,
+  Tab,
+  TabGroup,
+  TabList,
+  TabPanel,
+  TabPanels,
+} from "@headlessui/react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 
+function splitArrayIntoChunks<T>(array: T[], chunkSize: number = 15): T[][] {
+  const result: T[][] = [];
+  for (let i = 0; i < array.length; i += chunkSize) {
+    result.push(array.slice(i, i + chunkSize));
+  }
+  console.log(result);
+
+  return result;
+}
+
 export default function Browse() {
   const [cardsToDisplay, setCardsToDisplay] = useState<
-    (STRUCTURE_CARD_DATA & { image: string })[]
+    (STRUCTURE_CARD_DATA & { image: string })[][]
   >([]);
 
   const dexieData = useLiveQuery(() => DexieDB.structures.toArray());
@@ -56,6 +74,7 @@ export default function Browse() {
   }
 
   const serachByFields = [
+    // ID number order does matter.
     { id: 0, name: SEARCH_BY.TITLE },
     { id: 1, name: SEARCH_BY.AUTHOR },
     // { id: 2, name: SEARCH_BY.APPLICATION },
@@ -71,7 +90,7 @@ export default function Browse() {
   useEffect(() => {
     if (dexieDataWithImages) {
       if (serachQuery === "") {
-        setCardsToDisplay(dexieDataWithImages);
+        setCardsToDisplay(splitArrayIntoChunks(dexieDataWithImages, 15));
       } else {
         const filteredCards = dexieDataWithImages.filter((dataToCheck) => {
           switch (searchByParameter) {
@@ -95,13 +114,6 @@ export default function Browse() {
 
             case SEARCH_BY.KEYWORD: {
               const splitup = serachQuery.toLowerCase().split(" ");
-              // splitup.map((q) => {
-              //   dataToCheck.structure.keywords.map((keyword) => {
-              //     if (!keyword.toLowerCase().includes(q)) {
-              //       return false;
-              //     }
-              //   });
-              // });
               const allMatch = splitup.every((queryWord) =>
                 dataToCheck.structure.keywords.some((keyword) =>
                   keyword.toLowerCase().includes(queryWord)
@@ -109,7 +121,6 @@ export default function Browse() {
               );
 
               return allMatch;
-              return true;
             }
 
             case SEARCH_BY.TITLE:
@@ -122,7 +133,7 @@ export default function Browse() {
           }
         });
 
-        setCardsToDisplay(filteredCards);
+        setCardsToDisplay(splitArrayIntoChunks(filteredCards, 15));
       }
     }
   }, [
@@ -177,7 +188,7 @@ export default function Browse() {
           name="full_name"
           type="text"
           placeholder="Search..."
-          className={"bg-gray-400/20 rounded-xl p-2"}
+          className={"bg-white rounded-xl p-2"}
           value={serachQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -186,30 +197,52 @@ export default function Browse() {
           onChange={(e) =>
             setSearchByParameter(serachByFields[parseInt(e.target.value)].name)
           }
-          className="rounded-lg"
+          className="rounded-lg bg-white"
         >
           {serachByFields.map((field) => (
-            <option value={field.id} key={field.id}>
+            <option value={field.id} key={field.id} className="bg-white/20">
               {field.name}
             </option>
           ))}
         </Select>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
-        {cardsToDisplay.map(
-          ({ User, structure, isOld, image, flatStructureId }) => (
-            <StructureCard
-              flatStructureId={flatStructureId}
-              User={User}
-              isOld={isOld}
-              structure={structure}
-              key={structure.id}
-              image={image}
-            />
-          )
-        )}
-      </div>
+      <TabGroup>
+        <TabPanels>
+          {cardsToDisplay.map((cards) => (
+            <TabPanel
+              key={cards[0].flatStructureId}
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2"
+            >
+              {cards.map(
+                ({ User, structure, isOld, image, flatStructureId }) => (
+                  <StructureCard
+                    flatStructureId={flatStructureId}
+                    User={User}
+                    isOld={isOld}
+                    structure={structure}
+                    key={structure.id}
+                    image={image}
+                  />
+                )
+              )}
+            </TabPanel>
+          ))}
+        </TabPanels>
+
+        <TabList className={"flex justify-center mt-5"}>
+          {cardsToDisplay.map((_, i) => (
+            <Tab
+              key={i}
+              className={
+                "p-5 rounded-lg hover:-translate-y-2 font-bold text-xl duration-100"
+              }
+            >
+              {i}
+            </Tab>
+          ))}
+        </TabList>
+      </TabGroup>
     </div>
   );
 }

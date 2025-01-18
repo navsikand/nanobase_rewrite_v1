@@ -31,14 +31,15 @@ export const StructureCard = ({
           >
             <span className="sr-only">{title}</span>
             {image ? (
-
               <Image
                 src={image}
                 fill={true}
                 className="object-contain"
                 alt={title}
               />
-            ) : (<Skeleton />)}
+            ) : (
+              <Skeleton />
+            )}
           </Link>
         </div>
 

@@ -1,8 +1,6 @@
 import { STRUCTURE_CARD_DATA } from "@/types";
 import JSZip from "jszip";
 
-
-
 export const apiRoot =
   process.env.NODE_ENV === "production"
     ? "https://api.nanobase.org/api/v1"

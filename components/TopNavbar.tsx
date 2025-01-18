@@ -54,7 +54,7 @@ export const TopNavbar = (): JSX.Element => {
     // { title: "Submit job", slug: "/submit-oxdna-jobs" },
   ];
   return (
-    <div className="p-4 px-8 flex items-center">
+    <div className="p-4 px-8 flex items-center justify-between">
       {/* Logo */}
       <div className="flex">
         <Link href="/" className="aspect-square size-12 relative">
@@ -70,7 +70,8 @@ export const TopNavbar = (): JSX.Element => {
         </Link>
       </div>
 
-      <div className="mx-auto space-x-3 flex text-lg font-semibold">
+      {/* Centered Links */}
+      <div className="absolute left-1/2 -translate-x-1/2 space-x-3 flex text-lg font-semibold">
         {LINKS.map((link) => (
           <Link href={link.slug} key={link.slug} className="group">
             {link.title}
@@ -79,18 +80,19 @@ export const TopNavbar = (): JSX.Element => {
         ))}
       </div>
 
-      {userAuthState ? (
-        <p>Signed in as {userAuthState.name}</p>
-      ) : (
-        <Button
-          className={
-            "rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200"
-          }
-          onClick={() => router.push("/sign-in")}
-        >
-          Sign in
-        </Button>
-      )}
+      {/* User Info or Sign In */}
+      <div>
+        {userAuthState ? (
+          <p>Signed in as {userAuthState.name}</p>
+        ) : (
+          <Button
+            className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200"
+            onClick={() => router.push("/sign-in")}
+          >
+            Sign in
+          </Button>
+        )}
+      </div>
     </div>
   );
 };

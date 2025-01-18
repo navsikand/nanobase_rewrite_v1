@@ -1,5 +1,3 @@
-"use client";
-
 import { apiRoot } from "@/helpers/fetchHelpers";
 import { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
 
