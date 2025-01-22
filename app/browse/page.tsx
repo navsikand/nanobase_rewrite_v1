@@ -3,27 +3,25 @@
 import { StructureCard } from "@/components/home/StructureCard";
 import {
   dexie_getAllStructureCardDataPaginated,
+  dexie_syncDexieWithServer,
   SEARCH_BY,
 } from "@/helpers/dexieHelpers";
-import { STRUCTURE_CARD_DATA } from "@/types";
 import {
-  Input,
-  Select,
-  Tab,
-  TabGroup,
-  TabList,
-  TabPanel,
-  TabPanels,
-} from "@headlessui/react";
+  getAllPublicStructuresFetcher,
+  getAllPublicStructuresFetcherPaginated,
+  getStructureImageFetcher,
+} from "@/helpers/fetchHelpers";
+import { STRUCTURE_CARD_DATA } from "@/types";
+import { Button, Input, Select } from "@headlessui/react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect, useState } from "react";
+import useSWR from "swr";
 
 export default function Browse() {
   const [pageNumber, setPageNumber] = useState(0);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchType, setSearchType] = useState<SEARCH_BY>(SEARCH_BY.TITLE);
-
   const [cardsToDisplay, setCardsToDisplay] = useState<
     (STRUCTURE_CARD_DATA & { image: string })[]
   >([]);
@@ -36,6 +34,7 @@ export default function Browse() {
     { id: 2, name: SEARCH_BY.KEYWORD },
     { id: 3, name: SEARCH_BY.DESCRIPTION },
   ];
+
   const dexieData = useLiveQuery(
     () =>
       dexie_getAllStructureCardDataPaginated(
@@ -43,13 +42,17 @@ export default function Browse() {
         searchQuery,
         searchType
       ),
-    [pageNumber]
+    [pageNumber, searchType, searchQuery]
   );
 
   useEffect(() => {
-    if (dexieData && dexieData.length !== 0) {
+    if (
+      dexieData &&
+      dexieData.structures &&
+      dexieData.structures.length !== 0
+    ) {
       const ret: (STRUCTURE_CARD_DATA & { image: string })[] = [];
-      dexieData.map((i) => {
+      dexieData.structures.map((i) => {
         ret.push({
           ...i,
           image:
@@ -62,6 +65,75 @@ export default function Browse() {
       setCardsToDisplay(ret);
     }
   }, [dexieData]);
+
+  const { data: firstPageFetchedStructures } = useSWR(
+    "getAllPublicStructures_paginated",
+    getAllPublicStructuresFetcherPaginated
+  );
+
+  const { data: firstPageFetchedData } = useSWR(
+    firstPageFetchedStructures ? "getStructuresWithImages" : null,
+    async () => {
+      if (!firstPageFetchedStructures) return [];
+
+      const structures = await Promise.all(
+        firstPageFetchedStructures.map(async (structure) => {
+          const structureId = structure.structure.id;
+          try {
+            const imageBlob = structureId
+              ? await getStructureImageFetcher(structureId)
+              : new Blob();
+            return { ...structure, image: imageBlob };
+          } catch (error) {
+            console.error("Error fetching image:", error);
+            return { ...structure, image: new Blob() };
+          }
+        })
+      );
+      return structures;
+    }
+  );
+
+  useEffect(() => {
+    (async () => {
+      if (firstPageFetchedData)
+        await dexie_syncDexieWithServer(firstPageFetchedData);
+    })();
+  }, [firstPageFetchedData]);
+
+  const { data: fetchedStructures } = useSWR(
+    "getAllPublicStructures",
+    getAllPublicStructuresFetcher
+  );
+
+  const { data: fetchedData } = useSWR(
+    fetchedStructures ? "getStructuresWithImages" : null,
+    async () => {
+      if (!fetchedStructures) return [];
+
+      const structures = await Promise.all(
+        fetchedStructures.map(async (structure) => {
+          const structureId = structure.structure.id;
+          try {
+            const imageBlob = structureId
+              ? await getStructureImageFetcher(structureId)
+              : new Blob();
+            return { ...structure, image: imageBlob };
+          } catch (error) {
+            console.error("Error fetching image:", error);
+            return { ...structure, image: new Blob() };
+          }
+        })
+      );
+      return structures;
+    }
+  );
+
+  useEffect(() => {
+    (async () => {
+      if (fetchedData) await dexie_syncDexieWithServer(fetchedData);
+    })();
+  }, [fetchedData]);
 
   return (
     <div className="mx-auto w-11/12">
@@ -89,37 +161,34 @@ export default function Browse() {
         </Select>
       </div>
 
-      <TabGroup>
-        <TabPanels>
-          <TabPanel className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
-            {cardsToDisplay.map(
-              ({ User, structure, isOld, image, flatStructureId }) => (
-                <StructureCard
-                  flatStructureId={flatStructureId}
-                  User={User}
-                  isOld={isOld}
-                  structure={structure}
-                  key={structure.id}
-                  image={image}
-                />
-              )
-            )}
-          </TabPanel>
-        </TabPanels>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
+        {cardsToDisplay.map(
+          ({ User, structure, isOld, image, flatStructureId }) => (
+            <StructureCard
+              flatStructureId={flatStructureId}
+              User={User}
+              isOld={isOld}
+              structure={structure}
+              key={structure.id}
+              image={image}
+            />
+          )
+        )}
+      </div>
 
-        <TabList className={"flex justify-center mt-5"}>
-          {cardsToDisplay.map((_, i) => (
-            <Tab
-              key={i}
-              className={
-                "p-5 rounded-lg hover:-translate-y-2 font-bold text-xl duration-100"
-              }
-            >
-              {i}
-            </Tab>
-          ))}
-        </TabList>
-      </TabGroup>
+      <div className={"flex justify-center mt-5"}>
+        {Array.from({ length: dexieData?.count || 1 }, (_, i) => (
+          <Button
+            key={i}
+            onClick={() => setPageNumber(i)}
+            className={
+              "p-5 rounded-lg hover:-translate-y-2 font-bold text-xl duration-100"
+            }
+          >
+            {i + 1}
+          </Button>
+        ))}
+      </div>
     </div>
   );
 }

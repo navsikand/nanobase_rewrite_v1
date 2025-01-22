@@ -135,7 +135,7 @@ export const dexie_getAllStructureCardDataPaginated = async (
     result.push(data.slice(i, i + take));
   }
 
-  return result[skipLots];
+  return { structures: result[skipLots], count: result.length };
 };
 
 export const dexie_syncPageWithServer = async (

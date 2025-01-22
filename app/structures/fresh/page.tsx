@@ -71,7 +71,9 @@ export default function StructurePage({
     if (dexieData) {
       setAllStructureImages(
         dexieData.allStructureImages.map((i) =>
-          i.size === 0 ? "/images/no-structure-img.webp" : URL.createObjectURL(i)
+          i.size === 0
+            ? "/images/no-structure-img.webp"
+            : URL.createObjectURL(i)
         )
       );
     }

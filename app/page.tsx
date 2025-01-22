@@ -2,11 +2,10 @@
 
 import { StructureCard } from "@/components/home/StructureCard";
 import { DexieDB } from "@/db";
-import {
-  dexie_syncDexieWithServer,
-} from "@/helpers/dexieHelpers";
+import { dexie_syncDexieWithServer } from "@/helpers/dexieHelpers";
 import {
   getAllPublicStructuresFetcher,
+  getAllPublicStructuresFetcherPaginated,
   getStructureImageFetcher,
 } from "@/helpers/fetchHelpers";
 import { STRUCTURE_CARD_DATA } from "@/types";
@@ -20,13 +19,13 @@ import useSWR from "swr";
 export default function Home() {
   const router = useRouter();
 
-  const latestDexieStructure = useLiveQuery(() => DexieDB.structures
-    .orderBy("structure.uploadDate")
-    .reverse()
-    .limit(1)
-    .toArray());
-
-
+  const latestDexieStructure = useLiveQuery(() =>
+    DexieDB.structures
+      .orderBy("structure.uploadDate")
+      .reverse()
+      .limit(1)
+      .toArray()
+  );
 
   const [latestStructureWithImage, setLatestStructureWithImage] = useState<
     (STRUCTURE_CARD_DATA & { image: string }) | null
@@ -35,7 +34,7 @@ export default function Home() {
   useEffect(() => {
     (async () => {
       if (latestDexieStructure && latestDexieStructure[0]) {
-        const latest = latestDexieStructure[0]
+        const latest = latestDexieStructure[0];
 
         const imageUrl =
           latest.image.size === 0
@@ -49,8 +48,43 @@ export default function Home() {
     })();
   }, [latestDexieStructure]);
 
-  const { data: fetchedStructures } = useSWR(
+  const { data: firstPageFetchedStructures } = useSWR(
     "getAllPublicStructures_paginated",
+    getAllPublicStructuresFetcherPaginated
+  );
+
+  const { data: firstPageFetchedData } = useSWR(
+    firstPageFetchedStructures ? "getStructuresWithImages" : null,
+    async () => {
+      if (!firstPageFetchedStructures) return [];
+
+      const structures = await Promise.all(
+        firstPageFetchedStructures.map(async (structure) => {
+          const structureId = structure.structure.id;
+          try {
+            const imageBlob = structureId
+              ? await getStructureImageFetcher(structureId)
+              : new Blob();
+            return { ...structure, image: imageBlob };
+          } catch (error) {
+            console.error("Error fetching image:", error);
+            return { ...structure, image: new Blob() };
+          }
+        })
+      );
+      return structures;
+    }
+  );
+
+  useEffect(() => {
+    (async () => {
+      if (firstPageFetchedData)
+        await dexie_syncDexieWithServer(firstPageFetchedData);
+    })();
+  }, [firstPageFetchedData]);
+
+  const { data: fetchedStructures } = useSWR(
+    "getAllPublicStructures",
     getAllPublicStructuresFetcher
   );
 

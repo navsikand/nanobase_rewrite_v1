@@ -6,6 +6,7 @@ export const apiRoot =
     ? "https://api.nanobase.org/api/v1"
     : "http://localhost:3002/api/v1";
 //export const apiRoot = "http://localhost:3002/api/v1";
+
 export const getAllPublicStructuresFetcher = async (key: string) => {
   const response = await fetch(`${apiRoot}/structure/${key}`);
   const data = await response.json();
@@ -14,8 +15,8 @@ export const getAllPublicStructuresFetcher = async (key: string) => {
 
 export const getAllPublicStructuresFetcherPaginated = async (
   key: string,
-  skip: number,
-  take: number
+  skip: number = 0,
+  take: number = 15
 ) => {
   const response = await fetch(`${apiRoot}/structure/${key}`, {
     body: JSON.stringify({ skip, take }),
