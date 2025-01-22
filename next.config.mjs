@@ -4,7 +4,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "nanobase.org",
+        hostname: "api.nanobase.org",
         // port: '',
         // pathname: '',
       },
