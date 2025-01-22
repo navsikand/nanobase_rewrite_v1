@@ -12,6 +12,18 @@ export const getAllPublicStructuresFetcher = async (key: string) => {
   return data.structures as STRUCTURE_CARD_DATA[];
 };
 
+export const getAllPublicStructuresFetcherPaginated = async (
+  key: string,
+  skip: number,
+  take: number
+) => {
+  const response = await fetch(`${apiRoot}/structure/${key}`, {
+    body: JSON.stringify({ skip, take }),
+  });
+  const data = await response.json();
+  return data.structures as STRUCTURE_CARD_DATA[];
+};
+
 export const getStructureImageFetcher = async (structureId: number) => {
   const response = await fetch(
     `${apiRoot}/structure/getStructureDisplayImage?id=${structureId}`
