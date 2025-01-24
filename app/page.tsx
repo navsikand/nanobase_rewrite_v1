@@ -154,7 +154,7 @@ export default function Home() {
               className={
                 "rounded-lg px-5 py-2 font-semibold text-lg bg-black text-white relative hover:-translate-y-1 hover:shadow-xl duration-200 mt-2 ml-2"
               }
-              onClick={() => router.push("/browse")}
+              onClick={() => router.push("/about-us")}
             >
               About us
             </Button>

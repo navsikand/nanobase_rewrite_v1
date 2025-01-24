@@ -1,147 +1,381 @@
 "use client";
 
-import { UploadDisplayImage } from "@/components/upload/upload_display_image";
-import { UploadImages } from "@/components/upload/upload_others_images";
-import { UploadStructureInformation } from "@/components/upload/upload_structure_data";
+import { useState } from "react";
+import { Dialog, Transition } from "@headlessui/react";
+import { z } from "zod";
 import { apiRoot } from "@/helpers/fetchHelpers";
-import {
-  Select,
-  Tab,
-  TabGroup,
-  TabList,
-  TabPanel,
-  TabPanels,
-} from "@headlessui/react";
-import { ChangeEvent, useState } from "react";
 
-export default function UploadStructure() {
-  const [structureId, setStructureId] = useState<number | null>();
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-  const [displayImageUploaded, setDisplayImageUploaded] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+enum StructureTypes {
+  DNA = "DNA",
+  RNA = "RNA",
+  DNA_RNA_HYBRID = "DNA/RNA hybrid",
+  NUCLEIC_ACID_PROTEIN_HYBRID = "Nucleic acid/protein hybrid",
+}
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    setUploadedFiles(Array.from(files ? files : []));
+const PropsPrismaCreateStructureSchema = z.object({
+  title: z.string().nonempty("Title is required"),
+  type: z.nativeEnum(StructureTypes).or(z.string()),
+  description: z.string().nonempty("Description is required"),
+  datePublished: z.string().date(),
+  citation: z.string(),
+  paperLink: z.string(),
+  licensing: z.string().nonempty("Licensing is required"),
+  private: z.boolean(),
+
+  applications: z.array(
+    z.string().nonempty("Applications cannot have empty strings")
+  ),
+  authors: z.array(z.string().nonempty("Authors cannot have empty strings")),
+});
+
+type FormData = z.infer<typeof PropsPrismaCreateStructureSchema>;
+
+export default function UploadStructurePage() {
+  const [formData, setFormData] = useState<FormData>({
+    title: "",
+    type: StructureTypes.DNA,
+    description: "",
+    datePublished: "",
+    citation: "",
+    paperLink: "",
+    licensing: "",
+    private: false,
+    applications: [],
+    authors: [],
+  });
+
+  const [keywords, setKeywords] = useState<string>("");
+  const [images, setImages] = useState<File[]>([]);
+  const [files, setFiles] = useState<File[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [responseMessage, setResponseMessage] = useState<string>("");
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value, type } = e.target;
+
+    // Narrow down the type
+    const checked =
+      type === "checkbox" ? (e.target as HTMLInputElement).checked : undefined;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
-  const handleFileSubmit = async (e: React.FormEvent) => {
+  const handleFileChange =
+    (setter: React.Dispatch<React.SetStateAction<File[]>>) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files) {
+        setter(Array.from(e.target.files));
+      }
+    };
+
+  const validateForm = () => {
+    try {
+      PropsPrismaCreateStructureSchema.parse({
+        ...formData,
+        applications: formData.applications.filter((app) => app.trim() !== ""),
+        authors: formData.authors.filter((auth) => auth.trim() !== ""),
+      });
+      setErrors({});
+      return true;
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        const validationErrors: Record<string, string> = {};
+        err.errors.forEach((error) => {
+          if (error.path.length > 0) {
+            validationErrors[error.path[0] as string] = error.message;
+          }
+        });
+        setErrors(validationErrors);
+      }
+      return false;
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const token = localStorage.getItem("token");
+    setIsLoading(true);
 
-    const imageFormData = new FormData();
-    imageFormData.append("structure_id", structureId?.toString() || "");
+    // Validate form
+    if (!validateForm()) {
+      setIsLoading(false);
+      return;
+    }
 
-    uploadedFiles.forEach((file) => {
-      imageFormData.append("files", file);
+    const requestData = {
+      ...formData,
+      keywords: keywords.split(",").map((kw) => kw.trim()),
+    };
+
+    const formDataToSend = new FormData();
+    Object.keys(requestData).forEach((key) => {
+      const value = requestData[key as keyof typeof requestData];
+      if (typeof value === "boolean") {
+        formDataToSend.append(key, value ? "true" : "false");
+      } else if (Array.isArray(value)) {
+        value.forEach((item) => formDataToSend.append(key, item));
+      } else {
+        formDataToSend.append(key, value);
+      }
     });
 
-    // Send the request
-    await fetch(`${apiRoot}/structure/uploadFiles`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`, // Attach token here
-      },
-      body: imageFormData, // Send FormData with structureId and images
-    });
+    images.forEach((image) => formDataToSend.append("images", image));
+    files.forEach((file) => formDataToSend.append("files", file));
 
-    console.log("Files WORKED");
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(`${apiRoot}/structure/createStructure`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`, // Attach token here
+        },
+
+        body: formDataToSend,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to upload structure");
+      }
+
+      const data = await response.json();
+      setResponseMessage(data.message || "Structure uploaded successfully!");
+    } catch (error) {
+      setResponseMessage(
+        (error as { message: string }).message ||
+          "An error occurred while uploading."
+      );
+    } finally {
+      setIsLoading(false);
+      setIsModalOpen(true);
+    }
   };
-
-  enum ACCEPT {
-    OXVIEW = ".oxview",
-    DATTOP = ".dat, .top",
-    PDB = ".pdb",
-  }
-
-  const serachByFields = [
-    { id: 0, name: ACCEPT.OXVIEW },
-    { id: 1, name: ACCEPT.DATTOP },
-    { id: 2, name: ACCEPT.PDB },
-  ];
-
-  const [fileTypeParameter, setFileTypeParameter] = useState<ACCEPT>(
-    ACCEPT.OXVIEW
-  );
 
   return (
-    <div className="">
-      <TabGroup
-        selectedIndex={selectedIndex}
-        onChange={setSelectedIndex}
-        className={"flex flex-col justify-center items-center"}
-      >
-        <TabList className={`space-x-3 mx-auto`}>
-          <Tab
-            disabled={structureId !== undefined}
-            className={`bg-indigo-300/10 data-[selected]:bg-indigo-300/50 rounded-lg p-2`}
-          >
-            Create structure
-          </Tab>
+    <div className="min-h-screen bg-gray-100 py-10 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto bg-white shadow rounded-lg p-6">
+        <h1 className="text-2xl font-bold text-gray-900 mb-6">
+          Upload Structure
+        </h1>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Title */}
+          <div>
+            <input
+              type="text"
+              name="title"
+              placeholder="Title..."
+              className={`w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 ${
+                errors.title ? "border-red-500" : ""
+              }`}
+              value={formData.title}
+              onChange={handleChange}
+              required
+            />
+            {errors.title && (
+              <p className="text-red-500 text-sm">{errors.title}</p>
+            )}
+          </div>
 
-          <Tab
-            disabled={structureId === undefined}
-            className={`bg-indigo-300/10 data-[selected]:bg-indigo-300/50 rounded-lg p-2`}
-          >
-            Upload images
-          </Tab>
+          {/* Type */}
+          <div>
+            <input
+              type="text"
+              name="type"
+              placeholder="Type..."
+              className={`w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 ${
+                errors.type ? "border-red-500" : ""
+              }`}
+              value={formData.type}
+              onChange={handleChange}
+              required
+            />
+            {errors.type && (
+              <p className="text-red-500 text-sm">{errors.type}</p>
+            )}
+          </div>
 
-          <Tab
-            disabled={!displayImageUploaded}
-            className={`bg-indigo-300/10 data-[selected]:bg-indigo-300/50 rounded-lg p-2`}
-          >
-            Upload files
-          </Tab>
-        </TabList>
-        <TabPanels className="flex-1 w-full">
-          <TabPanel>
-            <UploadStructureInformation
-              selectedIndex={selectedIndex}
-              setSelectedIndex={setSelectedIndex}
-              setStructureId={setStructureId}
+          {/* Description */}
+          <div>
+            <textarea
+              name="description"
+              placeholder="Description..."
+              className={`w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 ${
+                errors.description ? "border-red-500" : ""
+              }`}
+              rows={3}
+              value={formData.description}
+              onChange={handleChange}
+              required
             />
-          </TabPanel>
-          <TabPanel>
-            <UploadDisplayImage
-              setDisplayImageUploaded={setDisplayImageUploaded}
-              structureId={structureId}
+            {errors.description && (
+              <p className="text-red-500 text-sm">{errors.description}</p>
+            )}
+          </div>
+
+          {/* Date */}
+          <div>
+            <input
+              type="date"
+              name="datePublished"
+              className={`w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 ${
+                errors.datePublished ? "border-red-500" : ""
+              }`}
+              value={formData.datePublished}
+              onChange={handleChange}
+              required
             />
-            <UploadImages
-              setSelectedIndex={setSelectedIndex}
-              structureId={structureId}
-              selectedIndex={selectedIndex}
+            {errors.datePublished && (
+              <p className="text-red-500 text-sm">{errors.datePublished}</p>
+            )}
+          </div>
+
+          {/* Citation */}
+          <div>
+            <input
+              type="text"
+              name="citation"
+              placeholder="Citation..."
+              className={`w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 ${
+                errors.citation ? "border-red-500" : ""
+              }`}
+              value={formData.citation}
+              onChange={handleChange}
             />
-          </TabPanel>
-          <TabPanel>
-            <div>
-              <form onSubmit={handleFileSubmit}>
-                <input
-                  type="file"
-                  multiple
-                  accept={fileTypeParameter}
-                  name="files"
-                  onChange={handleFileChange}
-                />
-                <button type="submit">Upload Files</button>
-              </form>
-              <Select
-                onChange={(e) =>
-                  setFileTypeParameter(
-                    serachByFields[parseInt(e.target.value)].name
-                  )
-                }
-                className="rounded-lg"
+            {errors.citation && (
+              <p className="text-red-500 text-sm">{errors.citation}</p>
+            )}
+          </div>
+
+          {/* Paper Link */}
+          <div>
+            <input
+              type="url"
+              name="paperLink"
+              placeholder="Paper link..."
+              className={`w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 ${
+                errors.paperLink ? "border-red-500" : ""
+              }`}
+              value={formData.paperLink}
+              onChange={handleChange}
+            />
+            {errors.paperLink && (
+              <p className="text-red-500 text-sm">{errors.paperLink}</p>
+            )}
+          </div>
+
+          {/* Licensing */}
+          <div>
+            <input
+              type="text"
+              name="licensing"
+              placeholder="Licensing..."
+              className={`w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 ${
+                errors.licensing ? "border-red-500" : ""
+              }`}
+              value={formData.licensing}
+              onChange={handleChange}
+              required
+            />
+            {errors.licensing && (
+              <p className="text-red-500 text-sm">{errors.licensing}</p>
+            )}
+          </div>
+
+          {/* Private */}
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              name="private"
+              className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+              checked={formData.private}
+              onChange={handleChange}
+            />
+            <label htmlFor="private" className="ml-2 text-sm text-gray-900">
+              Private
+            </label>
+          </div>
+
+          {/* Keywords */}
+          <div>
+            <input
+              type="text"
+              placeholder="Keywords (comma-separated)..."
+              className="w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              value={keywords}
+              onChange={(e) => setKeywords(e.target.value)}
+            />
+          </div>
+
+          {/* Images */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Images
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              className="w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              onChange={handleFileChange(setImages)}
+            />
+          </div>
+
+          {/* Files */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Files
+            </label>
+            <input
+              type="file"
+              multiple
+              className="w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              onChange={handleFileChange(setFiles)}
+            />
+          </div>
+
+          {/* Submit Button */}
+          <div>
+            <button
+              type="submit"
+              className="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              disabled={isLoading}
+            >
+              {isLoading ? "Uploading..." : "Upload Structure"}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Modal for Success/Error Messages */}
+      <Transition appear show={isModalOpen} as="div">
+        <Dialog
+          as="div"
+          className="relative z-10"
+          onClose={() => setIsModalOpen(false)}
+        >
+          <div className="fixed inset-0 bg-black bg-opacity-30" />
+          <div className="fixed inset-0 flex items-center justify-center">
+            <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6">
+              <Dialog.Title className="text-lg font-medium text-gray-900">
+                Upload Status
+              </Dialog.Title>
+              <p className="mt-2 text-sm text-gray-600">{responseMessage}</p>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="mt-4 w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
               >
-                {serachByFields.map((field) => (
-                  <option value={field.id} key={field.id}>
-                    {field.name}
-                  </option>
-                ))}
-              </Select>
+                Close
+              </button>
             </div>
-          </TabPanel>
-        </TabPanels>
-      </TabGroup>
+          </div>
+        </Dialog>
+      </Transition>
     </div>
   );
 }
