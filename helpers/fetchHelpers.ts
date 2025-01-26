@@ -1,11 +1,11 @@
 import { STRUCTURE_CARD_DATA } from "@/types";
 import JSZip from "jszip";
 
-//export const apiRoot =
-//  process.env.NODE_ENV === "production"
-//    ? "https://api.nanobase.org/api/v1"
-//    : "http://localhost:3002/api/v1";
-export const apiRoot = "http://localhost:3002/api/v1";
+export const apiRoot =
+  process.env.NODE_ENV === "production"
+    ? "https://api.nanobase.org/api/v1"
+    : "http://localhost:3002/api/v1";
+//export const apiRoot = "http://localhost:3002/api/v1";
 
 export const getAllPublicStructuresFetcher = async (key: string) => {
   const response = await fetch(`${apiRoot}/structure/${key}`);
@@ -34,7 +34,10 @@ export const getStructureImageFetcher = async (
   if (!response.ok) {
     throw new Error(`Failed to fetch files for structure ${structureId}`);
   }
-  return response.json();
+  const { url }: { url: string } = await response.json();
+  const r = `${apiRoot}/structure/images/${url}`;
+  console.log(r);
+  return { url: r };
 };
 
 export const getAllStructureFilesFetcher = async (
@@ -179,7 +182,15 @@ export const fetchAllStructureFiles = async (
   if (!response.ok) {
     throw new Error(`Failed to fetch files for structure ${structureId}`);
   }
-  return response.json(); // Returns [{ name, url }]
+  const data = await response.json(); // Returns [{ name, url }]
+
+  const r = data.map((d: { name: string; url: string }) => {
+    return {
+      name: d.name,
+      url: `${apiRoot}/structure/files/${d.url}`,
+    };
+  });
+  return r;
 };
 
 // Fetch helper for image names
@@ -190,7 +201,9 @@ export const fetchAllImageNames = async (structureId: number) => {
   if (!response.ok) {
     throw new Error(`Failed to fetch image names for structure ${structureId}`);
   }
-  return response.json(); // Returns ["image1.jpg", "image2.jpg", ...]
+  const data = await response.json();
+  const r = data.map((data: string) => `${apiRoot}/structure/images/${data}`);
+  return r;
 };
 
 // Fetch helper for individual image by name
@@ -203,10 +216,11 @@ export const fetchImageByName = async (
   if (!response.ok) {
     throw new Error(`Failed to fetch image ${imageName}`);
   }
-  return url; // Return the direct URL to the image
+  return response; // Return the direct URL to the image
 };
 
 // Fetch all structure images as URLs
 export const fetchAllStructureImages = async (structureId: number) => {
-  return await fetchAllImageNames(structureId);
+  const data = await fetchAllImageNames(structureId);
+  return data;
 };
