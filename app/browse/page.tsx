@@ -55,10 +55,7 @@ export default function Browse() {
       dexieData.structures.map((i) => {
         ret.push({
           ...i,
-          image:
-            i.image.size === 0
-              ? "/images/no-structure-img.webp"
-              : URL.createObjectURL(i.image),
+          image: i.image === "" ? "/images/no-structure-img.webp" : i.image,
         });
       });
 
@@ -80,13 +77,13 @@ export default function Browse() {
         firstPageFetchedStructures.map(async (structure) => {
           const structureId = structure.structure.id;
           try {
-            const imageBlob = structureId
-              ? await getStructureImageFetcher(structureId)
-              : new Blob();
-            return { ...structure, image: imageBlob };
+            const imageURL = structureId
+              ? (await getStructureImageFetcher(structureId)).url
+              : "";
+            return { ...structure, image: imageURL };
           } catch (error) {
             console.error("Error fetching image:", error);
-            return { ...structure, image: new Blob() };
+            return { ...structure, image: "" };
           }
         })
       );
@@ -116,12 +113,12 @@ export default function Browse() {
           const structureId = structure.structure.id;
           try {
             const imageBlob = structureId
-              ? await getStructureImageFetcher(structureId)
-              : new Blob();
+              ? (await getStructureImageFetcher(structureId)).url
+              : "";
             return { ...structure, image: imageBlob };
           } catch (error) {
             console.error("Error fetching image:", error);
-            return { ...structure, image: new Blob() };
+            return { ...structure, image: "" };
           }
         })
       );

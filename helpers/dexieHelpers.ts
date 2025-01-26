@@ -29,7 +29,7 @@ const deepEqual = <T>(obj1: T, obj2: T): boolean => {
 
 // TODO: Add pako support so compress the data before its stored
 export const dexie_syncDexieWithServer = async (
-  server_data: (STRUCTURE_CARD_DATA & { image: Blob })[]
+  server_data: (STRUCTURE_CARD_DATA & { image: string })[]
 ): Promise<void> => {
   try {
     // Create a map for fast lookups in the server data
@@ -42,8 +42,8 @@ export const dexie_syncDexieWithServer = async (
 
     // Prepare lists for bulk operations
     const recordsToDelete: number[] = [];
-    const recordsToUpdate: (STRUCTURE_CARD_DATA & { image: Blob })[] = [];
-    const recordsToAdd: (STRUCTURE_CARD_DATA & { image: Blob })[] = [];
+    const recordsToUpdate: (STRUCTURE_CARD_DATA & { image: string })[] = [];
+    const recordsToAdd: (STRUCTURE_CARD_DATA & { image: string })[] = [];
 
     // Start a DexieDB transaction
     await DexieDB.transaction("rw", DexieDB.structures, async () => {
@@ -59,7 +59,7 @@ export const dexie_syncDexieWithServer = async (
           if (
             record.structure.lastUpdated !==
               serverRecord.structure.lastUpdated ||
-            !deepEqual(record.structure, serverRecord.structure)
+            !deepEqual(record, serverRecord)
           ) {
             recordsToUpdate.push(serverRecord);
           }
@@ -156,7 +156,7 @@ export const dexie_getAllStructureCardDataPaginated = async (
         : -1
     );
 
-  const result: (STRUCTURE_CARD_DATA & { image: Blob })[][] = [];
+  const result: (STRUCTURE_CARD_DATA & { image: string })[][] = [];
 
   for (let i = 0; i < data.length; i += take) {
     result.push(data.slice(i, i + take));

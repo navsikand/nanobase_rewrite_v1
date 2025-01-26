@@ -25,7 +25,7 @@ export default function ProfilePage() {
           const structureId = structure.structure.id;
           try {
             const imageUrl = structureId
-              ? URL.createObjectURL(await getStructureImageFetcher(structureId))
+              ? (await getStructureImageFetcher(structureId)).url
               : "";
             return { ...structure, image: imageUrl };
           } catch (error) {

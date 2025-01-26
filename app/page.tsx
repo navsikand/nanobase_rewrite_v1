@@ -37,9 +37,7 @@ export default function Home() {
         const latest = latestDexieStructure[0];
 
         const imageUrl =
-          latest.image.size === 0
-            ? "/images/no-structure-img.webp"
-            : URL.createObjectURL(latest.image);
+          latest.image === "" ? "/images/no-structure-img.webp" : latest.image;
         setLatestStructureWithImage({
           ...latest,
           image: imageUrl,
@@ -63,12 +61,12 @@ export default function Home() {
           const structureId = structure.structure.id;
           try {
             const imageBlob = structureId
-              ? await getStructureImageFetcher(structureId)
-              : new Blob();
+              ? (await getStructureImageFetcher(structureId)).url
+              : "";
             return { ...structure, image: imageBlob };
           } catch (error) {
             console.error("Error fetching image:", error);
-            return { ...structure, image: new Blob() };
+            return { ...structure, image: "" };
           }
         })
       );
@@ -98,12 +96,12 @@ export default function Home() {
           const structureId = structure.structure.id;
           try {
             const imageBlob = structureId
-              ? await getStructureImageFetcher(structureId)
-              : new Blob();
+              ? (await getStructureImageFetcher(structureId)).url
+              : "";
             return { ...structure, image: imageBlob };
           } catch (error) {
             console.error("Error fetching image:", error);
-            return { ...structure, image: new Blob() };
+            return { ...structure, image: "" };
           }
         })
       );

@@ -3,9 +3,8 @@
 import { DexieDB } from "@/db";
 import { dexie_syncPageWithServer } from "@/helpers/dexieHelpers";
 import {
-  fetchImageByName,
-  getAllImageNamesFetcher,
-  getAllStructureFilesFetcher,
+  fetchAllStructureFiles,
+  fetchAllStructureImages,
   getStructureByIdFetcher,
   getStructureOxdnaFilesFetcher,
 } from "@/helpers/fetchHelpers";
@@ -57,22 +56,9 @@ export default function StructurePage({
     if (dexieData) {
       setStructureData(dexieData.structureData);
 
-      setAllStructureFiles(
-        dexieData.allStructureFiles.map((i) => {
-          return {
-            name: i.name,
-            url: URL.createObjectURL(new File([i.data], i.name)),
-          };
-        })
-      );
+      setAllStructureFiles(dexieData.allStructureFiles);
 
-      setAllStructureImages(
-        dexieData.allStructureImages.map((i) =>
-          i.size === 0
-            ? "/images/no-structure-img.webp"
-            : URL.createObjectURL(i)
-        )
-      );
+      setAllStructureImages(dexieData.allStructureImages);
 
       const set: {
         files: File[];
@@ -106,8 +92,13 @@ export default function StructurePage({
   }, [haveSubmittedOxViewFile, sendToIframe]);
 
   const { data: server_allStructureFiles } = useSWR(
-    structureId ? ["getAllStructureFiles", structureId] : null,
-    ([key, id]) => getAllStructureFilesFetcher(key, id)
+    structureId ? `getAllStructureFiles-${structureId}` : null,
+    () => fetchAllStructureFiles(structureId)
+  );
+
+  const { data: server_allStructureImages } = useSWR(
+    structureId ? `getAllStructureImages-${structureId}` : null,
+    () => fetchAllStructureImages(structureId)
   );
 
   const { data: server_fetchedStructureDataOxView } = useSWR(
@@ -120,37 +111,17 @@ export default function StructurePage({
     ([key, id]) => getStructureByIdFetcher(key, id)
   );
 
-  const { data: server_imageNames } = useSWR(
-    structureId ? `getAllStructureImagesPaths-${structureId}` : null,
-    getAllImageNamesFetcher(structureId)
-  );
-
-  const { data: server_allStructureImages } = useSWR(
-    server_imageNames && structureId
-      ? `getAllStructureImages-${structureId}`
-      : null,
-    async () => {
-      if (!server_imageNames) return []; // Early return if no images
-      const allImages = await Promise.all(
-        server_imageNames.map((imageName) =>
-          fetchImageByName(imageName, structureId)
-        )
-      );
-      return allImages;
-    }
-  );
-
   useEffect(() => {
-    if (server_structureData) {
+    if (server_structureData && server_allStructureImages) {
       dexie_syncPageWithServer({
         structureData: server_structureData,
         allStructureFiles: [],
-        allStructureImages: [],
+        allStructureImages: server_allStructureImages,
         flatStructureIdPage: structureId,
         structureDataOxview: [],
       });
     }
-  }, [server_structureData, structureId]);
+  }, [server_structureData, structureId, server_allStructureImages]);
 
   useEffect(() => {
     if (

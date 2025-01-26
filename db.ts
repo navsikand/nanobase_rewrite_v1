@@ -4,14 +4,14 @@ import { STRUCTURE_CARD_DATA } from "./types";
 export interface StructurePageData {
   flatStructureIdPage: number;
   structureData: STRUCTURE_CARD_DATA;
-  allStructureImages: Blob[];
-  allStructureFiles: { name: string; data: Blob }[];
+  allStructureImages: string[];
+  allStructureFiles: { name: string; url: string }[];
   structureDataOxview: { name: string; data: Blob }[];
 }
 
 const db = new Dexie("MyStructuresDatabase") as Dexie & {
   structures: EntityTable<
-    STRUCTURE_CARD_DATA & { image: Blob },
+    STRUCTURE_CARD_DATA & { image: string },
     "flatStructureId"
   >;
   structurePageData: EntityTable<StructurePageData, "flatStructureIdPage">;
