@@ -48,21 +48,10 @@ interface Structure {
   licensing: string;
   uploadDate: Date;
   private: boolean;
+  lasUpdated: Date;
 
   applications: string[];
   authors: string[];
-
-  structureFilePaths: File[];
-  expProtocolFilePaths: File[];
-  expResultsFilesPaths: File[];
-  simProtocolFilePaths: File[];
-  simResultsFilePaths: File[];
-  oxdnaFilePaths: File[];
-
-  displayImageIndex: number;
-  images: File[];
-
-  statsData: StatsData;
 
   User?: local_User;
   userId: string;
@@ -101,6 +90,7 @@ export interface STRUCTURE_CARD_DATA {
     citation: string;
     datePublished: string;
     type: string;
+    licensing: string;
     uploadDate: string;
     paperLink: string;
     oldId: number;

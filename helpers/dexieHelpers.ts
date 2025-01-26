@@ -30,33 +30,60 @@ const deepEqual = <T>(obj1: T, obj2: T): boolean => {
 // TODO: Add pako support so compress the data before its stored
 export const dexie_syncDexieWithServer = async (
   server_data: (STRUCTURE_CARD_DATA & { image: Blob })[]
-) => {
-  const noMatchesFoundIndexes = [];
-  for (let i = 0; i < server_data.length; i++) {
-    const current_server_data = server_data[i];
-
-    const dexieCounterPart = await DexieDB.structures.get(
-      current_server_data.flatStructureId
+): Promise<void> => {
+  try {
+    // Create a map for fast lookups in the server data
+    const serverDataMap = new Map(
+      server_data.map((item) => [item.flatStructureId, item])
     );
-    if (!dexieCounterPart) {
-      noMatchesFoundIndexes.push(i);
-    } else {
-      if (
-        current_server_data.structure.lastUpdated !==
-          dexieCounterPart.structure.lastUpdated ||
-        !deepEqual(current_server_data.structure, dexieCounterPart.structure)
-      ) {
-        await DexieDB.structures.delete(dexieCounterPart.flatStructureId);
-        await DexieDB.structures.add(current_server_data);
+
+    // Fetch all DexieDB records
+    const dexieData = await DexieDB.structures.toArray();
+
+    // Prepare lists for bulk operations
+    const recordsToDelete: number[] = [];
+    const recordsToUpdate: (STRUCTURE_CARD_DATA & { image: Blob })[] = [];
+    const recordsToAdd: (STRUCTURE_CARD_DATA & { image: Blob })[] = [];
+
+    // Start a DexieDB transaction
+    await DexieDB.transaction("rw", DexieDB.structures, async () => {
+      // Process existing DexieDB records
+      for (const record of dexieData) {
+        const serverRecord = serverDataMap.get(record.flatStructureId);
+
+        if (!serverRecord) {
+          // If no matching record in the server data, mark it for deletion
+          recordsToDelete.push(record.flatStructureId);
+        } else {
+          // If the record exists but is outdated, mark it for update
+          if (
+            record.structure.lastUpdated !==
+              serverRecord.structure.lastUpdated ||
+            !deepEqual(record.structure, serverRecord.structure)
+          ) {
+            recordsToUpdate.push(serverRecord);
+          }
+          // Remove from serverDataMap to avoid adding duplicates later
+          serverDataMap.delete(record.flatStructureId);
+        }
       }
-    }
-  }
 
-  for (let i = 0; i < noMatchesFoundIndexes.length; i++) {
-    const index = noMatchesFoundIndexes[i];
+      // Remaining records in serverDataMap are new and need to be added
+      recordsToAdd.push(...Array.from(serverDataMap.values()));
 
-    const current_server_data = server_data[index];
-    DexieDB.structures.add({ ...current_server_data });
+      // Perform bulk operations
+      if (recordsToDelete.length > 0) {
+        await DexieDB.structures.bulkDelete(recordsToDelete);
+      }
+      if (recordsToUpdate.length > 0) {
+        await DexieDB.structures.bulkPut(recordsToUpdate); // Use bulkPut for add or update
+      }
+      if (recordsToAdd.length > 0) {
+        await DexieDB.structures.bulkAdd(recordsToAdd);
+      }
+    });
+  } catch (error) {
+    console.error("Error occurred while syncing Dexie with server:", error);
   }
 };
 
@@ -141,14 +168,15 @@ export const dexie_getAllStructureCardDataPaginated = async (
 export const dexie_syncPageWithServer = async (
   server_data: StructurePageData
 ) => {
-  const dexieCounterPart = await DexieDB.structures.get(
+  const dexieCounterPart = await DexieDB.structurePageData.get(
     server_data.flatStructureIdPage
   );
 
   if (dexieCounterPart) {
     if (
-      dexieCounterPart.structure.lastUpdated !==
-      server_data.structureData.structure.lastUpdated
+      dexieCounterPart.structureData.structure.lastUpdated !==
+        server_data.structureData.structure.lastUpdated ||
+      !deepEqual(dexieCounterPart, server_data)
     ) {
       await DexieDB.structurePageData.delete(server_data.flatStructureIdPage);
       await DexieDB.structurePageData.add(server_data);

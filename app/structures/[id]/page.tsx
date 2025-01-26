@@ -55,6 +55,8 @@ export default function StructurePage({
 
   useEffect(() => {
     if (dexieData) {
+      setStructureData(dexieData.structureData);
+
       setAllStructureFiles(
         dexieData.allStructureFiles.map((i) => {
           return {
@@ -63,17 +65,7 @@ export default function StructurePage({
           };
         })
       );
-    }
-  }, [dexieData]);
 
-  useEffect(() => {
-    if (dexieData) {
-      setStructureData(dexieData.structureData);
-    }
-  }, [dexieData]);
-
-  useEffect(() => {
-    if (dexieData) {
       setAllStructureImages(
         dexieData.allStructureImages.map((i) =>
           i.size === 0
@@ -81,11 +73,7 @@ export default function StructurePage({
             : URL.createObjectURL(i)
         )
       );
-    }
-  }, [dexieData]);
 
-  useEffect(() => {
-    if (dexieData) {
       const set: {
         files: File[];
         message: string;
@@ -151,6 +139,18 @@ export default function StructurePage({
       return allImages;
     }
   );
+
+  useEffect(() => {
+    if (server_structureData) {
+      dexie_syncPageWithServer({
+        structureData: server_structureData,
+        allStructureFiles: [],
+        allStructureImages: [],
+        flatStructureIdPage: structureId,
+        structureDataOxview: [],
+      });
+    }
+  }, [server_structureData, structureId]);
 
   useEffect(() => {
     if (
