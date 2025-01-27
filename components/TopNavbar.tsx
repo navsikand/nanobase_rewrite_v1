@@ -30,6 +30,7 @@ export const TopNavbar = () => {
         if (Date.now() < exp * 1000) {
           if (pathName === "/sign-in" || pathName === "/sign-up")
             router.push("/browse");
+
           setUserAuthState({ name, id });
         } else {
           if (pathName === "/upload-structure") {
@@ -38,6 +39,10 @@ export const TopNavbar = () => {
         }
       } catch (e) {
         console.log(e);
+      }
+    } else {
+      if (pathName === "/upload-structure") {
+        router.push("/sign-in");
       }
     }
   }, [pathName, router]);

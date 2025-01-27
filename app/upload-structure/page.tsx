@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Dialog, Transition } from "@headlessui/react";
+import { Dialog, DialogTitle, Transition } from "@headlessui/react";
 import { z } from "zod";
 import { apiRoot } from "@/helpers/fetchHelpers";
 
@@ -158,8 +158,8 @@ export default function UploadStructurePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto bg-white shadow rounded-lg p-6">
+    <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto rounded-lg p-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">
           Upload Structure
         </h1>
@@ -170,9 +170,11 @@ export default function UploadStructurePage() {
               type="text"
               name="title"
               placeholder="Title..."
-              className={`w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 ${
-                errors.title ? "border-red-500" : ""
-              }`}
+              //className={`w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 ${
+              //  errors.title ? "border-red-500" : ""
+              //}`}
+
+              className={`bg-stone-400/20 rounded-lg p-2 w-full mt-1 ${errors.title ? "border-red-500" : ""}`}
               value={formData.title}
               onChange={handleChange}
               required
@@ -188,9 +190,7 @@ export default function UploadStructurePage() {
               type="text"
               name="type"
               placeholder="Type..."
-              className={`w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 ${
-                errors.type ? "border-red-500" : ""
-              }`}
+              className={`bg-stone-400/20 rounded-lg p-2 w-full mt-1 ${errors.type ? "border-red-500" : ""}`}
               value={formData.type}
               onChange={handleChange}
               required
@@ -205,9 +205,7 @@ export default function UploadStructurePage() {
             <textarea
               name="description"
               placeholder="Description..."
-              className={`w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 ${
-                errors.description ? "border-red-500" : ""
-              }`}
+              className={`bg-stone-400/20 rounded-lg p-2 w-full mt-1 ${errors.description ? "border-red-500" : ""}`}
               rows={3}
               value={formData.description}
               onChange={handleChange}
@@ -223,9 +221,7 @@ export default function UploadStructurePage() {
             <input
               type="date"
               name="datePublished"
-              className={`w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 ${
-                errors.datePublished ? "border-red-500" : ""
-              }`}
+              className={`bg-stone-400/20 rounded-lg p-2 w-full mt-1 ${errors.datePublished ? "border-red-500" : ""}`}
               value={formData.datePublished}
               onChange={handleChange}
               required
@@ -241,9 +237,7 @@ export default function UploadStructurePage() {
               type="text"
               name="citation"
               placeholder="Citation..."
-              className={`w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 ${
-                errors.citation ? "border-red-500" : ""
-              }`}
+              className={`bg-stone-400/20 rounded-lg p-2 w-full mt-1 ${errors.citation ? "border-red-500" : ""}`}
               value={formData.citation}
               onChange={handleChange}
             />
@@ -258,9 +252,7 @@ export default function UploadStructurePage() {
               type="url"
               name="paperLink"
               placeholder="Paper link..."
-              className={`w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 ${
-                errors.paperLink ? "border-red-500" : ""
-              }`}
+              className={`bg-stone-400/20 rounded-lg p-2 w-full mt-1 ${errors.paperLink ? "border-red-500" : ""}`}
               value={formData.paperLink}
               onChange={handleChange}
             />
@@ -275,9 +267,7 @@ export default function UploadStructurePage() {
               type="text"
               name="licensing"
               placeholder="Licensing..."
-              className={`w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 ${
-                errors.licensing ? "border-red-500" : ""
-              }`}
+              className={`bg-stone-400/20 rounded-lg p-2 w-full mt-1 ${errors.licensing ? "border-red-500" : ""}`}
               value={formData.licensing}
               onChange={handleChange}
               required
@@ -306,7 +296,7 @@ export default function UploadStructurePage() {
             <input
               type="text"
               placeholder="Keywords (comma-separated)..."
-              className="w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2 rounded-lg bg-stone-400/20"
               value={keywords}
               onChange={(e) => setKeywords(e.target.value)}
             />
@@ -321,7 +311,7 @@ export default function UploadStructurePage() {
               type="file"
               accept="image/*"
               multiple
-              className="w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full p-2 border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-stone-400/20 rounded-lg"
               onChange={handleFileChange(setImages)}
             />
           </div>
@@ -334,16 +324,18 @@ export default function UploadStructurePage() {
             <input
               type="file"
               multiple
-              className="w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-stone-400/20 rounded-lg p-2"
               onChange={handleFileChange(setFiles)}
             />
           </div>
 
           {/* Submit Button */}
-          <div>
+          <div className="flex justify-end ">
             <button
               type="submit"
-              className="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className={
+                "rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
+              }
               disabled={isLoading}
             >
               {isLoading ? "Uploading..." : "Upload Structure"}
@@ -361,10 +353,10 @@ export default function UploadStructurePage() {
         >
           <div className="fixed inset-0 bg-black bg-opacity-30" />
           <div className="fixed inset-0 flex items-center justify-center">
-            <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6">
-              <Dialog.Title className="text-lg font-medium text-gray-900">
+            <div className="rounded-lg shadow-lg max-w-md w-full p-6">
+              <DialogTitle className="text-lg font-medium text-gray-900">
                 Upload Status
-              </Dialog.Title>
+              </DialogTitle>
               <p className="mt-2 text-sm text-gray-600">{responseMessage}</p>
               <button
                 onClick={() => setIsModalOpen(false)}
