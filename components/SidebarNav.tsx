@@ -10,7 +10,7 @@ const LINKS: { title: string; slug: string }[] = [
   { title: "Quick download", slug: "/quick-download" },
 ];
 
-export const SidebarNav = (): JSX.Element => {
+export const SidebarNav = () => {
   return (
     <div className="md:flex flex-col space-y-2 p-4 hidden">
       {/* Logo */}

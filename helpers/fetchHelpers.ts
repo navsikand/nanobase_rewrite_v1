@@ -36,7 +36,6 @@ export const getStructureImageFetcher = async (
   }
   const { url }: { url: string } = await response.json();
   const r = `${apiRoot}/structure/images/${url}`;
-  console.log(r);
   return { url: r };
 };
 

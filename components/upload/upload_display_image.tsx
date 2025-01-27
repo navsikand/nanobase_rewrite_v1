@@ -9,7 +9,7 @@ type props = {
 export const UploadDisplayImage = ({
   setDisplayImageUploaded,
   structureId,
-}: props): JSX.Element => {
+}: props) => {
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {

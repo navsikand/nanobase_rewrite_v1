@@ -34,7 +34,7 @@ export const UploadStructureInformation = ({
   selectedIndex,
   setSelectedIndex,
   setStructureId,
-}: props): JSX.Element => {
+}: props) => {
   const [formData, setFormData] = useState<type_formData>({
     title: "",
     type: "",

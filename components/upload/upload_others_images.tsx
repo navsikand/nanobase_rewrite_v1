@@ -1,5 +1,3 @@
-"use client";
-
 import { apiRoot } from "@/helpers/fetchHelpers";
 import { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
 
@@ -13,7 +11,7 @@ export const UploadImages = ({
   selectedIndex,
   setSelectedIndex,
   structureId,
-}: props): JSX.Element => {
+}: props) => {
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
 
   const handleImageSubmit = async (e: React.FormEvent) => {

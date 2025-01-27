@@ -8,7 +8,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Highlighted_Underline } from "./utils/layout/highlightedUnderline";
 
-export const TopNavbar = (): JSX.Element => {
+export const TopNavbar = () => {
   const router = useRouter();
   const pathName = usePathname();
   const [userAuthState, setUserAuthState] = useState<{

@@ -23,17 +23,19 @@ import { MinusIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { useLiveQuery } from "dexie-react-hooks";
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { use, useCallback, useEffect, useRef, useState } from "react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import useSWR from "swr";
 
 export default function StructurePage({
-  params: { id: structureId },
+  params,
 }: {
-  params: { id: number };
+  params: Promise<{ id: number }>;
 }) {
-  const oxviewIframeRef = useRef<HTMLIFrameElement>(null);
+  const { id: structureId } = use(params);
+
+  const oxviewIframeRef = useRef<HTMLIFrameElement | null>(null);
 
   const dexieData = useLiveQuery(() =>
     DexieDB.structurePageData.get(structureId)
@@ -156,7 +158,7 @@ export default function StructurePage({
           {/* Image gallery */}
           <TabGroup className="flex flex-col-reverse">
             {/* Image selector */}
-            <div className="mx-auto mt-6 hidden w-full max-w-2xl sm:block lg:max-w-none">
+            <div className="mx-auto mt-6 w-full max-w-2xl sm:block lg:max-w-none">
               <TabList className="grid grid-cols-4 gap-6">
                 {allStructureImages ? (
                   allStructureImages.map((image) => (
