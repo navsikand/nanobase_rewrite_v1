@@ -54,9 +54,9 @@ export const TopNavbar = () => {
     // { title: "Submit job", slug: "/submit-oxdna-jobs" },
   ];
   return (
-    <div className="p-4 px-8 flex items-center justify-between">
+    <div className="p-4 px-8 grid grid-cols-3 items-center">
       {/* Logo */}
-      <div className="flex">
+      <div className="flex justify-start">
         <Link href="/" className="aspect-square size-12 relative">
           <span className="sr-only">Nanobase</span>
 
@@ -71,7 +71,7 @@ export const TopNavbar = () => {
       </div>
 
       {/* Centered Links */}
-      <div className="absolute left-1/2 -translate-x-1/2 space-x-3 flex text-lg font-semibold">
+      <div className="flex justify-center space-x-3 text-lg font-semibold">
         {LINKS.map((link) => (
           <Link href={link.slug} key={link.slug} className="group">
             {link.title}
@@ -81,7 +81,7 @@ export const TopNavbar = () => {
       </div>
 
       {/* User Info or Sign In */}
-      <div>
+      <div className="flex justify-end">
         {userAuthState ? (
           <p>Signed in as {userAuthState.name}</p>
         ) : (
