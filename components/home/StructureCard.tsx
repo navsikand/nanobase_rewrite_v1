@@ -32,7 +32,7 @@ export const StructureCard = ({
             <span className="sr-only">{title}</span>
             {image ? (
               <Image
-                src={image}
+                src={image === "" ? "/images/no-structure-img.webp" : image}
                 fill={true}
                 className="object-contain"
                 alt={title}
