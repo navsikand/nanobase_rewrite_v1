@@ -114,7 +114,12 @@ export default function StructurePage({
   );
 
   useEffect(() => {
-    if (server_structureData && server_allStructureImages) {
+    if (
+      server_structureData &&
+      server_allStructureImages &&
+      !server_allStructureFiles &&
+      !server_fetchedStructureDataOxView
+    ) {
       dexie_syncPageWithServer({
         structureData: server_structureData,
         allStructureFiles: [],
@@ -123,13 +128,19 @@ export default function StructurePage({
         structureDataOxview: [],
       });
     }
-  }, [server_structureData, structureId, server_allStructureImages]);
+  }, [
+    server_allStructureFiles,
+    server_allStructureImages,
+    server_fetchedStructureDataOxView,
+    server_structureData,
+    structureId,
+  ]);
 
   useEffect(() => {
     if (
+      server_structureData &&
       server_allStructureFiles &&
       server_allStructureImages &&
-      server_structureData &&
       server_fetchedStructureDataOxView
     ) {
       (async () => {

@@ -35,7 +35,7 @@ export const getStructureImageFetcher = async (
     throw new Error(`Failed to fetch files for structure ${structureId}`);
   }
   const { url }: { url: string } = await response.json();
-  const r = `${apiRoot}/structure/images/${url}`;
+  const r = url === "" ? "" : `${apiRoot}/structure/images/${url}`;
   return { url: r };
 };
 
@@ -109,18 +109,6 @@ export const getAllImageNamesFetcher = (structureId: number) => async () => {
   else return [];
 };
 
-export const fetchImageByNameold = async (
-  imageName: string,
-  structureId: number
-) => {
-  const response = await fetch(
-    `${apiRoot}/structure/getStructureImageByName/${imageName}?id=${structureId}`
-  );
-  if (!response.ok) throw new Error("Image not found");
-  const imageBlob = await response.blob();
-  return imageBlob;
-};
-
 export const getUserProfileFetcher = async (key: string) => {
   // Retrieve JWT from localStorage
   const token = localStorage.getItem("token");
@@ -186,7 +174,7 @@ export const fetchAllStructureFiles = async (
   const r = data.map((d: { name: string; url: string }) => {
     return {
       name: d.name,
-      url: `${apiRoot}/structure/files/${d.url}`,
+      url: d.url === "" ? "" : `${apiRoot}/structure/files/${d.url}`,
     };
   });
   return r;
@@ -201,7 +189,9 @@ export const fetchAllImageNames = async (structureId: number) => {
     throw new Error(`Failed to fetch image names for structure ${structureId}`);
   }
   const data = await response.json();
-  const r = data.map((data: string) => `${apiRoot}/structure/images/${data}`);
+  const r = data.map((data: string) =>
+    data === "" ? "" : `${apiRoot}/structure/images/${data}`
+  );
   return r;
 };
 

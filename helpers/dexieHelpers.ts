@@ -27,7 +27,6 @@ const deepEqual = <T>(obj1: T, obj2: T): boolean => {
   return true;
 };
 
-// TODO: Add pako support so compress the data before its stored
 export const dexie_syncDexieWithServer = async (
   server_data: (STRUCTURE_CARD_DATA & { image: string })[]
 ): Promise<void> => {
@@ -57,8 +56,8 @@ export const dexie_syncDexieWithServer = async (
         } else {
           // If the record exists but is outdated, mark it for update
           if (
-            record.structure.lastUpdated !==
-              serverRecord.structure.lastUpdated ||
+            //record.structure.lastUpdated !==
+            //  serverRecord.structure.lastUpdated ||
             !deepEqual(record, serverRecord)
           ) {
             recordsToUpdate.push(serverRecord);
@@ -168,23 +167,48 @@ export const dexie_getAllStructureCardDataPaginated = async (
 export const dexie_syncPageWithServer = async (
   server_data: StructurePageData
 ) => {
-  const dexieCounterPart = await DexieDB.structurePageData.get(
-    server_data.flatStructureIdPage
-  );
+  try {
+    // Fetch the existing record from DexieDB by its flatStructureIdPage
+    const dexieCounterPart = await DexieDB.structurePageData.get(
+      server_data.flatStructureIdPage
+    );
 
-  if (dexieCounterPart) {
-    if (
-      dexieCounterPart.structureData.structure.lastUpdated !==
-        server_data.structureData.structure.lastUpdated ||
-      !deepEqual(dexieCounterPart, server_data)
-    ) {
-      await DexieDB.structurePageData.delete(server_data.flatStructureIdPage);
+    if (dexieCounterPart) {
+      // Check if the data is outdated or different
+      if (!deepEqual(dexieCounterPart, server_data)) {
+        // Delete the old record and add the new one
+        await DexieDB.structurePageData.delete(server_data.flatStructureIdPage);
+        await DexieDB.structurePageData.add(server_data);
+      }
+    } else {
+      // If no matching record exists, simply add the new data
       await DexieDB.structurePageData.add(server_data);
     }
-  } else {
-    await DexieDB.structurePageData.add(server_data);
+  } catch (error) {
+    console.error("Error occurred while syncing with server:", error);
   }
 };
+
+//export const dexie_syncPageWithServer = async (
+//  server_data: StructurePageData
+//) => {
+//  const dexieCounterPart = await DexieDB.structurePageData.get(
+//    server_data.flatStructureIdPage
+//  );
+//
+//  if (dexieCounterPart) {
+//    if (
+//      //dexieCounterPart.structureData.structure.lastUpdated !==
+//      //  server_data.structureData.structure.lastUpdated ||
+//      !deepEqual(dexieCounterPart, server_data)
+//    ) {
+//      await DexieDB.structurePageData.delete(server_data.flatStructureIdPage);
+//      await DexieDB.structurePageData.add(server_data);
+//    }
+//  } else {
+//    await DexieDB.structurePageData.add(server_data);
+//  }
+//};
 
 export const dexie_getLatestStructure = async () => {
   const allStructures = await DexieDB.structures
