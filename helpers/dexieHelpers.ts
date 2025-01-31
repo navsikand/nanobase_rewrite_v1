@@ -1,5 +1,6 @@
 import { DexieDB, StructurePageData } from "@/db";
 import { STRUCTURE_CARD_DATA } from "@/types";
+import { Dispatch, SetStateAction } from "react";
 
 const deepEqual = <T>(obj1: T, obj2: T): boolean => {
   // Check if both values are identical
@@ -102,6 +103,7 @@ export const dexie_getAllStructureCardDataPaginated = async (
   skipLots: number,
   searchQuery: string,
   searchType: SEARCH_BY,
+  setPageNumber: Dispatch<SetStateAction<number>>,
   take: number = 15
 ) => {
   const data = (await DexieDB.structures.toArray())
@@ -109,6 +111,7 @@ export const dexie_getAllStructureCardDataPaginated = async (
       if (searchQuery === "") {
         return true;
       } else {
+        setPageNumber(0);
         switch (searchType) {
           case SEARCH_BY.APPLICATION:
             return false;

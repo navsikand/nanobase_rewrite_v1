@@ -40,7 +40,8 @@ export default function Browse() {
       dexie_getAllStructureCardDataPaginated(
         pageNumber,
         searchQuery,
-        searchType
+        searchType,
+        setPageNumber
       ),
     [pageNumber, searchType, searchQuery]
   );
