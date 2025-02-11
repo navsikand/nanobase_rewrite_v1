@@ -1,7 +1,7 @@
 import { DexieDB, StructurePageData } from "@/db";
 import { STRUCTURE_CARD_DATA } from "@/types";
 import { Dispatch, SetStateAction } from "react";
-import levenshtein from "fast-levenshtein";
+import Fuse from "fuse.js";
 
 const deepEqual = <T>(obj1: T, obj2: T): boolean => {
   // Check if both values are identical
@@ -107,54 +107,77 @@ export const dexie_getAllStructureCardDataPaginated = async (
   setPageNumber: Dispatch<SetStateAction<number>>,
   take: number = 15
 ) => {
-  const data = (await DexieDB.structures.toArray())
+  const rawData = await DexieDB.structures.toArray();
+
+  // Lowercase query for consistency
+  const searchQueryLower = searchQuery.toLowerCase();
+
+  // Fuzzy Search Configurations
+  const fuseOptions = {
+    threshold: 0.4, // Adjust based on fuzziness needs
+    includeScore: false, // We only need matched results
+  };
+
+  // Create Fuse instances for different search types
+  const fuseTitle = new Fuse(rawData, {
+    ...fuseOptions,
+    keys: ["structure.title"],
+  });
+  const fuseDescription = new Fuse(rawData, {
+    ...fuseOptions,
+    keys: ["structure.description"],
+  });
+  const fuseAuthors = new Fuse(rawData, {
+    ...fuseOptions,
+    keys: ["structure.authors"],
+  });
+  const fuseKeywords = new Fuse(rawData, {
+    ...fuseOptions,
+    keys: ["structure.keywords"],
+  });
+
+  const filteredData = rawData
     .filter((dataToCheck) => {
       if (searchQuery === "") {
         return true;
-      } else {
-        setPageNumber(0);
-        const searchQueryLower = searchQuery.toLowerCase();
+      }
 
-        switch (searchType) {
-          case SEARCH_BY.APPLICATION:
-            return false;
+      // Reset pagination
+      setPageNumber(0);
 
-          case SEARCH_BY.AUTHOR: {
-            return dataToCheck.structure.authors.some(
-              (author) =>
-                levenshtein.get(author.toLowerCase(), searchQueryLower) <= 3
-            );
-          }
+      switch (searchType) {
+        case SEARCH_BY.APPLICATION:
+          return false;
 
-          case SEARCH_BY.DESCRIPTION:
-            return (
-              levenshtein.get(
-                dataToCheck.structure.description.toLowerCase(),
-                searchQueryLower
-              ) <= 3
-            );
-
-          case SEARCH_BY.KEYWORD: {
-            const splitup = searchQueryLower.split(" ");
-            return splitup.every((queryWord) =>
-              dataToCheck.structure.keywords.some(
-                (keyword) =>
-                  levenshtein.get(keyword.toLowerCase(), queryWord) <= 3
-              )
-            );
-          }
-
-          case SEARCH_BY.TITLE:
-            return (
-              levenshtein.get(
-                dataToCheck.structure.title.toLowerCase(),
-                searchQueryLower
-              ) <= 3
-            );
-
-          default:
-            return false;
+        case SEARCH_BY.AUTHOR: {
+          // Search authors using Fuse.js
+          const results = fuseAuthors.search(searchQueryLower);
+          return results.some((result) => result.item === dataToCheck);
         }
+
+        case SEARCH_BY.DESCRIPTION: {
+          // Search description using Fuse.js
+          return fuseDescription
+            .search(searchQueryLower)
+            .some((result) => result.item === dataToCheck);
+        }
+
+        case SEARCH_BY.KEYWORD: {
+          // Search keywords using Fuse.js
+          return fuseKeywords
+            .search(searchQueryLower)
+            .some((result) => result.item === dataToCheck);
+        }
+
+        case SEARCH_BY.TITLE: {
+          // Search title using Fuse.js
+          return fuseTitle
+            .search(searchQueryLower)
+            .some((result) => result.item === dataToCheck);
+        }
+
+        default:
+          return false;
       }
     })
     .sort((a, b) =>
@@ -165,8 +188,8 @@ export const dexie_getAllStructureCardDataPaginated = async (
 
   const result: (STRUCTURE_CARD_DATA & { image: string })[][] = [];
 
-  for (let i = 0; i < data.length; i += take) {
-    result.push(data.slice(i, i + take));
+  for (let i = 0; i < filteredData.length; i += take) {
+    result.push(filteredData.slice(i, i + take));
   }
 
   return { structures: result[skipLots], count: result.length };
