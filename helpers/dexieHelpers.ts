@@ -1,6 +1,7 @@
 import { DexieDB, StructurePageData } from "@/db";
 import { STRUCTURE_CARD_DATA } from "@/types";
 import { Dispatch, SetStateAction } from "react";
+import levenshtein from "fast-levenshtein";
 
 const deepEqual = <T>(obj1: T, obj2: T): boolean => {
   // Check if both values are identical
@@ -112,40 +113,44 @@ export const dexie_getAllStructureCardDataPaginated = async (
         return true;
       } else {
         setPageNumber(0);
+        const searchQueryLower = searchQuery.toLowerCase();
+
         switch (searchType) {
           case SEARCH_BY.APPLICATION:
             return false;
 
           case SEARCH_BY.AUTHOR: {
-            let doesInclude = false;
-            dataToCheck.structure.authors.forEach((author) => {
-              if (author.toLowerCase().includes(searchQuery.toLowerCase())) {
-                doesInclude = true;
-              }
-            });
-            return doesInclude;
+            return dataToCheck.structure.authors.some(
+              (author) =>
+                levenshtein.get(author.toLowerCase(), searchQueryLower) <= 3
+            );
           }
 
           case SEARCH_BY.DESCRIPTION:
-            return dataToCheck.structure.description
-              .toLowerCase()
-              .includes(searchQuery.toLowerCase());
-
-          case SEARCH_BY.KEYWORD: {
-            const splitup = searchQuery.toLowerCase().split(" ");
-            const allMatch = splitup.every((queryWord) =>
-              dataToCheck.structure.keywords.some((keyword) =>
-                keyword.toLowerCase().includes(queryWord)
-              )
+            return (
+              levenshtein.get(
+                dataToCheck.structure.description.toLowerCase(),
+                searchQueryLower
+              ) <= 3
             );
 
-            return allMatch;
+          case SEARCH_BY.KEYWORD: {
+            const splitup = searchQueryLower.split(" ");
+            return splitup.every((queryWord) =>
+              dataToCheck.structure.keywords.some(
+                (keyword) =>
+                  levenshtein.get(keyword.toLowerCase(), queryWord) <= 3
+              )
+            );
           }
 
           case SEARCH_BY.TITLE:
-            return dataToCheck.structure.title
-              .toLowerCase()
-              .includes(searchQuery.toLowerCase());
+            return (
+              levenshtein.get(
+                dataToCheck.structure.title.toLowerCase(),
+                searchQueryLower
+              ) <= 3
+            );
 
           default:
             return false;
