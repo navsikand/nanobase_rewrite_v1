@@ -12,7 +12,7 @@ export const StructureCard = ({
   image: string;
 }) => {
   return (
-    <div className="px-5 rounded-lg bg-stone-50 hover:-translate-y-1 hover:shadow-xl duration-200">
+    <div className="px-5 rounded-lg bg-white hover:-translate-y-1 hover:shadow-xl duration-200 border-[1px] border-dotted border-gray-500">
       <div className="w-11/12 mx-auto">
         <p className="text-xs font-extralight text-right pt-3 pb-1">
           Uploaded by {oldCleanup(User.firstName)} {oldCleanup(User.lastName)}{" "}
@@ -27,7 +27,7 @@ export const StructureCard = ({
         <div className="flex">
           <Link
             href={"/structures/" + id}
-            className="aspect-[9/16] w-full border border-gray-500 rounded-lg relative max-h-72"
+            className="aspect-[9/16] w-full rounded-lg relative max-h-72 rounded-b-none border-b-gray-500 border-b-[1px]"
           >
             <span className="sr-only">{title}</span>
             {image ? (
