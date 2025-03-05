@@ -172,7 +172,7 @@ export default function Signup() {
                 </p>
                 <Button
                   type="submit"
-                  className="rounded-md px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200"
                   disabled={loading}
                 >
                   {loading ? "Signing up..." : "Sign Up"}
