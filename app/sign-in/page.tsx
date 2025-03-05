@@ -48,8 +48,8 @@ export default function SignIn() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <div className="max-w-md w-full bg-white shadow-md rounded-lg p-8">
+    <div className="min-h-screen flex justify-center p-4">
+      <div className="max-w-md w-full bg-white rounded-lg p-8">
         <h1 className="text-3xl font-bold mb-6 text-center">Sign In</h1>
         {errorMessage && (
           <div className="mb-4 p-3 text-red-700 bg-red-100 rounded">
