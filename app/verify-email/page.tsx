@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { apiRoot } from "@/helpers/fetchHelpers";
 
-export default function VerifyEmail() {
+function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const [message, setMessage] = useState(
@@ -22,7 +21,7 @@ export default function VerifyEmail() {
     const verifyEmail = async () => {
       try {
         const response = await fetch(
-          `${apiRoot}/auth/verify-email?token=${token}`,
+          `/api/v1/auth/verify-email?token=${token}`,
           {
             method: "GET",
           }
@@ -38,6 +37,7 @@ export default function VerifyEmail() {
           );
         }
       } catch (error) {
+        console.error(error)
         setMessage("An error occurred while verifying your email.");
       } finally {
         setLoading(false);
@@ -60,5 +60,13 @@ export default function VerifyEmail() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function VerifyEmail() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <VerifyEmailContent />
+    </Suspense>
   );
 }
