@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { apiRoot } from "@/helpers/fetchHelpers";
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
@@ -21,7 +22,7 @@ function VerifyEmailContent() {
     const verifyEmail = async () => {
       try {
         const response = await fetch(
-          `/api/v1/auth/verify-email?token=${token}`,
+          `${apiRoot}/auth/verify-email?token=${token}`,
           {
             method: "GET",
           }
@@ -37,7 +38,7 @@ function VerifyEmailContent() {
           );
         }
       } catch (error) {
-        console.error(error)
+        console.error(error);
         setMessage("An error occurred while verifying your email.");
       } finally {
         setLoading(false);
