@@ -164,11 +164,8 @@ export default function StructurePage({
   return (
     <main className="mx-auto max-w-7xl sm:px-6 sm:pt-16 lg:px-8">
       <div className="mx-auto max-w-2xl lg:max-w-none">
-        {/* Product */}
         <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8">
-          {/* Image gallery */}
           <TabGroup className="flex flex-col-reverse">
-            {/* Image selector */}
             <div className="mx-auto mt-6 w-full max-w-2xl sm:block lg:max-w-none">
               <TabList className="grid grid-cols-4 gap-6">
                 {allStructureImages ? (
@@ -176,7 +173,6 @@ export default function StructurePage({
                     <Tab
                       key={image}
                       className="group relative flex h-24 bg-white/30"
-                      //className="group relative flex h-24 cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium uppercase text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-indigo-500/50 focus:ring-offset-4"
                     >
                       <span className="sr-only">{image}</span>
                       <span className="absolute inset-0 overflow-hidden rounded-md">
@@ -243,7 +239,7 @@ export default function StructurePage({
                 Additional details
               </h2>
 
-              <div className="divide-y divide-gray-200 border-t">
+              <div className="divide-y divide-gray-200">
                 <Disclosure as="div">
                   <h3>
                     <DisclosureButton className="group relative flex w-full items-center justify-between pt-6 text-left">
@@ -396,41 +392,6 @@ export default function StructurePage({
                 onLoad={() => sendToIframe()}
                 className="w-full mx-auto aspect-[16/9] mt-20"
               />
-              {/* <div className="divide-y divide-gray-200 border-t">
-                {product.details.map((detail) => (
-                  <Disclosure key={detail.name} as="div">
-                    <h3>
-                      <DisclosureButton className="group relative flex w-full items-center justify-between py-6 text-left">
-                        <span className="text-sm font-medium text-gray-900 group-data-[open]:text-indigo-600">
-                          {detail.name}
-                        </span>
-                        <span className="ml-6 flex items-center">
-                          <PlusIcon
-                            aria-hidden="true"
-                            className="block size-6 text-gray-400 group-hover:text-gray-500 group-data-[open]:hidden"
-                          />
-                          <MinusIcon
-                            aria-hidden="true"
-                            className="hidden size-6 text-indigo-400 group-hover:text-indigo-500 group-data-[open]:block"
-                          />
-                        </span>
-                      </DisclosureButton>
-                    </h3>
-                    <DisclosurePanel className="pb-6">
-                      <ul
-                        role="list"
-                        className="list-disc space-y-1 pl-5 text-sm/6 text-gray-700 marker:text-gray-300"
-                      >
-                        {detail.items.map((item) => (
-                          <li key={item} className="pl-2">
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                    </DisclosurePanel>
-                  </Disclosure>
-                ))}
-              </div> */}
             </section>
           </div>
         </div>

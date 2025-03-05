@@ -35,10 +35,12 @@ export default function SignIn() {
         router.push("/browse");
       } else {
         const data = await response.json();
-        setErrorMessage(data.message || "Authentication failed. Please try again.");
+        setErrorMessage(
+          data.message || "Authentication failed. Please try again."
+        );
       }
     } catch (error) {
-      console.error(error)
+      console.error(error);
       setErrorMessage("An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false);
@@ -56,7 +58,10 @@ export default function SignIn() {
         )}
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
               Email
             </label>
             <input
@@ -73,7 +78,10 @@ export default function SignIn() {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
               Password
             </label>
             <input
