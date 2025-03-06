@@ -59,7 +59,6 @@ export default function Browse() {
           image: i.image === "" ? "/images/no-structure-img.webp" : i.image,
         });
       });
-
       setCardsToDisplay(ret);
     }
   }, [dexieData]);

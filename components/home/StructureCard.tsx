@@ -2,15 +2,15 @@ import { STRUCTURE_CARD_DATA } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
 import { oldCleanup } from "../utils/misc";
-import Skeleton from "react-loading-skeleton";
 
 export const StructureCard = ({
   structure: { description, id, title, uploadDate },
   User,
   image,
-}: STRUCTURE_CARD_DATA & {
-  image: string;
-}) => {
+}: STRUCTURE_CARD_DATA & { image: string }) => {
+  const imageSrc =
+    image && image !== "" ? image : "/images/no-structure-img.webp";
+
   return (
     <div className="px-5 rounded-lg bg-white hover:-translate-y-1 hover:shadow-xl duration-200 border-[1px] border-dotted border-gray-500">
       <div className="w-11/12 mx-auto">
@@ -30,16 +30,12 @@ export const StructureCard = ({
             className="aspect-[9/16] w-full rounded-lg relative max-h-72 rounded-b-none border-b-gray-500 border-b-[1px]"
           >
             <span className="sr-only">{title}</span>
-            {image ? (
-              <Image
-                src={image === "" ? "/images/no-structure-img.webp" : image}
-                fill={true}
-                className="object-contain"
-                alt={title}
-              />
-            ) : (
-              <Skeleton />
-            )}
+            <Image
+              src={imageSrc}
+              fill={true}
+              className="object-contain"
+              alt={title}
+            />
           </Link>
         </div>
 

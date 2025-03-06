@@ -57,26 +57,18 @@ export default function StructurePage({
   useEffect(() => {
     if (dexieData) {
       setStructureData(dexieData.structureData);
-
       setAllStructureFiles(dexieData.allStructureFiles);
-
       setAllStructureImages(dexieData.allStructureImages);
 
-      const set: {
-        files: File[];
-        message: string;
-      } = { files: [], message: "drop" };
-
-      dexieData.structureDataOxview.map((i) => {
-        set.files.push(new File([i.data], i.name));
+      const oxviewSet = { files: [] as File[], message: "drop" };
+      dexieData.structureDataOxview.forEach((i) => {
+        oxviewSet.files.push(new File([i.data], i.name));
       });
-
-      setStructureDataOxview(set);
+      setStructureDataOxview(oxviewSet);
     }
   }, [dexieData]);
 
   const [haveSubmittedOxViewFile, setHaveSubmittedOxViewFile] = useState(false);
-
   const sendToIframe = useCallback(() => {
     if (oxviewIframeRef.current && structureDataOxview) {
       oxviewIframeRef.current.contentWindow?.postMessage(
@@ -114,50 +106,20 @@ export default function StructurePage({
   );
 
   useEffect(() => {
-    if (
-      server_structureData &&
-      server_allStructureImages &&
-      !server_allStructureFiles &&
-      !server_fetchedStructureDataOxView
-    ) {
+    if (server_structureData) {
       dexie_syncPageWithServer({
         structureData: server_structureData,
-        allStructureFiles: [],
-        allStructureImages: server_allStructureImages,
+        allStructureFiles: server_allStructureFiles || [],
+        allStructureImages: server_allStructureImages || [],
         flatStructureIdPage: structureId,
-        structureDataOxview: [],
+        structureDataOxview: server_fetchedStructureDataOxView || [],
       });
     }
   }, [
+    server_structureData,
     server_allStructureFiles,
     server_allStructureImages,
     server_fetchedStructureDataOxView,
-    server_structureData,
-    structureId,
-  ]);
-
-  useEffect(() => {
-    if (
-      server_structureData &&
-      server_allStructureFiles &&
-      server_allStructureImages &&
-      server_fetchedStructureDataOxView
-    ) {
-      (async () => {
-        await dexie_syncPageWithServer({
-          allStructureFiles: server_allStructureFiles,
-          allStructureImages: server_allStructureImages,
-          flatStructureIdPage: structureId,
-          structureData: server_structureData,
-          structureDataOxview: server_fetchedStructureDataOxView,
-        });
-      })();
-    }
-  }, [
-    server_allStructureFiles,
-    server_allStructureImages,
-    server_fetchedStructureDataOxView,
-    server_structureData,
     structureId,
   ]);
 
@@ -165,6 +127,7 @@ export default function StructurePage({
     <main className="mx-auto max-w-7xl sm:px-6 sm:pt-16 lg:px-8">
       <div className="mx-auto max-w-2xl lg:max-w-none">
         <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8">
+          {/* TabGroup for structure images */}
           <TabGroup className="flex flex-col-reverse">
             <div className="mx-auto mt-6 w-full max-w-2xl sm:block lg:max-w-none">
               <TabList className="grid grid-cols-4 gap-6">
@@ -190,7 +153,7 @@ export default function StructurePage({
                     </Tab>
                   ))
                 ) : (
-                  <Skeleton />
+                  <Skeleton height={96} />
                 )}
               </TabList>
             </div>
@@ -215,10 +178,10 @@ export default function StructurePage({
             </TabPanels>
           </TabGroup>
 
-          {/* Product info */}
+          {/* Product Info Section */}
           <div className="mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-              {structureData?.structure.title}
+              {structureData?.structure.title || <Skeleton />}
             </h1>
 
             <div className="mt-3">
@@ -228,12 +191,12 @@ export default function StructurePage({
 
             <div className="mt-6">
               <h3 className="sr-only">Description</h3>
-
               <p className="space-y-6 text-base text-gray-700">
-                {structureData?.structure.description}
+                {structureData?.structure.description || <Skeleton count={3} />}
               </p>
             </div>
 
+            {/* Additional details */}
             <section aria-labelledby="details-heading" className="mt-12">
               <h2 id="details-heading" className="sr-only">
                 Additional details
@@ -249,26 +212,31 @@ export default function StructurePage({
                       <span className="ml-6 flex items-center">
                         <PlusIcon
                           aria-hidden="true"
-                          className="block size-6 text-gray-400 group-hover:text-gray-500 group-data-[open]:hidden"
+                          className="block h-6 w-6 text-gray-400 group-hover:text-gray-500 group-data-[open]:hidden"
                         />
                         <MinusIcon
                           aria-hidden="true"
-                          className="hidden size-6 text-indigo-400 group-hover:text-indigo-500 group-data-[open]:block"
+                          className="hidden h-6 w-6 text-indigo-400 group-hover:text-indigo-500 group-data-[open]:block"
                         />
                       </span>
                     </DisclosureButton>
                   </h3>
                   <DisclosurePanel className="pb-6">
-                    <ul role="list" className="text-sm/6 text-gray-700">
-                      {allStructureImages?.map((file, i) => (
-                        <li key={file} className="pl-2">
-                          <Link href={file}>Image {i}</Link>
-                        </li>
-                      ))}
+                    <ul role="list" className="text-sm text-gray-700">
+                      {allStructureImages ? (
+                        allStructureImages.map((file, i) => (
+                          <li key={file} className="pl-2">
+                            <Link href={file}>Image {i}</Link>
+                          </li>
+                        ))
+                      ) : (
+                        <Skeleton count={3} />
+                      )}
                     </ul>
                   </DisclosurePanel>
                 </Disclosure>
               </div>
+
               <div className="divide-y divide-gray-200 border-t">
                 <Disclosure as="div">
                   <h3>
@@ -279,26 +247,31 @@ export default function StructurePage({
                       <span className="ml-6 flex items-center">
                         <PlusIcon
                           aria-hidden="true"
-                          className="block size-6 text-gray-400 group-hover:text-gray-500 group-data-[open]:hidden"
+                          className="block h-6 w-6 text-gray-400 group-hover:text-gray-500 group-data-[open]:hidden"
                         />
                         <MinusIcon
                           aria-hidden="true"
-                          className="hidden size-6 text-indigo-400 group-hover:text-indigo-500 group-data-[open]:block"
+                          className="hidden h-6 w-6 text-indigo-400 group-hover:text-indigo-500 group-data-[open]:block"
                         />
                       </span>
                     </DisclosureButton>
                   </h3>
                   <DisclosurePanel className="pb-6">
-                    <ul role="list" className="text-sm/6 text-gray-700">
-                      {allStructureFiles?.map((file) => (
-                        <li key={file.url} className="pl-2">
-                          <Link href={file.url}>{file.name}</Link>
-                        </li>
-                      ))}
+                    <ul role="list" className="text-sm text-gray-700">
+                      {allStructureFiles ? (
+                        allStructureFiles.map((file) => (
+                          <li key={file.url} className="pl-2">
+                            <Link href={file.url}>{file.name}</Link>
+                          </li>
+                        ))
+                      ) : (
+                        <Skeleton count={3} />
+                      )}
                     </ul>
                   </DisclosurePanel>
                 </Disclosure>
               </div>
+
               <div className="divide-y divide-gray-200 border-t">
                 <Disclosure as="div">
                   <h3>
@@ -309,20 +282,20 @@ export default function StructurePage({
                       <span className="ml-6 flex items-center">
                         <PlusIcon
                           aria-hidden="true"
-                          className="block size-6 text-gray-400 group-hover:text-gray-500 group-data-[open]:hidden"
+                          className="block h-6 w-6 text-gray-400 group-hover:text-gray-500 group-data-[open]:hidden"
                         />
                         <MinusIcon
                           aria-hidden="true"
-                          className="hidden size-6 text-indigo-400 group-hover:text-indigo-500 group-data-[open]:block"
+                          className="hidden h-6 w-6 text-indigo-400 group-hover:text-indigo-500 group-data-[open]:block"
                         />
                       </span>
                     </DisclosureButton>
                   </h3>
                   <DisclosurePanel className="pb-6">
-                    {structureData?.structure.keywords.map((keyword, i) =>
-                      i < structureData.structure.keywords.length - 1
-                        ? keyword + " | "
-                        : keyword
+                    {structureData ? (
+                      structureData.structure.keywords.join(" | ")
+                    ) : (
+                      <Skeleton />
                     )}
                   </DisclosurePanel>
                 </Disclosure>
@@ -338,21 +311,20 @@ export default function StructurePage({
                       <span className="ml-6 flex items-center">
                         <PlusIcon
                           aria-hidden="true"
-                          className="block size-6 text-gray-400 group-hover:text-gray-500 group-data-[open]:hidden"
+                          className="block h-6 w-6 text-gray-400 group-hover:text-gray-500 group-data-[open]:hidden"
                         />
                         <MinusIcon
                           aria-hidden="true"
-                          className="hidden size-6 text-indigo-400 group-hover:text-indigo-500 group-data-[open]:block"
+                          className="hidden h-6 w-6 text-indigo-400 group-hover:text-indigo-500 group-data-[open]:block"
                         />
                       </span>
                     </DisclosureButton>
                   </h3>
                   <DisclosurePanel className="pb-6">
-                    {structureData?.structure.applications.map(
-                      (application, i) =>
-                        i < structureData.structure.applications.length - 1
-                          ? application + " | "
-                          : application
+                    {structureData ? (
+                      structureData.structure.applications.join(" | ")
+                    ) : (
+                      <Skeleton />
                     )}
                   </DisclosurePanel>
                 </Disclosure>
@@ -368,24 +340,25 @@ export default function StructurePage({
                       <span className="ml-6 flex items-center">
                         <PlusIcon
                           aria-hidden="true"
-                          className="block size-6 text-gray-400 group-hover:text-gray-500 group-data-[open]:hidden"
+                          className="block h-6 w-6 text-gray-400 group-hover:text-gray-500 group-data-[open]:hidden"
                         />
                         <MinusIcon
                           aria-hidden="true"
-                          className="hidden size-6 text-indigo-400 group-hover:text-indigo-500 group-data-[open]:block"
+                          className="hidden h-6 w-6 text-indigo-400 group-hover:text-indigo-500 group-data-[open]:block"
                         />
                       </span>
                     </DisclosureButton>
                   </h3>
                   <DisclosurePanel className="pb-6">
-                    {structureData?.structure.authors.map((author, i) =>
-                      i < structureData.structure.authors.length - 1
-                        ? author + " | "
-                        : author
+                    {structureData ? (
+                      structureData.structure.authors.join(" | ")
+                    ) : (
+                      <Skeleton />
                     )}
                   </DisclosurePanel>
                 </Disclosure>
               </div>
+
               <iframe
                 src="https://sulcgroup.github.io/oxdna-viewer/"
                 ref={oxviewIframeRef}
