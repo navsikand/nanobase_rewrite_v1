@@ -139,7 +139,7 @@ export default function Browse() {
           name="full_name"
           type="text"
           placeholder="Search..."
-          className={"bg-white rounded-xl p-2"}
+          className={"bg-white rounded-xl p-2 border-2 border-gray-100"}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -148,7 +148,7 @@ export default function Browse() {
           onChange={(e) =>
             setSearchType(serachByFields[parseInt(e.target.value)].name)
           }
-          className="rounded-lg bg-white"
+          className="rounded-lg bg-white border-gray-100"
         >
           {serachByFields.map((field) => (
             <option value={field.id} key={field.id} className="bg-white/20">
