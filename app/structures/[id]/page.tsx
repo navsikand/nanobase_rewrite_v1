@@ -138,7 +138,7 @@ export default function StructurePage({
                       className="group relative flex h-24 bg-white/30"
                     >
                       <span className="sr-only">{image}</span>
-                      <span className="absolute inset-0 overflow-hidden rounded-md">
+                      <span className="absolute inset-0 overflow-hidden rounded-md cursor-pointer">
                         <Image
                           alt="structure_image"
                           fill={true}
@@ -146,10 +146,6 @@ export default function StructurePage({
                           className="size-full object-cover"
                         />
                       </span>
-                      <span
-                        aria-hidden="true"
-                        className="pointer-events-none absolute inset-0 rounded-md ring-2 ring-transparent ring-offset-2 group-data-[selected]:ring-indigo-500"
-                      />
                     </Tab>
                   ))
                 ) : (
@@ -197,10 +193,17 @@ export default function StructurePage({
             </div>
 
             {/* Additional details */}
-            <section aria-labelledby="details-heading" className="mt-12">
+            <section aria-labelledby="details-heading" className="mt-6">
               <h2 id="details-heading" className="sr-only">
                 Additional details
               </h2>
+
+              <iframe
+                src="https://sulcgroup.github.io/oxdna-viewer/"
+                ref={oxviewIframeRef}
+                onLoad={() => sendToIframe()}
+                className="w-full mx-auto aspect-[16/9] border-2 border-gray-100 mb-8"
+              />
 
               <div className="divide-y divide-gray-200">
                 <Disclosure as="div">
@@ -358,13 +361,6 @@ export default function StructurePage({
                   </DisclosurePanel>
                 </Disclosure>
               </div>
-
-              <iframe
-                src="https://sulcgroup.github.io/oxdna-viewer/"
-                ref={oxviewIframeRef}
-                onLoad={() => sendToIframe()}
-                className="w-full mx-auto aspect-[16/9] mt-20"
-              />
             </section>
           </div>
         </div>

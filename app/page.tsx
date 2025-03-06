@@ -118,12 +118,14 @@ export default function Home() {
   return (
     <div className="w-11/12 mx-auto lg:w-[65%] ">
       {/* Header text */}
-      <div className="flex flex-col justify-center items-center mt-20 ">
+      <div className="flex flex-col justify-center items-center mt-20">
         <div>
-          <p className="text-3xl font-light -ml-6">Welcome to</p>
-          <h1 className="ml-6 text-7xl font-bold">Nanobase</h1>
+          <p className="text-xl  md:text-3xl font-light md:-ml-6">Welcome to</p>
+          <h1 className="md:ml-6 md:text-7xl text-5xl font-bold">
+            Nanobase
+          </h1>
         </div>
-        <div className="mt-12 grid gap-2 grid-cols-2">
+        <div className="mt-12 grid gap-2 md:grid-cols-2">
           <div>
             <h2 className="text-2xl">Who we are</h2>
             <p>
