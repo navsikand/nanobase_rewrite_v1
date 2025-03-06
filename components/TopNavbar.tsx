@@ -66,7 +66,7 @@ export const TopNavbar = () => {
           <span className="sr-only">Nanobase</span>
 
           <Image
-            src="/images/favicon.png"
+            src="/images/nanobase_logo.svg"
             fill={true}
             sizes="100%"
             className="object-contain"
