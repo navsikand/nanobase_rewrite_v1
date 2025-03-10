@@ -1,7 +1,6 @@
 import { STRUCTURE_CARD_DATA } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
-import { oldCleanup } from "../utils/misc";
 
 export const StructureCard = ({
   structure: { description, id, title, uploadDate },
@@ -15,8 +14,7 @@ export const StructureCard = ({
     <div className="px-5 rounded-lg bg-white hover:-translate-y-1 hover:shadow-xl duration-200 border-[1px] border-dotted border-gray-500">
       <div className="w-11/12 mx-auto">
         <p className="text-xs font-extralight text-right pt-3 pb-1">
-          Uploaded by {oldCleanup(User.firstName)} {oldCleanup(User.lastName)}{" "}
-          on{" "}
+          Uploaded by {User.firstName} {User.lastName} on{" "}
           {uploadDate
             ?.toLocaleString()
             .split(":")[0]

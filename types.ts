@@ -93,9 +93,20 @@ export interface STRUCTURE_CARD_DATA {
     licensing: string;
     uploadDate: string;
     paperLink: string;
-    oldId: number;
     lastUpdated: string;
+
+    imageNameToDescRelation: {
+      imageName: string;
+      description: string;
+    }[];
+
+    statsData?: {
+      graph: string;
+      total_a: number;
+      total_n: number;
+      n_staples: number;
+      n_peptides: number;
+    };
   };
   User: { firstName: string; lastName: string };
-  isOld: boolean;
 }

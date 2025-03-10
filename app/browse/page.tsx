@@ -159,18 +159,15 @@ export default function Browse() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
-        {cardsToDisplay.map(
-          ({ User, structure, isOld, image, flatStructureId }) => (
-            <StructureCard
-              flatStructureId={flatStructureId}
-              User={User}
-              isOld={isOld}
-              structure={structure}
-              key={structure.id}
-              image={image}
-            />
-          )
-        )}
+        {cardsToDisplay.map(({ User, structure, image, flatStructureId }) => (
+          <StructureCard
+            flatStructureId={flatStructureId}
+            User={User}
+            structure={structure}
+            key={structure.id}
+            image={image}
+          />
+        ))}
       </div>
 
       <div className={"flex justify-center mt-5"}>

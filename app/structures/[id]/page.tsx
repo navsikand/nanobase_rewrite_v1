@@ -143,7 +143,7 @@ export default function StructurePage({
                           alt="structure_image"
                           fill={true}
                           src={image}
-                          className="size-full object-cover"
+                          className="size-full object-contain"
                         />
                       </span>
                     </Tab>
@@ -166,7 +166,7 @@ export default function StructurePage({
                       alt={image}
                       src={image}
                       fill={true}
-                      className="aspect-square w-full object-cover sm:rounded-lg"
+                      className="aspect-square w-full object-contain sm:rounded-lg"
                     />
                   </div>
                 </TabPanel>

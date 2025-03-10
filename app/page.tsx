@@ -121,9 +121,7 @@ export default function Home() {
       <div className="flex flex-col justify-center items-center mt-20">
         <div>
           <p className="text-xl  md:text-3xl font-light md:-ml-6">Welcome to</p>
-          <h1 className="md:ml-6 md:text-7xl text-5xl font-bold">
-            Nanobase
-          </h1>
+          <h1 className="md:ml-6 md:text-7xl text-5xl font-bold">Nanobase</h1>
         </div>
         <div className="mt-12 grid gap-2 md:grid-cols-2">
           <div>
@@ -173,7 +171,6 @@ export default function Home() {
                 User={latestStructureWithImage.User}
                 flatStructureId={latestStructureWithImage.flatStructureId}
                 image={latestStructureWithImage.image}
-                isOld={latestStructureWithImage.isOld}
                 structure={latestStructureWithImage.structure}
               />
             )}

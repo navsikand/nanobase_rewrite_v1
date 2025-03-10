@@ -1,7 +1,6 @@
 "use client";
 
 import { StructureCard } from "@/components/home/StructureCard";
-import { oldCleanup } from "@/components/utils/misc";
 import {
   getAllUserStructuresFetcher,
   getStructureImageFetcher,
@@ -44,7 +43,7 @@ export default function ProfilePage() {
       <div className="flex flex-col w-11/12 mx-auto justify-center items-center mt-20 lg:w-[65%] ">
         <div className="w-full space-y-3">
           <h2 className="text-4xl font-semibold">
-            {`${oldCleanup(ProfileData.firstName)} ${oldCleanup(ProfileData.lastName)}`}
+            {`${ProfileData.firstName} ${ProfileData.lastName}`}
           </h2>
           <div className="space-y-2 mt-3">
             <p>
@@ -94,11 +93,10 @@ export default function ProfilePage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
               {fetchedData?.map(
-                ({ User, structure, isOld, image, flatStructureId }) => (
+                ({ User, structure, image, flatStructureId }) => (
                   <StructureCard
                     flatStructureId={flatStructureId}
                     User={User}
-                    isOld={isOld}
                     structure={structure}
                     key={structure.id}
                     image={image}
