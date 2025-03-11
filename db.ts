@@ -6,7 +6,6 @@ export interface StructurePageData {
   structureData: STRUCTURE_CARD_DATA;
   allStructureImages: string[];
   allStructureFiles: { name: string; url: string }[];
-  structureDataOxview: { name: string; data: Blob }[];
 }
 
 const db = new Dexie("MyStructuresDatabase") as Dexie & {

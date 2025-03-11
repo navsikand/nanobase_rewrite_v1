@@ -59,12 +59,6 @@ export default function StructurePage({
       setStructureData(dexieData.structureData);
       setAllStructureFiles(dexieData.allStructureFiles);
       setAllStructureImages(dexieData.allStructureImages);
-
-      const oxviewSet = { files: [] as File[], message: "drop" };
-      dexieData.structureDataOxview.forEach((i) => {
-        oxviewSet.files.push(new File([i.data], i.name));
-      });
-      setStructureDataOxview(oxviewSet);
     }
   }, [dexieData]);
 
@@ -107,20 +101,28 @@ export default function StructurePage({
   );
 
   useEffect(() => {
+    if (server_fetchedStructureDataOxView) {
+      const oxviewSet = { files: [] as File[], message: "drop" };
+      server_fetchedStructureDataOxView.forEach((i) => {
+        oxviewSet.files.push(new File([i.data], i.name));
+      });
+      setStructureDataOxview(oxviewSet);
+    }
+  }, [server_fetchedStructureDataOxView]);
+
+  useEffect(() => {
     if (server_structureData) {
       dexie_syncPageWithServer({
         structureData: server_structureData,
         allStructureFiles: server_allStructureFiles || [],
         allStructureImages: server_allStructureImages || [],
         flatStructureIdPage: structureId,
-        structureDataOxview: server_fetchedStructureDataOxView || [],
       });
     }
   }, [
     server_structureData,
     server_allStructureFiles,
     server_allStructureImages,
-    server_fetchedStructureDataOxView,
     structureId,
   ]);
 
@@ -139,7 +141,7 @@ export default function StructurePage({
                       className="group relative flex h-24 bg-white/30"
                     >
                       <span className="sr-only">{image}</span>
-                      <span className="absolute inset-0 overflow-hidden rounded-md cursor-pointer">
+                      <span className="absolute inset-0 overflow-hidden rounded-md cursor-pointer border-2 border-gray-100">
                         <Image
                           alt="structure_image"
                           fill={true}
@@ -202,7 +204,7 @@ export default function StructurePage({
               <iframe
                 src="https://sulcgroup.github.io/oxdna-viewer/"
                 ref={oxviewIframeRef}
-                onLoad={() => sendToIframe()}
+                onLoad={sendToIframe}
                 className="w-full mx-auto aspect-[16/9] border-2 border-gray-100 mb-8"
               />
 
@@ -231,21 +233,19 @@ export default function StructurePage({
                         allStructureImages.map((file) => (
                           <li key={file} className="pl-2">
                             <Link href={file}>
-                              {file.split("/")[file.split("/").length - 1] + " "}
+                              {file.split("/")[file.split("/").length - 1] +
+                                " "}
                               <span className="text-gray-500">
-
-                              {
-                                dexieData && dexieData.structureData.structure.imageNameToDescRelation?.filter(
-                                  (i) =>
-                                    i.imageName.split(".")[0] === (
+                                {dexieData &&
+                                  dexieData.structureData.structure.imageNameToDescRelation?.filter(
+                                    (i) =>
+                                      i.imageName.split(".")[0] ===
                                       file
                                         .split("/")
                                         [
                                           file.split("/").length - 1
                                         ].split(".")[0]
-                                    )
-                                )[0]?.description
-                              }
+                                  )[0]?.description}
                               </span>
                             </Link>
                           </li>
