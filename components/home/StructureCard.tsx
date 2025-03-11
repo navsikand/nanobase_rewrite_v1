@@ -1,3 +1,5 @@
+"use client"
+
 import { STRUCTURE_CARD_DATA } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
