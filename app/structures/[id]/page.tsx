@@ -230,12 +230,13 @@ export default function StructurePage({
                         allStructureImages.map((file) => (
                           <li key={file} className="pl-2">
                             <Link href={file}>
-                              {file.split("/")[file.split("/").length - 1]}
-                              {" | "}
+                              {file.split("/")[file.split("/").length - 1] + " "}
+                              <span className="text-gray-500">
+
                               {
                                 dexieData && dexieData.structureData.structure.imageNameToDescRelation?.filter(
                                   (i) =>
-                                    i.imageName.split(".")[0].includes(
+                                    i.imageName.split(".")[0] === (
                                       file
                                         .split("/")
                                         [
@@ -244,6 +245,7 @@ export default function StructurePage({
                                     )
                                 )[0]?.description
                               }
+                              </span>
                             </Link>
                           </li>
                         ))
