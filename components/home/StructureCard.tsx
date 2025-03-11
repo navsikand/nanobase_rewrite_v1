@@ -16,7 +16,7 @@ export const StructureCard = ({
     <div
       className="px-5 rounded-lg bg-white hover:-translate-y-1 hover:shadow-xl duration-200 border-[1px] border-dotted border-gray-500"
       onClick={() => {
-        router.push("/structures/" + id);
+        router?.push("/structures/" + id);
       }}
     >
       <div className="w-11/12 mx-auto">
