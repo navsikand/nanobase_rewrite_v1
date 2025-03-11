@@ -1,25 +1,19 @@
-"use client"
-
 import { STRUCTURE_CARD_DATA } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/router";
 
 export const StructureCard = ({
   structure: { description, id, title, uploadDate },
   User,
   image,
 }: STRUCTURE_CARD_DATA & { image: string }) => {
-  const router = useRouter();
   const imageSrc =
     image && image !== "" ? image : "/images/no-structure-img.webp";
 
   return (
-    <div
+    <Link
       className="px-5 rounded-lg bg-white hover:-translate-y-1 hover:shadow-xl duration-200 border-[1px] border-dotted border-gray-500"
-      onClick={() => {
-        router?.push("/structures/" + id);
-      }}
+      href={"/structures/" + id}
     >
       <div className="w-11/12 mx-auto">
         <p className="text-xs font-extralight text-right pt-3 pb-1">
@@ -56,6 +50,6 @@ export const StructureCard = ({
           <p className="line-clamp-3">{description}</p>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
