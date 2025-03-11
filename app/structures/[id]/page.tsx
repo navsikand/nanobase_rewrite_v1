@@ -233,7 +233,7 @@ export default function StructurePage({
                               {file.split("/")[file.split("/").length - 1]}
                               {" | "}
                               {
-                                dexieData?.structureData.structure.imageNameToDescRelation.filter(
+                                dexieData && dexieData.structureData.structure.imageNameToDescRelation?.filter(
                                   (i) =>
                                     i.imageName.includes(
                                       file
