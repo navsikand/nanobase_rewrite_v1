@@ -242,7 +242,7 @@ export default function StructurePage({
                                           file.split("/").length - 1
                                         ].split(".")[0]
                                     )
-                                )[0].description
+                                )[0]?.description
                               }
                             </Link>
                           </li>
