@@ -227,9 +227,24 @@ export default function StructurePage({
                   <DisclosurePanel className="pb-6">
                     <ul role="list" className="text-sm text-gray-700">
                       {allStructureImages ? (
-                        allStructureImages.map((file, i) => (
+                        allStructureImages.map((file) => (
                           <li key={file} className="pl-2">
-                            <Link href={file}>Image {i}</Link>
+                            <Link href={file}>
+                              {file.split("/")[file.split("/").length - 1]}
+                              {" | "}
+                              {
+                                dexieData?.structureData.structure.imageNameToDescRelation.filter(
+                                  (i) =>
+                                    i.imageName.includes(
+                                      file
+                                        .split("/")
+                                        [
+                                          file.split("/").length - 1
+                                        ].split(".")[0]
+                                    )
+                                )[0].description
+                              }
+                            </Link>
                           </li>
                         ))
                       ) : (
