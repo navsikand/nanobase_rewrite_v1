@@ -69,6 +69,7 @@ export default function StructurePage({
   }, [dexieData]);
 
   const [haveSubmittedOxViewFile, setHaveSubmittedOxViewFile] = useState(false);
+
   const sendToIframe = useCallback(() => {
     if (oxviewIframeRef.current && structureDataOxview) {
       oxviewIframeRef.current.contentWindow?.postMessage(
@@ -83,7 +84,7 @@ export default function StructurePage({
     if (!haveSubmittedOxViewFile) {
       sendToIframe();
     }
-  }, [haveSubmittedOxViewFile, sendToIframe]);
+  }, [haveSubmittedOxViewFile, sendToIframe, structureDataOxview]);
 
   const { data: server_allStructureFiles } = useSWR(
     structureId ? `getAllStructureFiles-${structureId}` : null,
