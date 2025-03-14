@@ -3,6 +3,7 @@
 import { DexieDB } from "@/db";
 import { dexie_syncPageWithServer } from "@/helpers/dexieHelpers";
 import {
+  apiRoot,
   fetchAllStructureFiles,
   fetchAllStructureImages,
   getStructureByIdFetcher,
@@ -44,11 +45,11 @@ export default function StructurePage({
   const [structureData, setStructureData] =
     useState<STRUCTURE_CARD_DATA | null>(null);
   const [allStructureFiles, setAllStructureFiles] = useState<
-    { name: string; url: string }[] | null
+    { fileName: string; description: string }[] | null
   >(null);
-  const [allStructureImages, setAllStructureImages] = useState<string[] | null>(
-    null
-  );
+  const [allStructureImages, setAllStructureImages] = useState<
+    { imageName: string; description: string }[] | null
+  >(null);
   const [structureDataOxview, setStructureDataOxview] = useState<{
     files: File[];
     message: string;
@@ -57,8 +58,12 @@ export default function StructurePage({
   useEffect(() => {
     if (dexieData) {
       setStructureData(dexieData.structureData);
-      setAllStructureFiles(dexieData.allStructureFiles);
-      setAllStructureImages(dexieData.allStructureImages);
+      setAllStructureFiles(
+        dexieData.structureData.structure.fileNameToDescRelation
+      );
+      setAllStructureImages(
+        dexieData.structureData.structure.imageNameToDescRelation
+      );
     }
   }, [dexieData]);
 
@@ -115,7 +120,6 @@ export default function StructurePage({
       dexie_syncPageWithServer({
         structureData: server_structureData,
         allStructureFiles: server_allStructureFiles || [],
-        allStructureImages: server_allStructureImages || [],
         flatStructureIdPage: structureId,
       });
     }
@@ -137,15 +141,15 @@ export default function StructurePage({
                 {allStructureImages ? (
                   allStructureImages.map((image) => (
                     <Tab
-                      key={image}
+                      key={image.imageName}
                       className="group relative flex h-24 bg-white/30"
                     >
-                      <span className="sr-only">{image}</span>
+                      <span className="sr-only">{image.imageName}</span>
                       <span className="absolute inset-0 overflow-hidden rounded-md cursor-pointer border-2 border-gray-100">
                         <Image
                           alt="structure_image"
                           fill={true}
-                          src={image}
+                          src={`${apiRoot}/structure/images/${structureData?.flatStructureId}/${image.imageName}`}
                           className="size-full object-contain"
                         />
                       </span>
@@ -158,22 +162,26 @@ export default function StructurePage({
             </div>
 
             <TabPanels>
-              {allStructureImages?.map((image) => (
-                <TabPanel
-                  as="div"
-                  className={"w-full flex bg-white/30 rounded-xl"}
-                  key={image}
-                >
-                  <div className="relative h-full w-full min-h-60 aspect-square mx-auto flex-1">
-                    <Image
-                      alt={image}
-                      src={image}
-                      fill={true}
-                      className="aspect-square w-full object-contain sm:rounded-lg"
-                    />
-                  </div>
-                </TabPanel>
-              ))}
+              {allStructureImages ? (
+                allStructureImages?.map((image) => (
+                  <TabPanel
+                    as="div"
+                    className={"w-full flex bg-white/30 rounded-xl"}
+                    key={image.imageName}
+                  >
+                    <div className="relative h-full w-full min-h-60 aspect-square mx-auto flex-1">
+                      <Image
+                        alt={image.imageName}
+                        src={`${apiRoot}/structure/images/${structureData?.flatStructureId}/${image.imageName}`}
+                        fill={true}
+                        className="aspect-square w-full object-contain sm:rounded-lg"
+                      />
+                    </div>
+                  </TabPanel>
+                ))
+              ) : (
+                <Skeleton height={95} />
+              )}
             </TabPanels>
           </TabGroup>
 
@@ -211,7 +219,7 @@ export default function StructurePage({
               <div className="divide-y divide-gray-200">
                 <Disclosure as="div">
                   <h3>
-                    <DisclosureButton className="group relative flex w-full items-center justify-between pt-6 text-left">
+                    <DisclosureButton className="group relative flex w-full items-center justify-between pt-6 text-left cursor-pointer">
                       <span className="text-sm font-medium text-gray-900 group-data-[open]:text-indigo-600">
                         Images
                       </span>
@@ -229,23 +237,17 @@ export default function StructurePage({
                   </h3>
                   <DisclosurePanel className="pb-6">
                     <ul role="list" className="text-sm text-gray-700">
-                      {allStructureImages ? (
-                        allStructureImages.map((file) => (
-                          <li key={file} className="pl-2">
-                            <Link href={file}>
-                              {file.split("/")[file.split("/").length - 1] +
-                                " "}
+                      {dexieData &&
+                      dexieData.structureData.structure
+                        .imageNameToDescRelation ? (
+                        allStructureImages?.map((file) => (
+                          <li key={file.imageName} className="pl-2">
+                            <Link
+                              href={`${apiRoot}/structure/images/${structureData?.flatStructureId}/${file.imageName}`}
+                            >
+                              {file.imageName}{" "}
                               <span className="text-gray-500">
-                                {dexieData &&
-                                  dexieData.structureData.structure.imageNameToDescRelation?.filter(
-                                    (i) =>
-                                      i.imageName.split(".")[0] ===
-                                      file
-                                        .split("/")
-                                        [
-                                          file.split("/").length - 1
-                                        ].split(".")[0]
-                                  )[0]?.description}
+                                {file.description}
                               </span>
                             </Link>
                           </li>
@@ -261,7 +263,7 @@ export default function StructurePage({
               <div className="divide-y divide-gray-200 border-t">
                 <Disclosure as="div">
                   <h3>
-                    <DisclosureButton className="group relative flex w-full items-center justify-between pt-6 text-left">
+                    <DisclosureButton className="group relative flex w-full items-center justify-between pt-6 text-left cursor-pointer">
                       <span className="text-sm font-medium text-gray-900 group-data-[open]:text-indigo-600">
                         Files
                       </span>
@@ -281,8 +283,15 @@ export default function StructurePage({
                     <ul role="list" className="text-sm text-gray-700">
                       {allStructureFiles ? (
                         allStructureFiles.map((file) => (
-                          <li key={file.url} className="pl-2">
-                            <Link href={file.url}>{file.name}</Link>
+                          <li key={file.fileName} className="pl-2">
+                            <Link
+                              href={`${apiRoot}/structure/files/${structureData?.flatStructureId}/structure/${file.fileName}`}
+                            >
+                              {file.fileName}{" "}
+                              <span className="text-gray-500">
+                                {file.description}
+                              </span>
+                            </Link>
                           </li>
                         ))
                       ) : (
@@ -296,7 +305,7 @@ export default function StructurePage({
               <div className="divide-y divide-gray-200 border-t">
                 <Disclosure as="div">
                   <h3>
-                    <DisclosureButton className="group relative flex w-full items-center justify-between pt-6 text-left">
+                    <DisclosureButton className="group relative flex w-full items-center justify-between pt-6 text-left cursor-pointer">
                       <span className="text-sm font-medium text-gray-900 group-data-[open]:text-indigo-600">
                         Keywords
                       </span>
@@ -325,7 +334,7 @@ export default function StructurePage({
               <div className="divide-y divide-gray-200 border-t">
                 <Disclosure as="div">
                   <h3>
-                    <DisclosureButton className="group relative flex w-full items-center justify-between pt-6 text-left">
+                    <DisclosureButton className="group relative flex w-full items-center justify-between pt-6 text-left cursor-pointer">
                       <span className="text-sm font-medium text-gray-900 group-data-[open]:text-indigo-600">
                         Application
                       </span>
@@ -354,7 +363,7 @@ export default function StructurePage({
               <div className="divide-y divide-gray-200 border-t">
                 <Disclosure as="div">
                   <h3>
-                    <DisclosureButton className="group relative flex w-full items-center justify-between pt-6 text-left">
+                    <DisclosureButton className="group relative flex w-full items-center justify-between pt-6 text-left cursor-pointer">
                       <span className="text-sm font-medium text-gray-900 group-data-[open]:text-indigo-600">
                         Authors
                       </span>

@@ -141,7 +141,7 @@ export default function Home() {
 
             <Button
               className={
-                "rounded-lg px-5 py-2 font-semibold text-lg bg-black text-white relative hover:-translate-y-1 hover:shadow-xl duration-200 mt-2"
+                "rounded-lg px-5 py-2 font-semibold text-lg bg-black text-white relative hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer mt-2"
               }
               onClick={() => router.push("/browse")}
             >
@@ -150,7 +150,7 @@ export default function Home() {
 
             <Button
               className={
-                "rounded-lg px-5 py-2 font-semibold text-lg bg-black text-white relative hover:-translate-y-1 hover:shadow-xl duration-200 mt-2 ml-2"
+                "rounded-lg px-5 py-2 font-semibold text-lg bg-black text-white relative hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer mt-2 ml-2"
               }
               onClick={() => router.push("/about-us")}
             >

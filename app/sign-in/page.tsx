@@ -106,7 +106,7 @@ export default function SignIn() {
             </p>
             <Button
               type="submit"
-              className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200"
+              className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
               disabled={loading}
             >
               {loading ? "Signing in..." : "Sign In"}

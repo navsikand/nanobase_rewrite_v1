@@ -100,6 +100,11 @@ export interface STRUCTURE_CARD_DATA {
       description: string;
     }[];
 
+    fileNameToDescRelation: {
+      fileName: string;
+      description: string;
+    }[];
+
     statsData?: {
       graph: string;
       total_a: number;

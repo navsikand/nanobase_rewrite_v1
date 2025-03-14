@@ -116,7 +116,7 @@ export const TopNavbar = () => {
             // Original sign in button hidden on mobile
             <div className="hidden md:block">
               <Button
-                className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200"
+                className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
                 onClick={() => router.push("/sign-in")}
               >
                 Sign in
@@ -144,7 +144,7 @@ export const TopNavbar = () => {
             {/* Add Sign In button if user is not authenticated */}
             {!userAuthState && (
               <Button
-                className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200"
+                className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
                 onClick={() => {
                   setIsMobileMenuOpen(false);
                   router.push("/sign-in");

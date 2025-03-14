@@ -334,7 +334,7 @@ export default function UploadStructurePage() {
             <button
               type="submit"
               className={
-                "rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
+                "rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer cursor-pointer"
               }
               disabled={isLoading}
             >

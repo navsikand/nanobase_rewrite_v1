@@ -4,7 +4,6 @@ import { STRUCTURE_CARD_DATA } from "./types";
 export interface StructurePageData {
   flatStructureIdPage: number;
   structureData: STRUCTURE_CARD_DATA;
-  allStructureImages: string[];
   allStructureFiles: { name: string; url: string }[];
 }
 

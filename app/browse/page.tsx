@@ -148,10 +148,14 @@ export default function Browse() {
           onChange={(e) =>
             setSearchType(serachByFields[parseInt(e.target.value)].name)
           }
-          className="rounded-lg bg-white border-gray-100"
+          className="rounded-lg bg-white border-gray-100 border-2 cursor-pointer"
         >
           {serachByFields.map((field) => (
-            <option value={field.id} key={field.id} className="bg-white/20">
+            <option
+              value={field.id}
+              key={field.id}
+              className="bg-white/20 cursor-pointer"
+            >
               {field.name}
             </option>
           ))}
