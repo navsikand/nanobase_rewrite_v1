@@ -1,112 +1,145 @@
 "use client";
 
-import { useState } from "react";
+import { useState, ChangeEvent, FormEvent, Fragment } from "react";
 import { Dialog, DialogTitle, Transition } from "@headlessui/react";
-import { z } from "zod";
 import { apiRoot } from "@/helpers/fetchHelpers";
 
-enum StructureTypes {
-  DNA = "DNA",
-  RNA = "RNA",
-  DNA_RNA_HYBRID = "DNA/RNA hybrid",
-  NUCLEIC_ACID_PROTEIN_HYBRID = "Nucleic acid/protein hybrid",
+// Type for each file entry (file and its description)
+interface FileEntry {
+  file: File;
+  description: string;
 }
 
-const PropsPrismaCreateStructureSchema = z.object({
-  title: z.string().nonempty("Title is required"),
-  type: z.nativeEnum(StructureTypes).or(z.string()),
-  description: z.string().nonempty("Description is required"),
-  datePublished: z.string().date(),
-  citation: z.string(),
-  paperLink: z.string(),
-  licensing: z.string().nonempty("Licensing is required"),
-  private: z.boolean(),
+// Props for the FileInputWithDescription component.
+interface FileInputWithDescriptionProps {
+  label: string;
+  onAdd: (entry: FileEntry) => void;
+}
 
-  applications: z.array(
-    z.string().nonempty("Applications cannot have empty strings")
-  ),
-  authors: z.array(z.string().nonempty("Authors cannot have empty strings")),
-});
+// A reusable component for adding a single file with its description.
+function FileInputWithDescription({
+  label,
+  onAdd,
+}: FileInputWithDescriptionProps) {
+  const [file, setFile] = useState<File | null>(null);
+  const [description, setDescription] = useState<string>("");
 
-type FormData = z.infer<typeof PropsPrismaCreateStructureSchema>;
+  const handleAdd = () => {
+    if (file) {
+      onAdd({ file, description });
+      // Reset the inputs for the next entry.
+      setFile(null);
+      setDescription("");
+    }
+  };
 
-export default function UploadStructurePage() {
-  const [formData, setFormData] = useState<FormData>({
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFile(e.target.files[0]);
+    }
+  };
+
+  return (
+    <div className="mb-4">
+      <label className="block font-medium">{label}</label>
+      <input type="file" onChange={handleFileChange} className="mt-1 block" />
+      <input
+        type="text"
+        placeholder="Enter description..."
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        className="mt-1 block p-2 border rounded"
+      />
+      <button
+        type="button"
+        onClick={handleAdd}
+        className="mt-2 px-3 py-1 bg-indigo-600 text-white rounded"
+      >
+        Add File
+      </button>
+    </div>
+  );
+}
+
+// Interface for the main form state.
+interface FormDataState {
+  title: string;
+  type: string;
+  description: string;
+  datePublished: string;
+  citation: string;
+  paperLink: string;
+  licensing: string;
+  private: boolean;
+}
+
+export default function UploadStructure() {
+  // Form data state.
+  const [formData, setFormData] = useState<FormDataState>({
     title: "",
-    type: StructureTypes.DNA,
+    type: "",
     description: "",
     datePublished: "",
     citation: "",
     paperLink: "",
     licensing: "",
     private: false,
-    applications: [],
-    authors: [],
   });
 
   const [keywords, setKeywords] = useState<string>("");
-  const [images, setImages] = useState<File[]>([]);
-  const [files, setFiles] = useState<File[]>([]);
+  const [images, setImages] = useState<FileEntry[]>([]);
+  const [structureFiles, setStructureFiles] = useState<FileEntry[]>([]);
+  const [simulationProtocolFiles, setSimulationProtocolFiles] = useState<
+    FileEntry[]
+  >([]);
+  const [simulationResultFiles, setSimulationResultFiles] = useState<
+    FileEntry[]
+  >([]);
+  const [experimentProtocolFiles, setExperimentProtocolFiles] = useState<
+    FileEntry[]
+  >([]);
+  const [experimentResultFiles, setExperimentResultFiles] = useState<
+    FileEntry[]
+  >([]);
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [responseMessage, setResponseMessage] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Handler for regular input changes with a type guard.
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value, type } = e.target;
-
-    // Narrow down the type
-    const checked =
-      type === "checkbox" ? (e.target as HTMLInputElement).checked : undefined;
-
+    const newValue =
+      type === "checkbox" && e.target instanceof HTMLInputElement
+        ? e.target.checked
+        : value;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: newValue,
     }));
   };
 
-  const handleFileChange =
-    (setter: React.Dispatch<React.SetStateAction<File[]>>) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (e.target.files) {
-        setter(Array.from(e.target.files));
-      }
-    };
+  // Handlers for adding file entries.
+  const addImage = (fileEntry: FileEntry) =>
+    setImages((prev) => [...prev, fileEntry]);
+  const addStructureFile = (fileEntry: FileEntry) =>
+    setStructureFiles((prev) => [...prev, fileEntry]);
+  const addSimProtFile = (fileEntry: FileEntry) =>
+    setSimulationProtocolFiles((prev) => [...prev, fileEntry]);
+  const addSimResFile = (fileEntry: FileEntry) =>
+    setSimulationResultFiles((prev) => [...prev, fileEntry]);
+  const addExpProtFile = (fileEntry: FileEntry) =>
+    setExperimentProtocolFiles((prev) => [...prev, fileEntry]);
+  const addExpResFile = (fileEntry: FileEntry) =>
+    setExperimentResultFiles((prev) => [...prev, fileEntry]);
 
-  const validateForm = () => {
-    try {
-      PropsPrismaCreateStructureSchema.parse({
-        ...formData,
-        applications: formData.applications.filter((app) => app.trim() !== ""),
-        authors: formData.authors.filter((auth) => auth.trim() !== ""),
-      });
-      setErrors({});
-      return true;
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        const validationErrors: Record<string, string> = {};
-        err.errors.forEach((error) => {
-          if (error.path.length > 0) {
-            validationErrors[error.path[0] as string] = error.message;
-          }
-        });
-        setErrors(validationErrors);
-      }
-      return false;
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  // Form submission handler.
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
-    // Validate form
-    if (!validateForm()) {
-      setIsLoading(false);
-      return;
-    }
 
     const requestData = {
       ...formData,
@@ -115,42 +148,40 @@ export default function UploadStructurePage() {
 
     const formDataToSend = new FormData();
     Object.keys(requestData).forEach((key) => {
-      const value = requestData[key as keyof typeof requestData];
-      if (typeof value === "boolean") {
-        formDataToSend.append(key, value ? "true" : "false");
-      } else if (Array.isArray(value)) {
-        value.forEach((item) => formDataToSend.append(key, item));
-      } else {
-        formDataToSend.append(key, value);
-      }
+      formDataToSend.append(key, (requestData as any)[key]);
     });
 
-    images.forEach((image) => formDataToSend.append("images", image));
-    files.forEach((file) => formDataToSend.append("files", file));
+    // Helper function to append each file and its description.
+    const appendFiles = (key: string, fileEntries: FileEntry[]) => {
+      fileEntries.forEach(({ file, description }) => {
+        formDataToSend.append(key, file);
+        formDataToSend.append(`${key}Description`, description);
+      });
+    };
+
+    appendFiles("images", images);
+    appendFiles("structureFiles", structureFiles);
+    appendFiles("simProtFiles", simulationProtocolFiles);
+    appendFiles("simResFiles", simulationResultFiles);
+    appendFiles("expProtFiles", experimentProtocolFiles);
+    appendFiles("expResFiles", experimentResultFiles);
 
     try {
       const token = localStorage.getItem("token");
-
       const response = await fetch(`${apiRoot}/structure/createStructure`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`, // Attach token here
+          Authorization: `Bearer ${token}`,
         },
-
         body: formDataToSend,
       });
-
       if (!response.ok) {
         throw new Error("Failed to upload structure");
       }
-
       const data = await response.json();
       setResponseMessage(data.message || "Structure uploaded successfully!");
-    } catch (error) {
-      setResponseMessage(
-        (error as { message: string }).message ||
-          "An error occurred while uploading."
-      );
+    } catch (error: any) {
+      setResponseMessage(error.message || "An error occurred while uploading.");
     } finally {
       setIsLoading(false);
       setIsModalOpen(true);
@@ -159,10 +190,8 @@ export default function UploadStructurePage() {
 
   return (
     <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto rounded-lg p-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">
-          Upload Structure
-        </h1>
+      <div className="max-w-3xl mx-auto rounded-lg p-6 bg-white shadow">
+        <h1 className="text-2xl font-bold mb-6">Upload Structure</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Title */}
           <div>
@@ -170,11 +199,9 @@ export default function UploadStructurePage() {
               type="text"
               name="title"
               placeholder="Title..."
-              //className={`w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 ${
-              //  errors.title ? "border-red-500" : ""
-              //}`}
-
-              className={`bg-stone-400/20 rounded-lg p-2 w-full mt-1 ${errors.title ? "border-red-500" : ""}`}
+              className={`bg-stone-400/20 rounded-lg p-2 w-full mt-1 ${
+                errors.title ? "border-red-500" : ""
+              }`}
               value={formData.title}
               onChange={handleChange}
               required
@@ -190,7 +217,9 @@ export default function UploadStructurePage() {
               type="text"
               name="type"
               placeholder="Type..."
-              className={`bg-stone-400/20 rounded-lg p-2 w-full mt-1 ${errors.type ? "border-red-500" : ""}`}
+              className={`bg-stone-400/20 rounded-lg p-2 w-full mt-1 ${
+                errors.type ? "border-red-500" : ""
+              }`}
               value={formData.type}
               onChange={handleChange}
               required
@@ -205,7 +234,9 @@ export default function UploadStructurePage() {
             <textarea
               name="description"
               placeholder="Description..."
-              className={`bg-stone-400/20 rounded-lg p-2 w-full mt-1 ${errors.description ? "border-red-500" : ""}`}
+              className={`bg-stone-400/20 rounded-lg p-2 w-full mt-1 ${
+                errors.description ? "border-red-500" : ""
+              }`}
               rows={3}
               value={formData.description}
               onChange={handleChange}
@@ -216,12 +247,14 @@ export default function UploadStructurePage() {
             )}
           </div>
 
-          {/* Date */}
+          {/* Date Published */}
           <div>
             <input
               type="date"
               name="datePublished"
-              className={`bg-stone-400/20 rounded-lg p-2 w-full mt-1 ${errors.datePublished ? "border-red-500" : ""}`}
+              className={`bg-stone-400/20 rounded-lg p-2 w-full mt-1 ${
+                errors.datePublished ? "border-red-500" : ""
+              }`}
               value={formData.datePublished}
               onChange={handleChange}
               required
@@ -237,7 +270,9 @@ export default function UploadStructurePage() {
               type="text"
               name="citation"
               placeholder="Citation..."
-              className={`bg-stone-400/20 rounded-lg p-2 w-full mt-1 ${errors.citation ? "border-red-500" : ""}`}
+              className={`bg-stone-400/20 rounded-lg p-2 w-full mt-1 ${
+                errors.citation ? "border-red-500" : ""
+              }`}
               value={formData.citation}
               onChange={handleChange}
             />
@@ -252,7 +287,9 @@ export default function UploadStructurePage() {
               type="url"
               name="paperLink"
               placeholder="Paper link..."
-              className={`bg-stone-400/20 rounded-lg p-2 w-full mt-1 ${errors.paperLink ? "border-red-500" : ""}`}
+              className={`bg-stone-400/20 rounded-lg p-2 w-full mt-1 ${
+                errors.paperLink ? "border-red-500" : ""
+              }`}
               value={formData.paperLink}
               onChange={handleChange}
             />
@@ -267,7 +304,9 @@ export default function UploadStructurePage() {
               type="text"
               name="licensing"
               placeholder="Licensing..."
-              className={`bg-stone-400/20 rounded-lg p-2 w-full mt-1 ${errors.licensing ? "border-red-500" : ""}`}
+              className={`bg-stone-400/20 rounded-lg p-2 w-full mt-1 ${
+                errors.licensing ? "border-red-500" : ""
+              }`}
               value={formData.licensing}
               onChange={handleChange}
               required
@@ -304,38 +343,102 @@ export default function UploadStructurePage() {
 
           {/* Images */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Images
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              className="w-full p-2 border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-stone-400/20 rounded-lg"
-              onChange={handleFileChange(setImages)}
-            />
+            <h2 className="font-semibold">Images</h2>
+            <FileInputWithDescription label="Add an Image:" onAdd={addImage} />
+            <ul className="mt-2">
+              {images.map((entry, index) => (
+                <li key={index}>
+                  {entry.file.name} - {entry.description}
+                </li>
+              ))}
+            </ul>
           </div>
 
-          {/* Files */}
+          {/* Structure Files */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Files
-            </label>
-            <input
-              type="file"
-              multiple
-              className="w-full border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-stone-400/20 rounded-lg p-2"
-              onChange={handleFileChange(setFiles)}
+            <h2 className="font-semibold">Structure Files</h2>
+            <FileInputWithDescription
+              label="Add a Structure File:"
+              onAdd={addStructureFile}
             />
+            <ul className="mt-2">
+              {structureFiles.map((entry, index) => (
+                <li key={index}>
+                  {entry.file.name} - {entry.description}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Simulation Protocol Files */}
+          <div>
+            <h2 className="font-semibold">Simulation Protocol Files</h2>
+            <FileInputWithDescription
+              label="Add a Simulation Protocol File:"
+              onAdd={addSimProtFile}
+            />
+            <ul className="mt-2">
+              {simulationProtocolFiles.map((entry, index) => (
+                <li key={index}>
+                  {entry.file.name} - {entry.description}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Simulation Result Files */}
+          <div>
+            <h2 className="font-semibold">Simulation Result Files</h2>
+            <FileInputWithDescription
+              label="Add a Simulation Result File:"
+              onAdd={addSimResFile}
+            />
+            <ul className="mt-2">
+              {simulationResultFiles.map((entry, index) => (
+                <li key={index}>
+                  {entry.file.name} - {entry.description}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Experiment Protocol Files */}
+          <div>
+            <h2 className="font-semibold">Experiment Protocol Files</h2>
+            <FileInputWithDescription
+              label="Add an Experiment Protocol File:"
+              onAdd={addExpProtFile}
+            />
+            <ul className="mt-2">
+              {experimentProtocolFiles.map((entry, index) => (
+                <li key={index}>
+                  {entry.file.name} - {entry.description}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Experiment Result Files */}
+          <div>
+            <h2 className="font-semibold">Experiment Result Files</h2>
+            <FileInputWithDescription
+              label="Add an Experiment Result File:"
+              onAdd={addExpResFile}
+            />
+            <ul className="mt-2">
+              {experimentResultFiles.map((entry, index) => (
+                <li key={index}>
+                  {entry.file.name} - {entry.description}
+                </li>
+              ))}
+            </ul>
           </div>
 
           {/* Submit Button */}
-          <div className="flex justify-end ">
+          <div className="flex justify-end">
             <button
               type="submit"
-              className={
-                "rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer cursor-pointer"
-              }
+              className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200"
               disabled={isLoading}
             >
               {isLoading ? "Uploading..." : "Upload Structure"}
@@ -345,7 +448,7 @@ export default function UploadStructurePage() {
       </div>
 
       {/* Modal for Success/Error Messages */}
-      <Transition appear show={isModalOpen} as="div">
+      <Transition appear show={isModalOpen} as={Fragment}>
         <Dialog
           as="div"
           className="relative z-10"
@@ -353,7 +456,7 @@ export default function UploadStructurePage() {
         >
           <div className="fixed inset-0 bg-black bg-opacity-30" />
           <div className="fixed inset-0 flex items-center justify-center">
-            <div className="rounded-lg shadow-lg max-w-md w-full p-6">
+            <div className="rounded-lg shadow-lg max-w-md w-full p-6 bg-white">
               <DialogTitle className="text-lg font-medium text-gray-900">
                 Upload Status
               </DialogTitle>
