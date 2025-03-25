@@ -67,10 +67,13 @@ interface FormDataState {
   type: string;
   description: string;
   datePublished: string;
+  authors: string;
+  applications: string;
   citation: string;
   paperLink: string;
   licensing: string;
   private: boolean;
+  keywords: string;
 }
 
 export default function UploadStructure() {
@@ -81,12 +84,14 @@ export default function UploadStructure() {
     description: "",
     datePublished: "",
     citation: "",
+    applications: "",
+    authors: "",
     paperLink: "",
     licensing: "",
+    keywords: "",
     private: false,
   });
 
-  const [keywords, setKeywords] = useState<string>("");
   const [images, setImages] = useState<FileEntry[]>([]);
   const [structureFiles, setStructureFiles] = useState<FileEntry[]>([]);
   const [simulationProtocolFiles, setSimulationProtocolFiles] = useState<
@@ -169,7 +174,6 @@ export default function UploadStructure() {
 
     const requestData = {
       ...formData,
-      keywords: keywords.split(",").map((kw) => kw.trim()),
     };
 
     const formDataToSend = new FormData();
@@ -383,8 +387,33 @@ export default function UploadStructure() {
               type="text"
               placeholder="Keywords (comma-separated)..."
               className="w-full border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2 rounded-lg bg-stone-400/20"
-              value={keywords}
-              onChange={(e) => setKeywords(e.target.value)}
+              name="keywords"
+              value={formData.keywords}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* Applications */}
+          <div>
+            <input
+              type="text"
+              placeholder="Keywords (comma-separated)..."
+              className="w-full border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2 rounded-lg bg-stone-400/20"
+              name="applications"
+              value={formData.applications}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* Authors */}
+          <div>
+            <input
+              type="text"
+              placeholder="Keywords (comma-separated)..."
+              className="w-full border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2 rounded-lg bg-stone-400/20"
+              name="authors"
+              value={formData.authors}
+              onChange={handleChange}
             />
           </div>
 
