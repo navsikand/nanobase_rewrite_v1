@@ -77,7 +77,10 @@ interface FormDataState {
 }
 
 export default function UploadStructure() {
-  // Form data state.
+  // Shared input styling for consistency.
+  const inputClass =
+    "w-full border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2 rounded-lg bg-stone-400/20 mt-1";
+
   const [formData, setFormData] = useState<FormDataState>({
     title: "",
     type: "",
@@ -112,7 +115,7 @@ export default function UploadStructure() {
   const [responseMessage, setResponseMessage] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  // Handler for regular input changes with a type guard.
+  // Handler for regular input changes.
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -127,7 +130,7 @@ export default function UploadStructure() {
     }));
   };
 
-  // Validation function to check required fields.
+  // Validation function to check required form fields.
   const validateFormData = (): Record<string, string> => {
     const newErrors: Record<string, string> = {};
     if (!formData.title.trim()) newErrors.title = "Title is required.";
@@ -138,7 +141,6 @@ export default function UploadStructure() {
       newErrors.datePublished = "Date published is required.";
     if (!formData.licensing.trim())
       newErrors.licensing = "Licensing is required.";
-    // Add additional validations as needed
     return newErrors;
   };
 
@@ -159,12 +161,17 @@ export default function UploadStructure() {
   // Form submission handler.
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-
-    // Clear previous errors
     setErrors({});
 
-    // Validate form data
     const validationErrors = validateFormData();
+    // Validate that at least one image and one structure file are uploaded.
+    if (images.length === 0) {
+      validationErrors.images = "At least one image is required.";
+    }
+    if (structureFiles.length === 0) {
+      validationErrors.structureFiles =
+        "At least one structure file is required.";
+    }
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
@@ -172,10 +179,7 @@ export default function UploadStructure() {
 
     setIsLoading(true);
 
-    const requestData = {
-      ...formData,
-    };
-
+    const requestData = { ...formData };
     const formDataToSend = new FormData();
     Object.keys(requestData).forEach((key) => {
       /* eslint-disable  @typescript-eslint/no-explicit-any */
@@ -210,19 +214,17 @@ export default function UploadStructure() {
         body: formDataToSend,
       });
 
-      // Attempt to parse the error response if not OK
       if (!response.ok) {
         let errorMsg = "Failed to upload structure.";
         try {
           const errorData = await response.json();
           errorMsg = errorData.message || errorMsg;
         } catch {
-          // If parsing fails, keep the default error message.
+          // Use default error message if parsing fails.
         }
         throw new Error(errorMsg);
       }
 
-      // If response is OK, parse the response data.
       let data;
       try {
         data = await response.json();
@@ -230,6 +232,7 @@ export default function UploadStructure() {
         throw new Error("Received invalid response from the server.");
       }
       setResponseMessage(data.message || "Structure uploaded successfully!");
+
       /* eslint-disable  @typescript-eslint/no-explicit-any */
     } catch (error: any) {
       setResponseMessage(error.message || "An error occurred while uploading.");
@@ -241,7 +244,7 @@ export default function UploadStructure() {
 
   return (
     <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto rounded-lg p-6 bg-white shadow">
+      <div className="max-w-3xl mx-auto rounded-lg p-6">
         <h1 className="text-2xl font-bold mb-6">Upload Structure</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Title */}
@@ -250,9 +253,7 @@ export default function UploadStructure() {
               type="text"
               name="title"
               placeholder="Title..."
-              className={`bg-stone-400/20 rounded-lg p-2 w-full mt-1 ${
-                errors.title ? "border-red-500" : ""
-              }`}
+              className={`${inputClass} ${errors.title ? "border-red-500" : ""}`}
               value={formData.title}
               onChange={handleChange}
               required
@@ -268,9 +269,7 @@ export default function UploadStructure() {
               type="text"
               name="type"
               placeholder="Type..."
-              className={`bg-stone-400/20 rounded-lg p-2 w-full mt-1 ${
-                errors.type ? "border-red-500" : ""
-              }`}
+              className={`${inputClass} ${errors.type ? "border-red-500" : ""}`}
               value={formData.type}
               onChange={handleChange}
               required
@@ -285,9 +284,7 @@ export default function UploadStructure() {
             <textarea
               name="description"
               placeholder="Description..."
-              className={`bg-stone-400/20 rounded-lg p-2 w-full mt-1 ${
-                errors.description ? "border-red-500" : ""
-              }`}
+              className={`${inputClass} ${errors.description ? "border-red-500" : ""}`}
               rows={3}
               value={formData.description}
               onChange={handleChange}
@@ -303,9 +300,7 @@ export default function UploadStructure() {
             <input
               type="date"
               name="datePublished"
-              className={`bg-stone-400/20 rounded-lg p-2 w-full mt-1 ${
-                errors.datePublished ? "border-red-500" : ""
-              }`}
+              className={`${inputClass} ${errors.datePublished ? "border-red-500" : ""}`}
               value={formData.datePublished}
               onChange={handleChange}
               required
@@ -321,9 +316,7 @@ export default function UploadStructure() {
               type="text"
               name="citation"
               placeholder="Citation..."
-              className={`bg-stone-400/20 rounded-lg p-2 w-full mt-1 ${
-                errors.citation ? "border-red-500" : ""
-              }`}
+              className={`${inputClass} ${errors.citation ? "border-red-500" : ""}`}
               value={formData.citation}
               onChange={handleChange}
             />
@@ -338,9 +331,7 @@ export default function UploadStructure() {
               type="url"
               name="paperLink"
               placeholder="Paper link..."
-              className={`bg-stone-400/20 rounded-lg p-2 w-full mt-1 ${
-                errors.paperLink ? "border-red-500" : ""
-              }`}
+              className={`${inputClass} ${errors.paperLink ? "border-red-500" : ""}`}
               value={formData.paperLink}
               onChange={handleChange}
             />
@@ -355,9 +346,7 @@ export default function UploadStructure() {
               type="text"
               name="licensing"
               placeholder="Licensing..."
-              className={`bg-stone-400/20 rounded-lg p-2 w-full mt-1 ${
-                errors.licensing ? "border-red-500" : ""
-              }`}
+              className={`${inputClass} ${errors.licensing ? "border-red-500" : ""}`}
               value={formData.licensing}
               onChange={handleChange}
               required
@@ -386,8 +375,8 @@ export default function UploadStructure() {
             <input
               type="text"
               placeholder="Keywords (comma-separated)..."
-              className="w-full border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2 rounded-lg bg-stone-400/20"
               name="keywords"
+              className={inputClass}
               value={formData.keywords}
               onChange={handleChange}
             />
@@ -397,9 +386,9 @@ export default function UploadStructure() {
           <div>
             <input
               type="text"
-              placeholder="Keywords (comma-separated)..."
-              className="w-full border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2 rounded-lg bg-stone-400/20"
+              placeholder="Applications (comma-separated)..."
               name="applications"
+              className={inputClass}
               value={formData.applications}
               onChange={handleChange}
             />
@@ -409,9 +398,9 @@ export default function UploadStructure() {
           <div>
             <input
               type="text"
-              placeholder="Keywords (comma-separated)..."
-              className="w-full border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2 rounded-lg bg-stone-400/20"
+              placeholder="Authors (comma-separated)..."
               name="authors"
+              className={inputClass}
               value={formData.authors}
               onChange={handleChange}
             />
@@ -421,6 +410,9 @@ export default function UploadStructure() {
           <div>
             <h2 className="font-semibold">Images</h2>
             <FileInputWithDescription label="Add an Image:" onAdd={addImage} />
+            {errors.images && (
+              <p className="text-red-500 text-sm">{errors.images}</p>
+            )}
             <ul className="mt-2">
               {images.map((entry, index) => (
                 <li key={index}>
@@ -437,6 +429,9 @@ export default function UploadStructure() {
               label="Add a Structure File:"
               onAdd={addStructureFile}
             />
+            {errors.structureFiles && (
+              <p className="text-red-500 text-sm">{errors.structureFiles}</p>
+            )}
             <ul className="mt-2">
               {structureFiles.map((entry, index) => (
                 <li key={index}>
