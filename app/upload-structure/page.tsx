@@ -122,6 +122,21 @@ export default function UploadStructure() {
     }));
   };
 
+  // Validation function to check required fields.
+  const validateFormData = (): Record<string, string> => {
+    const newErrors: Record<string, string> = {};
+    if (!formData.title.trim()) newErrors.title = "Title is required.";
+    if (!formData.type.trim()) newErrors.type = "Type is required.";
+    if (!formData.description.trim())
+      newErrors.description = "Description is required.";
+    if (!formData.datePublished.trim())
+      newErrors.datePublished = "Date published is required.";
+    if (!formData.licensing.trim())
+      newErrors.licensing = "Licensing is required.";
+    // Add additional validations as needed
+    return newErrors;
+  };
+
   // Handlers for adding file entries.
   const addImage = (fileEntry: FileEntry) =>
     setImages((prev) => [...prev, fileEntry]);
@@ -139,6 +154,17 @@ export default function UploadStructure() {
   // Form submission handler.
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
+    // Clear previous errors
+    setErrors({});
+
+    // Validate form data
+    const validationErrors = validateFormData();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
     setIsLoading(true);
 
     const requestData = {
@@ -148,6 +174,7 @@ export default function UploadStructure() {
 
     const formDataToSend = new FormData();
     Object.keys(requestData).forEach((key) => {
+      /* eslint-disable  @typescript-eslint/no-explicit-any */
       formDataToSend.append(key, (requestData as any)[key]);
     });
 
@@ -168,6 +195,9 @@ export default function UploadStructure() {
 
     try {
       const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Authentication token is missing. Please log in.");
+      }
       const response = await fetch(`${apiRoot}/structure/createStructure`, {
         method: "POST",
         headers: {
@@ -175,11 +205,28 @@ export default function UploadStructure() {
         },
         body: formDataToSend,
       });
+
+      // Attempt to parse the error response if not OK
       if (!response.ok) {
-        throw new Error("Failed to upload structure");
+        let errorMsg = "Failed to upload structure.";
+        try {
+          const errorData = await response.json();
+          errorMsg = errorData.message || errorMsg;
+        } catch {
+          // If parsing fails, keep the default error message.
+        }
+        throw new Error(errorMsg);
       }
-      const data = await response.json();
+
+      // If response is OK, parse the response data.
+      let data;
+      try {
+        data = await response.json();
+      } catch {
+        throw new Error("Received invalid response from the server.");
+      }
       setResponseMessage(data.message || "Structure uploaded successfully!");
+      /* eslint-disable  @typescript-eslint/no-explicit-any */
     } catch (error: any) {
       setResponseMessage(error.message || "An error occurred while uploading.");
     } finally {

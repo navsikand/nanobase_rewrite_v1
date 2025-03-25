@@ -95,6 +95,11 @@ export interface STRUCTURE_CARD_DATA {
     paperLink: string;
     lastUpdated: string;
 
+    imageNameToDescRelation: {
+      imageName: string;
+      description: string;
+    }[];
+
     otherFiles: {
       fileName: string;
       description: string;
