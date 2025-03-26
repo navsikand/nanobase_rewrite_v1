@@ -28,7 +28,7 @@ type ImageRelation = {
 };
 
 type RelationItemProps = {
-  item: { description: string; [key: string]: any };
+  item: { description: string; [key: string]: string };
   onDelete: (name: string) => void;
   onEdit: (name: string, newDescription: string) => void;
   nameKey: string;
@@ -267,7 +267,7 @@ export default function EditStructurePage({
   // Dummy handleSubmit function with validations
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    let errors: string[] = [];
+    const errors: string[] = [];
 
     // Validate text fields (title, type, description, citation, paperLink, licensing, authors, keywords, applications)
     Object.entries(formData).forEach(([key, value]) => {
