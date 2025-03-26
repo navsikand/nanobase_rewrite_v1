@@ -65,7 +65,7 @@ export default function SignIn() {
               Email
             </label>
             <input
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               placeholder="example@example.com"
               id="email"
               name="email"
@@ -85,7 +85,7 @@ export default function SignIn() {
               Password
             </label>
             <input
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               placeholder="********"
               id="password"
               name="password"

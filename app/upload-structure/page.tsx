@@ -53,7 +53,7 @@ function FileInputWithDescription({
       <button
         type="button"
         onClick={handleAdd}
-        className="mt-2 px-3 py-1 bg-indigo-600 text-white rounded"
+        className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
       >
         Add File
       </button>
@@ -79,7 +79,7 @@ interface FormDataState {
 export default function UploadStructure() {
   // Shared input styling for consistency.
   const inputClass =
-    "w-full border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2 rounded-lg bg-stone-400/20 mt-1";
+    "w-full border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 p-2 rounded-lg bg-stone-400/20 mt-1";
 
   const [formData, setFormData] = useState<FormDataState>({
     title: "",
