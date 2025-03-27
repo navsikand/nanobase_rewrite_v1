@@ -1,3 +1,4 @@
+import { StructurePageData } from "@/db";
 import { STRUCTURE_CARD_DATA } from "@/types";
 import JSZip from "jszip";
 
@@ -78,6 +79,36 @@ export const getStructureOxdnaFilesFetcher = async (
     })
   );
   return files || [];
+};
+
+export const getUserStructureByIdFetcher = async (
+  key: string,
+  structureId: number
+): Promise<StructurePageData> => {
+  // Retrieve JWT from localStorage
+  const token = localStorage.getItem("token");
+
+  // Check if token exists, and throw an error if it's missing
+  if (!token) {
+    throw new Error("No authentication token found");
+  }
+
+  // Make the fetch request with the Authorization header
+  const response = await fetch(
+    `${apiRoot}/structure/${key}?id=${structureId}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) throw new Error("Failed to fetch structure data");
+
+  const fetchedStructure = await response.json();
+  return fetchedStructure;
 };
 
 export const getStructureByIdFetcher = async (

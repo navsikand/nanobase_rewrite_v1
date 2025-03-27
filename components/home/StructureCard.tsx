@@ -6,7 +6,8 @@ export const StructureCard = ({
   structure: { description, id, title, uploadDate },
   User,
   image,
-}: STRUCTURE_CARD_DATA & { image: string }) => {
+  edit_menu,
+}: STRUCTURE_CARD_DATA & { image: string } & { edit_menu?: boolean }) => {
   const imageSrc =
     image && image !== "" ? image : "/images/no-structure-img.webp";
 
@@ -14,15 +15,26 @@ export const StructureCard = ({
     <Link href={"/structures/" + id}>
       <div className="px-5 rounded-lg bg-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer border-2 border-gray-100">
         <div className="w-11/12 mx-auto">
-          <p className="text-xs font-extralight text-right pt-3 pb-1">
-            Uploaded by {User.firstName} {User.lastName} on{" "}
-            {uploadDate
-              ?.toLocaleString()
-              .split(":")[0]
-              .substring(
-                0,
-                uploadDate.toLocaleString().split(":")[0].length - 3
-              )}
+          <p className="text-xs font-extralight text-right pt-3 pb-1 w-full flex justify-between items-center">
+            {edit_menu && (
+              <Link
+                href={"/edit-structure/" + id}
+                className="rounded-lg px-4 py-2 bg-black text-white font-semibold text-sm hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
+              >
+                Edit
+              </Link>
+            )}
+
+            <span>
+              Uploaded by {User.firstName} {User.lastName} on{" "}
+              {uploadDate
+                ?.toLocaleString()
+                .split(":")[0]
+                .substring(
+                  0,
+                  uploadDate.toLocaleString().split(":")[0].length - 3
+                )}
+            </span>
           </p>
 
           {/* Image */}

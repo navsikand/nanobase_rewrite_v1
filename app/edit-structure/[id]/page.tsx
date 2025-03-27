@@ -1,6 +1,9 @@
 "use client";
 
-import { getStructureByIdFetcher } from "@/helpers/fetchHelpers";
+import {
+  getStructureByIdFetcher,
+  getUserStructureByIdFetcher,
+} from "@/helpers/fetchHelpers";
 import { use, useEffect, useState, ChangeEvent } from "react";
 import useSWR from "swr";
 
@@ -150,8 +153,8 @@ export default function EditStructurePage({
   const { id: structureId } = use(params);
 
   const { data: server_structureData } = useSWR(
-    structureId ? ["getStructureById", structureId] : null,
-    ([key, id]) => getStructureByIdFetcher(key, id)
+    structureId ? ["getUserStructureById", structureId] : null,
+    ([key, id]) => getUserStructureByIdFetcher(key, id)
   );
 
   const [formData, setFormData] = useState<FormData>({

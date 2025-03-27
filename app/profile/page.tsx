@@ -40,7 +40,7 @@ export default function ProfilePage() {
   return ProfileData ? (
     <div className="">
       {/* Header text */}
-      <div className="flex flex-col w-11/12 mx-auto justify-center items-center mt-20 lg:w-[65%] ">
+      <div className="flex flex-col w-11/12 mx-auto justify-center items-center mt-20 lg:w-[65%]">
         <div className="w-full space-y-3">
           <h2 className="text-4xl font-semibold">
             {`${ProfileData.firstName} ${ProfileData.lastName}`}
@@ -63,34 +63,9 @@ export default function ProfilePage() {
               {ProfileData.verified ? "Verified" : "Not verified"}
             </p>
           </div>
+
           <h2 className="text-4xl font-semibold">Structures</h2>
           <div className="space-y-2 mt-3">
-            {/* <div className="flex justify-center mb-2 space-x-2">
-                <Input
-                  name="full_name"
-                  type="text"
-                  placeholder="Search..."
-                  className={"bg-gray-400/20 rounded-xl p-2"}
-                  value={serachQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-
-                <Select
-                  onChange={(e) =>
-                    setSearchByParameter(
-                      serachByFields[parseInt(e.target.value)].name
-                    )
-                  }
-                  className="rounded-lg"
-                >
-                  {serachByFields.map((field) => (
-                    <option value={field.id} key={field.id}>
-                      {field.name}
-                    </option>
-                  ))}
-                </Select>
-              </div> */}
-
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
               {fetchedData?.map(
                 ({ User, structure, image, flatStructureId }) => (
@@ -100,6 +75,7 @@ export default function ProfilePage() {
                     structure={structure}
                     key={structure.id}
                     image={image}
+                    edit_menu={true}
                   />
                 )
               )}
