@@ -274,6 +274,7 @@ export default function UploadStructure() {
     const requestData = { ...formData };
     const formDataToSend = new FormData();
     Object.keys(requestData).forEach((key) => {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       formDataToSend.append(key, (requestData as any)[key]);
     });
 
@@ -323,6 +324,8 @@ export default function UploadStructure() {
         throw new Error("Received invalid response from the server.");
       }
       setResponseMessage(data.message || "Structure uploaded successfully!");
+
+      /* eslint-disable @typescript-eslint/no-explicit-any */
     } catch (error: any) {
       setResponseMessage(error.message || "An error occurred while uploading.");
     } finally {
