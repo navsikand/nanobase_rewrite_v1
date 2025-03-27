@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  getStructureByIdFetcher,
-  getUserStructureByIdFetcher,
-} from "@/helpers/fetchHelpers";
+import { getUserStructureByIdFetcher } from "@/helpers/fetchHelpers";
 import { use, useEffect, useState, ChangeEvent } from "react";
 import useSWR from "swr";
 

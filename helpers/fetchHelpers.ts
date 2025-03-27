@@ -84,7 +84,7 @@ export const getStructureOxdnaFilesFetcher = async (
 export const getUserStructureByIdFetcher = async (
   key: string,
   structureId: number
-): Promise<StructurePageData> => {
+): Promise<STRUCTURE_CARD_DATA> => {
   // Retrieve JWT from localStorage
   const token = localStorage.getItem("token");
 
