@@ -161,7 +161,7 @@ export default function EditStructurePage({
     citation: "",
     paperLink: "",
     licensing: "",
-    private: false,
+    private: true,
     authors: "",
     keywords: "",
     applications: "",
@@ -183,7 +183,7 @@ export default function EditStructurePage({
         applications: server_structureData.structure.applications.join(", "),
         authors: server_structureData.structure.authors.join(", "),
         keywords: server_structureData.structure.keywords.join(", "),
-        private: true,
+        private: server_structureData.structure.private,
       });
 
       setImageRelations(server_structureData.structure.imageNameToDescRelation);

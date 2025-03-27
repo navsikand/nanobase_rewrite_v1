@@ -94,6 +94,7 @@ export interface STRUCTURE_CARD_DATA {
     uploadDate: string;
     paperLink: string;
     lastUpdated: string;
+    private: boolean;
 
     imageNameToDescRelation: {
       imageName: string;
