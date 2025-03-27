@@ -1,11 +1,20 @@
 "use client";
 
 import { useState, ChangeEvent, FormEvent, Fragment } from "react";
-import { Dialog, DialogTitle, Transition } from "@headlessui/react";
+import {
+  Dialog,
+  DialogTitle,
+  Transition,
+  Tab,
+  TabGroup,
+  TabList,
+  TabPanels,
+  TabPanel,
+} from "@headlessui/react";
 import { apiRoot } from "@/helpers/fetchHelpers";
 
 // Type for each file entry (file and its description)
-interface FileEntry {
+export interface FileEntry {
   file: File;
   description: string;
 }
@@ -53,11 +62,74 @@ function FileInputWithDescription({
       <button
         type="button"
         onClick={handleAdd}
-        className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
+        className="mt-2 rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
       >
         Add File
       </button>
     </div>
+  );
+}
+
+// New component to display each file entry with edit and delete options.
+interface FileEntryItemProps {
+  index: number;
+  entry: FileEntry;
+  onDelete: (index: number) => void;
+  onEdit: (index: number, newEntry: FileEntry) => void;
+}
+
+function FileEntryItem({ index, entry, onDelete, onEdit }: FileEntryItemProps) {
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [editedDescription, setEditedDescription] = useState<string>(
+    entry.description
+  );
+
+  const handleSave = () => {
+    // Create an updated entry with the new description.
+    onEdit(index, { file: entry.file, description: editedDescription });
+    setIsEditing(false);
+  };
+
+  return (
+    <li className="flex items-center justify-between">
+      <div>
+        <span className="font-semibold">{entry.file.name}</span>
+        {" - "}
+        {isEditing ? (
+          <input
+            type="text"
+            value={editedDescription}
+            onChange={(e) => setEditedDescription(e.target.value)}
+            className="p-1 border rounded"
+          />
+        ) : (
+          <span>{entry.description}</span>
+        )}
+      </div>
+      <div className="space-x-2">
+        {isEditing ? (
+          <button
+            onClick={handleSave}
+            className="px-2 py-1 bg-black cursor-pointer text-white rounded"
+          >
+            Save
+          </button>
+        ) : (
+          <button
+            onClick={() => setIsEditing(true)}
+            className="px-2 py-1 bg-black cursor-pointer text-white rounded"
+          >
+            Edit
+          </button>
+        )}
+        <button
+          onClick={() => onDelete(index)}
+          className="px-2 py-1 bg-black cursor-pointer text-white rounded"
+        >
+          Delete
+        </button>
+      </div>
+    </li>
   );
 }
 
@@ -95,6 +167,7 @@ export default function UploadStructure() {
     private: false,
   });
 
+  // State for different file entries.
   const [images, setImages] = useState<FileEntry[]>([]);
   const [structureFiles, setStructureFiles] = useState<FileEntry[]>([]);
   const [simulationProtocolFiles, setSimulationProtocolFiles] = useState<
@@ -114,6 +187,7 @@ export default function UploadStructure() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [responseMessage, setResponseMessage] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [tabIndex, setTabIndex] = useState(0);
 
   // Handler for regular input changes.
   const handleChange = (
@@ -158,6 +232,24 @@ export default function UploadStructure() {
   const addExpResFile = (fileEntry: FileEntry) =>
     setExperimentResultFiles((prev) => [...prev, fileEntry]);
 
+  // Generic deletion and edit handlers for a file list.
+  const handleDelete = (
+    index: number,
+    listSetter: React.Dispatch<React.SetStateAction<FileEntry[]>>
+  ) => {
+    listSetter((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleEdit = (
+    index: number,
+    newEntry: FileEntry,
+    listSetter: React.Dispatch<React.SetStateAction<FileEntry[]>>
+  ) => {
+    listSetter((prev) =>
+      prev.map((entry, i) => (i === index ? newEntry : entry))
+    );
+  };
+
   // Form submission handler.
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -182,7 +274,6 @@ export default function UploadStructure() {
     const requestData = { ...formData };
     const formDataToSend = new FormData();
     Object.keys(requestData).forEach((key) => {
-      /* eslint-disable  @typescript-eslint/no-explicit-any */
       formDataToSend.append(key, (requestData as any)[key]);
     });
 
@@ -232,8 +323,6 @@ export default function UploadStructure() {
         throw new Error("Received invalid response from the server.");
       }
       setResponseMessage(data.message || "Structure uploaded successfully!");
-
-      /* eslint-disable  @typescript-eslint/no-explicit-any */
     } catch (error: any) {
       setResponseMessage(error.message || "An error occurred while uploading.");
     } finally {
@@ -244,277 +333,358 @@ export default function UploadStructure() {
 
   return (
     <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto rounded-lg p-6">
+      <div className="max-w-3xl mx-auto rounded-lg p-6 bg-white">
         <h1 className="text-2xl font-bold mb-6">Upload Structure</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Title */}
-          <div>
-            <input
-              type="text"
-              name="title"
-              placeholder="Title..."
-              className={`${inputClass} ${errors.title ? "border-red-500" : ""}`}
-              value={formData.title}
-              onChange={handleChange}
-              required
-            />
-            {errors.title && (
-              <p className="text-red-500 text-sm">{errors.title}</p>
-            )}
-          </div>
+          <TabGroup selectedIndex={tabIndex} onChange={setTabIndex}>
+            <TabList className="flex space-x-2 border-b border-gray-300 mb-4">
+              <Tab
+                className={({ selected }) =>
+                  selected
+                    ? "px-4 py-2 font-medium text-white bg-black rounded-t-md border border-gray-300 cursor-pointer"
+                    : "px-4 py-2 font-medium text-black bg-gray-100 rounded-t-md hover:bg-gray-200 cursor-pointer"
+                }
+              >
+                Text Data
+              </Tab>
+              <Tab
+                className={({ selected }) =>
+                  selected
+                    ? "px-4 py-2 font-medium text-white bg-black rounded-t-md border border-gray-300 cursor-pointer"
+                    : "px-4 py-2 font-medium text-black bg-gray-100 rounded-t-md hover:bg-gray-200 cursor-pointer"
+                }
+              >
+                File Data
+              </Tab>
+            </TabList>
+            <TabPanels>
+              {/* Text Data Panel */}
+              <TabPanel className={"space-y-1"}>
+                <div>
+                  <input
+                    type="text"
+                    name="title"
+                    placeholder="Title..."
+                    className={`${inputClass} ${errors.title ? "border-red-500" : ""}`}
+                    value={formData.title}
+                    onChange={handleChange}
+                    required
+                  />
+                  {errors.title && (
+                    <p className="text-red-500 text-sm">{errors.title}</p>
+                  )}
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    name="type"
+                    placeholder="Type..."
+                    className={`${inputClass} ${errors.type ? "border-red-500" : ""}`}
+                    value={formData.type}
+                    onChange={handleChange}
+                    required
+                  />
+                  {errors.type && (
+                    <p className="text-red-500 text-sm">{errors.type}</p>
+                  )}
+                </div>
+                <div>
+                  <textarea
+                    name="description"
+                    placeholder="Description..."
+                    className={`${inputClass} ${errors.description ? "border-red-500" : ""}`}
+                    rows={3}
+                    value={formData.description}
+                    onChange={handleChange}
+                    required
+                  />
+                  {errors.description && (
+                    <p className="text-red-500 text-sm">{errors.description}</p>
+                  )}
+                </div>
+                <div>
+                  <input
+                    type="date"
+                    name="datePublished"
+                    className={`${inputClass} ${errors.datePublished ? "border-red-500" : ""}`}
+                    value={formData.datePublished}
+                    onChange={handleChange}
+                    required
+                  />
+                  {errors.datePublished && (
+                    <p className="text-red-500 text-sm">
+                      {errors.datePublished}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    name="citation"
+                    placeholder="Citation..."
+                    className={`${inputClass} ${errors.citation ? "border-red-500" : ""}`}
+                    value={formData.citation}
+                    onChange={handleChange}
+                  />
+                  {errors.citation && (
+                    <p className="text-red-500 text-sm">{errors.citation}</p>
+                  )}
+                </div>
+                <div>
+                  <input
+                    type="url"
+                    name="paperLink"
+                    placeholder="Paper link..."
+                    className={`${inputClass} ${errors.paperLink ? "border-red-500" : ""}`}
+                    value={formData.paperLink}
+                    onChange={handleChange}
+                  />
+                  {errors.paperLink && (
+                    <p className="text-red-500 text-sm">{errors.paperLink}</p>
+                  )}
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    name="licensing"
+                    placeholder="Licensing..."
+                    className={`${inputClass} ${errors.licensing ? "border-red-500" : ""}`}
+                    value={formData.licensing}
+                    onChange={handleChange}
+                    required
+                  />
+                  {errors.licensing && (
+                    <p className="text-red-500 text-sm">{errors.licensing}</p>
+                  )}
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Keywords (comma-separated)..."
+                    name="keywords"
+                    className={inputClass}
+                    value={formData.keywords}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Applications (comma-separated)..."
+                    name="applications"
+                    className={inputClass}
+                    value={formData.applications}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Authors (comma-separated)..."
+                    name="authors"
+                    className={inputClass}
+                    value={formData.authors}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="private"
+                    className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                    checked={formData.private}
+                    onChange={handleChange}
+                  />
+                  <label
+                    htmlFor="private"
+                    className="ml-2 text-sm text-gray-900"
+                  >
+                    Private
+                  </label>
+                </div>
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setTabIndex(1)}
+                    className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200"
+                  >
+                    Next
+                  </button>
+                </div>
+              </TabPanel>
 
-          {/* Type */}
-          <div>
-            <input
-              type="text"
-              name="type"
-              placeholder="Type..."
-              className={`${inputClass} ${errors.type ? "border-red-500" : ""}`}
-              value={formData.type}
-              onChange={handleChange}
-              required
-            />
-            {errors.type && (
-              <p className="text-red-500 text-sm">{errors.type}</p>
-            )}
-          </div>
+              {/* File Data Panel */}
+              <TabPanel>
+                <div className="space-y-6">
+                  {/* Images */}
+                  <div className="border p-4 rounded-md">
+                    <h2 className="font-semibold mb-2">Images</h2>
+                    <FileInputWithDescription
+                      label="Add an Image:"
+                      onAdd={addImage}
+                    />
+                    {errors.images && (
+                      <p className="text-red-500 text-sm">{errors.images}</p>
+                    )}
+                    <ul className="mt-2 space-y-1">
+                      {images.map((entry, index) => (
+                        <FileEntryItem
+                          key={index}
+                          index={index}
+                          entry={entry}
+                          onDelete={(i) => handleDelete(i, setImages)}
+                          onEdit={(i, newEntry) =>
+                            handleEdit(i, newEntry, setImages)
+                          }
+                        />
+                      ))}
+                    </ul>
+                  </div>
 
-          {/* Description */}
-          <div>
-            <textarea
-              name="description"
-              placeholder="Description..."
-              className={`${inputClass} ${errors.description ? "border-red-500" : ""}`}
-              rows={3}
-              value={formData.description}
-              onChange={handleChange}
-              required
-            />
-            {errors.description && (
-              <p className="text-red-500 text-sm">{errors.description}</p>
-            )}
-          </div>
+                  {/* Structure Files */}
+                  <div className="border p-4 rounded-md">
+                    <h2 className="font-semibold mb-2">Structure Files</h2>
+                    <FileInputWithDescription
+                      label="Add a Structure File:"
+                      onAdd={addStructureFile}
+                    />
+                    {errors.structureFiles && (
+                      <p className="text-red-500 text-sm">
+                        {errors.structureFiles}
+                      </p>
+                    )}
+                    <ul className="mt-2 space-y-1">
+                      {structureFiles.map((entry, index) => (
+                        <FileEntryItem
+                          key={index}
+                          index={index}
+                          entry={entry}
+                          onDelete={(i) => handleDelete(i, setStructureFiles)}
+                          onEdit={(i, newEntry) =>
+                            handleEdit(i, newEntry, setStructureFiles)
+                          }
+                        />
+                      ))}
+                    </ul>
+                  </div>
 
-          {/* Date Published */}
-          <div>
-            <input
-              type="date"
-              name="datePublished"
-              className={`${inputClass} ${errors.datePublished ? "border-red-500" : ""}`}
-              value={formData.datePublished}
-              onChange={handleChange}
-              required
-            />
-            {errors.datePublished && (
-              <p className="text-red-500 text-sm">{errors.datePublished}</p>
-            )}
-          </div>
+                  {/* Simulation Protocol Files */}
+                  <div className="border p-4 rounded-md">
+                    <h2 className="font-semibold mb-2">
+                      Simulation Protocol Files
+                    </h2>
+                    <FileInputWithDescription
+                      label="Add a Simulation Protocol File:"
+                      onAdd={addSimProtFile}
+                    />
+                    <ul className="mt-2 space-y-1">
+                      {simulationProtocolFiles.map((entry, index) => (
+                        <FileEntryItem
+                          key={index}
+                          index={index}
+                          entry={entry}
+                          onDelete={(i) =>
+                            handleDelete(i, setSimulationProtocolFiles)
+                          }
+                          onEdit={(i, newEntry) =>
+                            handleEdit(i, newEntry, setSimulationProtocolFiles)
+                          }
+                        />
+                      ))}
+                    </ul>
+                  </div>
 
-          {/* Citation */}
-          <div>
-            <input
-              type="text"
-              name="citation"
-              placeholder="Citation..."
-              className={`${inputClass} ${errors.citation ? "border-red-500" : ""}`}
-              value={formData.citation}
-              onChange={handleChange}
-            />
-            {errors.citation && (
-              <p className="text-red-500 text-sm">{errors.citation}</p>
-            )}
-          </div>
+                  {/* Simulation Result Files */}
+                  <div className="border p-4 rounded-md">
+                    <h2 className="font-semibold mb-2">
+                      Simulation Result Files
+                    </h2>
+                    <FileInputWithDescription
+                      label="Add a Simulation Result File:"
+                      onAdd={addSimResFile}
+                    />
+                    <ul className="mt-2 space-y-1">
+                      {simulationResultFiles.map((entry, index) => (
+                        <FileEntryItem
+                          key={index}
+                          index={index}
+                          entry={entry}
+                          onDelete={(i) =>
+                            handleDelete(i, setSimulationResultFiles)
+                          }
+                          onEdit={(i, newEntry) =>
+                            handleEdit(i, newEntry, setSimulationResultFiles)
+                          }
+                        />
+                      ))}
+                    </ul>
+                  </div>
 
-          {/* Paper Link */}
-          <div>
-            <input
-              type="url"
-              name="paperLink"
-              placeholder="Paper link..."
-              className={`${inputClass} ${errors.paperLink ? "border-red-500" : ""}`}
-              value={formData.paperLink}
-              onChange={handleChange}
-            />
-            {errors.paperLink && (
-              <p className="text-red-500 text-sm">{errors.paperLink}</p>
-            )}
-          </div>
+                  {/* Experiment Protocol Files */}
+                  <div className="border p-4 rounded-md">
+                    <h2 className="font-semibold mb-2">
+                      Experiment Protocol Files
+                    </h2>
+                    <FileInputWithDescription
+                      label="Add an Experiment Protocol File:"
+                      onAdd={addExpProtFile}
+                    />
+                    <ul className="mt-2 space-y-1">
+                      {experimentProtocolFiles.map((entry, index) => (
+                        <FileEntryItem
+                          key={index}
+                          index={index}
+                          entry={entry}
+                          onDelete={(i) =>
+                            handleDelete(i, setExperimentProtocolFiles)
+                          }
+                          onEdit={(i, newEntry) =>
+                            handleEdit(i, newEntry, setExperimentProtocolFiles)
+                          }
+                        />
+                      ))}
+                    </ul>
+                  </div>
 
-          {/* Licensing */}
-          <div>
-            <input
-              type="text"
-              name="licensing"
-              placeholder="Licensing..."
-              className={`${inputClass} ${errors.licensing ? "border-red-500" : ""}`}
-              value={formData.licensing}
-              onChange={handleChange}
-              required
-            />
-            {errors.licensing && (
-              <p className="text-red-500 text-sm">{errors.licensing}</p>
-            )}
-          </div>
+                  {/* Experiment Result Files */}
+                  <div className="border p-4 rounded-md">
+                    <h2 className="font-semibold mb-2">
+                      Experiment Result Files
+                    </h2>
+                    <FileInputWithDescription
+                      label="Add an Experiment Result File:"
+                      onAdd={addExpResFile}
+                    />
+                    <ul className="mt-2 space-y-1">
+                      {experimentResultFiles.map((entry, index) => (
+                        <FileEntryItem
+                          key={index}
+                          index={index}
+                          entry={entry}
+                          onDelete={(i) =>
+                            handleDelete(i, setExperimentResultFiles)
+                          }
+                          onEdit={(i, newEntry) =>
+                            handleEdit(i, newEntry, setExperimentResultFiles)
+                          }
+                        />
+                      ))}
+                    </ul>
+                  </div>
+                </div>
 
-          {/* Private */}
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              name="private"
-              className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-              checked={formData.private}
-              onChange={handleChange}
-            />
-            <label htmlFor="private" className="ml-2 text-sm text-gray-900">
-              Private
-            </label>
-          </div>
-
-          {/* Keywords */}
-          <div>
-            <input
-              type="text"
-              placeholder="Keywords (comma-separated)..."
-              name="keywords"
-              className={inputClass}
-              value={formData.keywords}
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* Applications */}
-          <div>
-            <input
-              type="text"
-              placeholder="Applications (comma-separated)..."
-              name="applications"
-              className={inputClass}
-              value={formData.applications}
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* Authors */}
-          <div>
-            <input
-              type="text"
-              placeholder="Authors (comma-separated)..."
-              name="authors"
-              className={inputClass}
-              value={formData.authors}
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* Images */}
-          <div>
-            <h2 className="font-semibold">Images</h2>
-            <FileInputWithDescription label="Add an Image:" onAdd={addImage} />
-            {errors.images && (
-              <p className="text-red-500 text-sm">{errors.images}</p>
-            )}
-            <ul className="mt-2">
-              {images.map((entry, index) => (
-                <li key={index}>
-                  {entry.file.name} - {entry.description}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Structure Files */}
-          <div>
-            <h2 className="font-semibold">Structure Files</h2>
-            <FileInputWithDescription
-              label="Add a Structure File:"
-              onAdd={addStructureFile}
-            />
-            {errors.structureFiles && (
-              <p className="text-red-500 text-sm">{errors.structureFiles}</p>
-            )}
-            <ul className="mt-2">
-              {structureFiles.map((entry, index) => (
-                <li key={index}>
-                  {entry.file.name} - {entry.description}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Simulation Protocol Files */}
-          <div>
-            <h2 className="font-semibold">Simulation Protocol Files</h2>
-            <FileInputWithDescription
-              label="Add a Simulation Protocol File:"
-              onAdd={addSimProtFile}
-            />
-            <ul className="mt-2">
-              {simulationProtocolFiles.map((entry, index) => (
-                <li key={index}>
-                  {entry.file.name} - {entry.description}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Simulation Result Files */}
-          <div>
-            <h2 className="font-semibold">Simulation Result Files</h2>
-            <FileInputWithDescription
-              label="Add a Simulation Result File:"
-              onAdd={addSimResFile}
-            />
-            <ul className="mt-2">
-              {simulationResultFiles.map((entry, index) => (
-                <li key={index}>
-                  {entry.file.name} - {entry.description}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Experiment Protocol Files */}
-          <div>
-            <h2 className="font-semibold">Experiment Protocol Files</h2>
-            <FileInputWithDescription
-              label="Add an Experiment Protocol File:"
-              onAdd={addExpProtFile}
-            />
-            <ul className="mt-2">
-              {experimentProtocolFiles.map((entry, index) => (
-                <li key={index}>
-                  {entry.file.name} - {entry.description}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Experiment Result Files */}
-          <div>
-            <h2 className="font-semibold">Experiment Result Files</h2>
-            <FileInputWithDescription
-              label="Add an Experiment Result File:"
-              onAdd={addExpResFile}
-            />
-            <ul className="mt-2">
-              {experimentResultFiles.map((entry, index) => (
-                <li key={index}>
-                  {entry.file.name} - {entry.description}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Submit Button */}
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200"
-              disabled={isLoading}
-            >
-              {isLoading ? "Uploading..." : "Upload Structure"}
-            </button>
-          </div>
+                <div className="flex justify-end mt-4">
+                  <button
+                    type="submit"
+                    className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Uploading..." : "Upload Structure"}
+                  </button>
+                </div>
+              </TabPanel>
+            </TabPanels>
+          </TabGroup>
         </form>
       </div>
 
@@ -527,7 +697,7 @@ export default function UploadStructure() {
         >
           <div className="fixed inset-0 bg-black bg-opacity-30" />
           <div className="fixed inset-0 flex items-center justify-center">
-            <div className="rounded-lg shadow-lg max-w-md w-full p-6 bg-white">
+            <div className="rounded-lg max-w-md w-full p-6 bg-white">
               <DialogTitle className="text-lg font-medium text-gray-900">
                 Upload Status
               </DialogTitle>

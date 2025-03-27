@@ -1,9 +1,27 @@
 "use client";
 
 import { getUserStructureByIdFetcher } from "@/helpers/fetchHelpers";
-import { use, useEffect, useState, ChangeEvent } from "react";
+import {
+  use,
+  useEffect,
+  useState,
+  ChangeEvent,
+  FormEvent,
+  Fragment,
+} from "react";
 import useSWR from "swr";
+import {
+  Dialog,
+  DialogTitle,
+  Transition,
+  Tab,
+  TabGroup,
+  TabList,
+  TabPanels,
+  TabPanel,
+} from "@headlessui/react";
 
+// --- Types ---
 type FormData = {
   title: string;
   type: string;
@@ -12,9 +30,9 @@ type FormData = {
   paperLink: string;
   licensing: string;
   private: boolean;
-  authors: string; // comma separated string
-  keywords: string; // comma separated string
-  applications: string; // comma separated string
+  authors: string;
+  keywords: string;
+  applications: string;
 };
 
 type FileRelation = {
@@ -34,7 +52,8 @@ type RelationItemProps = {
   nameKey: string;
 };
 
-// Generic component for displaying and editing a relation (file or image)
+// --- RelationItem Component ---
+// Updated styling to match the upload UI's FileEntryItem design.
 const RelationItem = ({
   item,
   onDelete,
@@ -51,48 +70,50 @@ const RelationItem = ({
   };
 
   return (
-    <div className="mb-2 border border-gray-300 p-2 rounded">
-      <strong>{itemName}</strong>:{" "}
-      {isEditing ? (
-        <>
+    <li className="flex items-center justify-between border p-2 rounded">
+      <div>
+        <span className="font-semibold">{itemName}</span>
+        {" - "}
+        {isEditing ? (
           <input
             type="text"
             value={tempDescription}
             onChange={(e) => setTempDescription(e.target.value)}
-            className="w-full border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 p-2 rounded-lg bg-stone-400/20 mt-1"
+            className="p-1 border rounded ml-1"
           />
+        ) : (
+          <span>{item.description}</span>
+        )}
+      </div>
+      <div className="space-x-2">
+        {isEditing ? (
           <button
-            type="button"
             onClick={handleSave}
-            className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
+            className="px-2 py-1 bg-black text-white rounded hover:-translate-y-1 hover:shadow-xl duration-200"
           >
             Save
           </button>
-        </>
-      ) : (
-        <>
-          <span>{item.description}</span>
+        ) : (
           <button
-            type="button"
             onClick={() => setIsEditing(true)}
-            className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
+            className="px-2 py-1 bg-black text-white rounded hover:-translate-y-1 hover:shadow-xl duration-200"
           >
             Edit
           </button>
-        </>
-      )}
-      <button
-        type="button"
-        onClick={() => onDelete(itemName)}
-        className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
-      >
-        Delete
-      </button>
-    </div>
+        )}
+        <button
+          onClick={() => onDelete(itemName)}
+          className="px-2 py-1 bg-black text-white rounded hover:-translate-y-1 hover:shadow-xl duration-200"
+        >
+          Delete
+        </button>
+      </div>
+    </li>
   );
 };
 
-// Generic input component for adding a file (or image) with a description.
+// --- FileInputWithDescription Component ---
+// (Same as in UploadStructure for consistency)
 type FileInputWithDescriptionProps = {
   label: string;
   onAdd: (item: { file: File; description: string }) => void;
@@ -108,7 +129,6 @@ function FileInputWithDescription({
   const handleAdd = () => {
     if (file) {
       onAdd({ file, description });
-      // Reset the inputs for the next entry.
       setFile(null);
       setDescription("");
     }
@@ -134,7 +154,7 @@ function FileInputWithDescription({
       <button
         type="button"
         onClick={handleAdd}
-        className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
+        className="mt-2 rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
       >
         Add {label}
       </button>
@@ -142,6 +162,7 @@ function FileInputWithDescription({
   );
 }
 
+// --- EditStructurePage Component ---
 export default function EditStructurePage({
   params,
 }: {
@@ -151,7 +172,7 @@ export default function EditStructurePage({
 
   const { data: server_structureData } = useSWR(
     structureId ? ["getUserStructureById", structureId] : null,
-    ([key, id]) => getUserStructureByIdFetcher(key, id)
+    ([, id]) => getUserStructureByIdFetcher("getUserStructureById", id)
   );
 
   const [formData, setFormData] = useState<FormData>({
@@ -167,9 +188,16 @@ export default function EditStructurePage({
     applications: "",
   });
 
-  // State for file and image relations
+  // State for file and image relations.
   const [fileRelations, setFileRelations] = useState<FileRelation[]>([]);
   const [imageRelations, setImageRelations] = useState<ImageRelation[]>([]);
+
+  // For tab switching.
+  const [tabIndex, setTabIndex] = useState(0);
+
+  // Modal for submission feedback.
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [responseMessage, setResponseMessage] = useState("");
 
   useEffect(() => {
     if (server_structureData) {
@@ -191,22 +219,17 @@ export default function EditStructurePage({
     }
   }, [server_structureData]);
 
-  // Update formData when any input changes.
+  // Generic change handler for text inputs.
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value, type } = e.target;
-    let newValue: string | boolean = value;
-    if (type === "checkbox") {
-      newValue = (e.target as HTMLInputElement).checked;
-    }
-    setFormData({
-      ...formData,
-      [name]: newValue,
-    });
+    const newValue =
+      type === "checkbox" ? (e.target as HTMLInputElement).checked : value;
+    setFormData((prev) => ({ ...prev, [name]: newValue }));
   };
 
-  // Delete functions for file and image relations
+  // Handlers for file/image relations.
   const handleFileDelete = (fileName: string) => {
     setFileRelations(
       fileRelations.filter((file) => file.fileName !== fileName)
@@ -219,7 +242,6 @@ export default function EditStructurePage({
     );
   };
 
-  // Edit functions for file and image relations
   const handleFileEdit = (fileName: string, newDescription: string) => {
     setFileRelations(
       fileRelations.map((file) =>
@@ -240,7 +262,7 @@ export default function EditStructurePage({
     );
   };
 
-  // Handlers for adding new files and images using the FileInputWithDescription component.
+  // Handlers for adding new files/images.
   const handleAddFile = ({
     file,
     description,
@@ -264,26 +286,24 @@ export default function EditStructurePage({
     ]);
   };
 
-  // Dummy handleSubmit function with validations
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  // Dummy submit handler with validations.
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const errors: string[] = [];
 
-    // Validate text fields (title, type, description, citation, paperLink, licensing, authors, keywords, applications)
+    // Validate required text fields.
     Object.entries(formData).forEach(([key, value]) => {
       if (typeof value === "string" && value.trim() === "") {
         errors.push(`The field "${key}" is required.`);
       }
     });
 
-    // Validate paperLink is a valid URL
     try {
       new URL(formData.paperLink);
     } catch {
       errors.push("Paper Link must be a valid URL.");
     }
 
-    // Validate at least one image and one file exists
     if (imageRelations.length < 1) {
       errors.push("At least one image is required.");
     }
@@ -294,177 +314,254 @@ export default function EditStructurePage({
     if (errors.length > 0) {
       alert(errors.join("\n"));
     } else {
-      // Dummy submission - replace with actual submit logic
+      // Replace with your actual submission logic.
       console.log("Form submitted successfully!", {
         formData,
         fileRelations,
         imageRelations,
       });
-      alert("Form submitted successfully!");
+      setResponseMessage("Structure updated successfully!");
+      setIsModalOpen(true);
     }
   };
+
+  // Shared styling for input fields.
+  const inputClass =
+    "w-full border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 p-2 rounded-lg bg-stone-400/20 mt-1";
 
   return server_structureData ? (
     <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto rounded-lg p-6 bg-white">
         <h2 className="text-2xl font-bold mb-6">Edit Structure</h2>
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">
-              Title:
-            </label>
-            <input
-              name="title"
-              type="text"
-              value={formData.title}
-              onChange={handleInputChange}
-              className="w-full border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 p-2 rounded-lg bg-stone-400/20 mt-1"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">
-              Type:
-            </label>
-            <input
-              name="type"
-              type="text"
-              value={formData.type}
-              onChange={handleInputChange}
-              className="w-full border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 p-2 rounded-lg bg-stone-400/20 mt-1"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">
-              Description:
-            </label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              className="w-full border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 p-2 rounded-lg bg-stone-400/20 mt-1"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">
-              Citation:
-            </label>
-            <input
-              name="citation"
-              type="text"
-              value={formData.citation}
-              onChange={handleInputChange}
-              className="w-full border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 p-2 rounded-lg bg-stone-400/20 mt-1"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">
-              Paper Link:
-            </label>
-            <input
-              name="paperLink"
-              type="text"
-              value={formData.paperLink}
-              onChange={handleInputChange}
-              className="w-full border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 p-2 rounded-lg bg-stone-400/20 mt-1"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">
-              Licensing:
-            </label>
-            <input
-              name="licensing"
-              type="text"
-              value={formData.licensing}
-              onChange={handleInputChange}
-              className="w-full border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 p-2 rounded-lg bg-stone-400/20 mt-1"
-            />
-          </div>
-          <div className="mb-4 flex items-center">
-            <label className="block text-sm font-medium text-gray-700 mr-2">
-              Private:
-            </label>
-            <input
-              name="private"
-              type="checkbox"
-              checked={formData.private}
-              onChange={handleInputChange}
-              className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">
-              Authors (comma separated):
-            </label>
-            <input
-              name="authors"
-              type="text"
-              value={formData.authors}
-              onChange={handleInputChange}
-              className="w-full border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 p-2 rounded-lg bg-stone-400/20 mt-1"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">
-              Keywords (comma separated):
-            </label>
-            <input
-              name="keywords"
-              type="text"
-              value={formData.keywords}
-              onChange={handleInputChange}
-              className="w-full border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 p-2 rounded-lg bg-stone-400/20 mt-1"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">
-              Applications (comma separated):
-            </label>
-            <input
-              name="applications"
-              type="text"
-              value={formData.applications}
-              onChange={handleInputChange}
-              className="w-full border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 p-2 rounded-lg bg-stone-400/20 mt-1"
-            />
-          </div>
+        <form onSubmit={handleSubmit}>
+          <TabGroup selectedIndex={tabIndex} onChange={setTabIndex}>
+            <TabList className="flex space-x-2 border-b border-gray-300 mb-4">
+              <Tab
+                className={({ selected }) =>
+                  selected
+                    ? "px-4 py-2 font-medium text-white bg-black rounded-t-md border border-gray-300 cursor-pointer"
+                    : "px-4 py-2 font-medium text-black bg-gray-100 rounded-t-md hover:bg-gray-200 cursor-pointer"
+                }
+              >
+                Text Data
+              </Tab>
+              <Tab
+                className={({ selected }) =>
+                  selected
+                    ? "px-4 py-2 font-medium text-white bg-black rounded-t-md border border-gray-300 cursor-pointer"
+                    : "px-4 py-2 font-medium text-black bg-gray-100 rounded-t-md hover:bg-gray-200 cursor-pointer"
+                }
+              >
+                File & Image Data
+              </Tab>
+            </TabList>
+            <TabPanels>
+              {/* Text Data Tab */}
+              <TabPanel className="space-y-4">
+                <div>
+                  <input
+                    type="text"
+                    name="title"
+                    placeholder="Title..."
+                    className={`${inputClass}`}
+                    value={formData.title}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    name="type"
+                    placeholder="Type..."
+                    className={inputClass}
+                    value={formData.type}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div>
+                  <textarea
+                    name="description"
+                    placeholder="Description..."
+                    className={inputClass}
+                    rows={3}
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    name="citation"
+                    placeholder="Citation..."
+                    className={inputClass}
+                    value={formData.citation}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div>
+                  <input
+                    type="url"
+                    name="paperLink"
+                    placeholder="Paper link..."
+                    className={inputClass}
+                    value={formData.paperLink}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    name="licensing"
+                    placeholder="Licensing..."
+                    className={inputClass}
+                    value={formData.licensing}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="private"
+                    checked={formData.private}
+                    onChange={handleInputChange}
+                    className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                  />
+                  <label className="ml-2 text-sm text-gray-900">Private</label>
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    name="authors"
+                    placeholder="Authors (comma separated)..."
+                    className={inputClass}
+                    value={formData.authors}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    name="keywords"
+                    placeholder="Keywords (comma separated)..."
+                    className={inputClass}
+                    value={formData.keywords}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    name="applications"
+                    placeholder="Applications (comma separated)..."
+                    className={inputClass}
+                    value={formData.applications}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setTabIndex(1)}
+                    className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200"
+                  >
+                    Next
+                  </button>
+                </div>
+              </TabPanel>
 
-          <button
-            type="submit"
-            className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
-          >
-            Submit Structure
-          </button>
+              {/* File & Image Data Tab */}
+              <TabPanel className="space-y-6">
+                {/* Images Section */}
+                <div className="border p-4 rounded-md">
+                  <h2 className="font-semibold mb-2">Images</h2>
+                  <FileInputWithDescription
+                    label="Image"
+                    onAdd={handleAddImage}
+                  />
+                  <ul className="mt-2 space-y-1">
+                    {imageRelations.map((image) => (
+                      <RelationItem
+                        key={image.imageName}
+                        item={image}
+                        onDelete={handleImageDelete}
+                        onEdit={handleImageEdit}
+                        nameKey="imageName"
+                      />
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Files Section */}
+                <div className="border p-4 rounded-md">
+                  <h2 className="font-semibold mb-2">Files</h2>
+                  <FileInputWithDescription
+                    label="File"
+                    onAdd={handleAddFile}
+                  />
+                  <ul className="mt-2 space-y-1">
+                    {fileRelations.map((file) => (
+                      <RelationItem
+                        key={file.fileName}
+                        item={file}
+                        onDelete={handleFileDelete}
+                        onEdit={handleFileEdit}
+                        nameKey="fileName"
+                      />
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setTabIndex(0)}
+                    className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    type="submit"
+                    className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 ml-2"
+                  >
+                    Submit Structure
+                  </button>
+                </div>
+              </TabPanel>
+            </TabPanels>
+          </TabGroup>
         </form>
-
-        {/* Section for adding new images */}
-        <h2 className="text-2xl font-bold mt-6 mb-4">Add New Image</h2>
-        <FileInputWithDescription label="Image" onAdd={handleAddImage} />
-        {imageRelations.map((image) => (
-          <RelationItem
-            key={image.imageName}
-            item={image}
-            onDelete={handleImageDelete}
-            onEdit={handleImageEdit}
-            nameKey="imageName"
-          />
-        ))}
-
-        {/* Section for adding new files */}
-        <h2 className="text-2xl font-bold mt-6 mb-4">Add New File</h2>
-        <FileInputWithDescription label="File" onAdd={handleAddFile} />
-        {fileRelations.map((file) => (
-          <RelationItem
-            key={file.fileName}
-            item={file}
-            onDelete={handleFileDelete}
-            onEdit={handleFileEdit}
-            nameKey="fileName"
-          />
-        ))}
       </div>
+
+      {/* Modal for Submission Feedback */}
+      <Transition appear show={isModalOpen} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-10"
+          onClose={() => setIsModalOpen(false)}
+        >
+          <div className="fixed inset-0 bg-black bg-opacity-30" />
+          <div className="fixed inset-0 flex items-center justify-center">
+            <div className="rounded-lg max-w-md w-full p-6 bg-white">
+              <DialogTitle className="text-lg font-medium text-gray-900">
+                Submission Status
+              </DialogTitle>
+              <p className="mt-2 text-sm text-gray-600">{responseMessage}</p>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="mt-4 w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
     </div>
   ) : (
-    <p>Loading</p>
+    <p>Loading...</p>
   );
 }
