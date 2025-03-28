@@ -183,40 +183,40 @@ export default function StructurePage({
   // Create lists for each file type
   const expProtFiles = structureData
     ? zipFiles(
-        structureData.structure.expProtFilesArr,
-        structureData.structure.expProtDescriptionsArr
-      )
+      structureData.structure.expProtFilesArr,
+      structureData.structure.expProtDescriptionsArr
+    )
     : [];
   const expResFiles = structureData
     ? zipFiles(
-        structureData.structure.expResFilesArr,
-        structureData.structure.expResDescriptionsArr
-      )
+      structureData.structure.expResFilesArr,
+      structureData.structure.expResDescriptionsArr
+    )
     : [];
   const simProtFiles = structureData
     ? zipFiles(
-        structureData.structure.simProtFilesArr,
-        structureData.structure.simProtDescriptionsArr
-      )
+      structureData.structure.simProtFilesArr,
+      structureData.structure.simProtDescriptionsArr
+    )
     : [];
   const simResFiles = structureData
     ? zipFiles(
-        structureData.structure.simResFilesArr,
-        structureData.structure.simResDescriptionsArr
-      )
+      structureData.structure.simResFilesArr,
+      structureData.structure.simResDescriptionsArr
+    )
     : [];
   const structureFiles = structureData
     ? zipFiles(
-        structureData.structure.structureFilesArr,
-        structureData.structure.structureFileDescriptionsArr
-      )
+      structureData.structure.structureFilesArr,
+      structureData.structure.structureFileDescriptionsArr
+    )
     : [];
   // Images list from schema (zip images and descriptions)
   const imageFiles = structureData
     ? zipFiles(
-        structureData.structure.imagesArr,
-        structureData.structure.imageDescriptionsArr
-      )
+      structureData.structure.imagesArr,
+      structureData.structure.imageDescriptionsArr
+    )
     : [];
 
   return (
@@ -225,6 +225,29 @@ export default function StructurePage({
         <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8">
           {/* TabGroup for structure images */}
           <TabGroup className="flex flex-col-reverse">
+            {/* Publication information */}
+            <div className="mt-5 space-y-2">
+              <div className="mt-3">
+                <h2 className="text-2xl tracking-tight text-gray-900">Publication information</h2>
+              </div>
+              <p>
+                Citation: {structureData?.structure.citation}
+              </p>
+              <p>
+                Date Published: {new Date(structureData?.structure.datePublished || "").toLocaleString()
+                  .split(":")[0]
+                  .substring(
+                    0,
+                    new Date(structureData?.structure.datePublished || "").toLocaleString().split(":")[0].length - 3
+                  )}
+              </p>
+              <p>
+                Licensing Information: {structureData?.structure.licensing || "N/A"}
+              </p>
+
+              <p>You may access the publication <Link className="underline" href={structureData?.structure.paperLink || ""}>here</Link></p>
+            </div>
+
             <div className="mx-auto mt-6 w-full max-w-2xl sm:block lg:max-w-none">
               <TabList className="grid grid-cols-4 gap-6">
                 {imageFiles ? (
@@ -272,16 +295,17 @@ export default function StructurePage({
                 <Skeleton height={95} />
               )}
             </TabPanels>
+
           </TabGroup>
 
-          {/* Product Info Section */}
+          {/* Info Section */}
           <div className="mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
               {structureData?.structure.title || <Skeleton />}
             </h1>
 
             <div className="mt-3">
-              <h2 className="sr-only">Product information</h2>
+              <h2 className="sr-only">Structure information</h2>
               <p className="text-3xl tracking-tight text-gray-900">Details</p>
             </div>
 
@@ -450,6 +474,8 @@ export default function StructurePage({
               </div>
             </section>
           </div>
+
+
         </div>
       </div>
     </main>
