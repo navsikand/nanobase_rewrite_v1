@@ -1,6 +1,6 @@
 "use client";
 
-import { getUserStructureByIdFetcher } from "@/helpers/fetchHelpers";
+import { apiRoot, getUserStructureByIdFetcher } from "@/helpers/fetchHelpers";
 import {
   use,
   useEffect,
@@ -396,6 +396,7 @@ export default function EditStructurePage({
 
     // Create FormData for submission.
     const data = new FormData();
+    data.append("id", structureId.toString());
     data.append("title", formData.title);
     data.append("type", formData.type);
     data.append("description", formData.description);
@@ -403,6 +404,10 @@ export default function EditStructurePage({
     data.append("paperLink", formData.paperLink);
     data.append("licensing", formData.licensing);
     data.append("private", formData.private.toString());
+    data.append(
+      "datePublished",
+      new Date(server_structureData!.structure.datePublished).toISOString()
+    );
     // Convert comma separated strings to arrays.
     data.append(
       "authors",
@@ -472,8 +477,16 @@ export default function EditStructurePage({
     });
 
     try {
-      const res = await fetch("/api/updateStructure", {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Authentication token is missing. Please log in.");
+      }
+
+      const res = await fetch(`${apiRoot}/structure/updateStructureById`, {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         body: data,
       });
 
