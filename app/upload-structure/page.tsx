@@ -32,13 +32,19 @@ function FileInputWithDescription({
 }: FileInputWithDescriptionProps) {
   const [file, setFile] = useState<File | null>(null);
   const [description, setDescription] = useState<string>("");
+  const [error, setError] = useState<string>("");
 
   const handleAdd = () => {
     if (file) {
+      if (!description.trim()) {
+        setError("Description is required.");
+        return;
+      }
       onAdd({ file, description });
       // Reset the inputs for the next entry.
       setFile(null);
       setDescription("");
+      setError("");
     }
   };
 
@@ -56,9 +62,13 @@ function FileInputWithDescription({
         type="text"
         placeholder="Enter description..."
         value={description}
-        onChange={(e) => setDescription(e.target.value)}
+        onChange={(e) => {
+          setDescription(e.target.value);
+          if (e.target.value.trim()) setError("");
+        }}
         className="mt-1 block p-2 border rounded"
       />
+      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
       <button
         type="button"
         onClick={handleAdd}
@@ -546,7 +556,9 @@ export default function UploadStructure() {
 
                   {/* Structure Files */}
                   <div className="border p-4 rounded-md">
-                    <h2 className="font-semibold mb-2">Structure and Design Files</h2>
+                    <h2 className="font-semibold mb-2">
+                      Structure and Design Files
+                    </h2>
                     <FileInputWithDescription
                       label="Add a Structure File:"
                       onAdd={addStructureFile}

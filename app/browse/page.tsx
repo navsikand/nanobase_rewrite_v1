@@ -175,17 +175,74 @@ export default function Browse() {
       </div>
 
       <div className={"flex justify-center mt-5"}>
-        {Array.from({ length: dexieData?.count || 1 }, (_, i) => (
-          <Button
-            key={i}
-            onClick={() => setPageNumber(i)}
-            className={
-              "p-5 rounded-lg hover:-translate-y-2 font-bold text-xl duration-100"
+        {(() => {
+          const totalPages = dexieData?.count || 1;
+          const current = pageNumber;
+          let pagesToShow = [];
+
+          if (totalPages <= 7) {
+            // For few pages, simply show all.
+            pagesToShow = Array.from({ length: totalPages }, (_, i) => i);
+          } else {
+            // Always show first page.
+            pagesToShow.push(0);
+
+            // Calculate the dynamic range: current page ±2.
+            let left = current - 2;
+            let right = current + 2;
+
+            // Adjust the range if near the beginning.
+            if (left <= 1) {
+              left = 1;
+              right = 4;
             }
-          >
-            {i + 1}
-          </Button>
-        ))}
+            // Adjust the range if near the end.
+            if (right >= totalPages - 1) {
+              right = totalPages - 2;
+              left = totalPages - 5;
+            }
+
+            // Insert ellipsis if there's a gap after the first page.
+            if (left > 1) {
+              pagesToShow.push("ellipsis-left");
+            }
+
+            // Add dynamic middle pages.
+            for (let i = left; i <= right; i++) {
+              pagesToShow.push(i);
+            }
+
+            // Insert ellipsis if there's a gap before the last page.
+            if (right < totalPages - 2) {
+              pagesToShow.push("ellipsis-right");
+            }
+
+            // Always show last page.
+            pagesToShow.push(totalPages - 1);
+          }
+
+          return pagesToShow.map((item, i) => {
+            if (typeof item === "string") {
+              return (
+                <span key={item + i} className="p-5 font-bold text-xl">
+                  ...
+                </span>
+              );
+            } else {
+              return (
+                <Button
+                  key={item}
+                  onClick={() => setPageNumber(item)}
+                  className={`p-5 rounded-lg hover:-translate-y-2 font-bold text-xl duration-100 cursor-pointer ${
+                    pageNumber === item ? "underline" : ""
+                  }`}
+                >
+                  {item + 1}
+                </Button>
+              );
+            }
+          });
+        })()}
       </div>
     </div>
   );
