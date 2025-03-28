@@ -410,7 +410,6 @@ export default function UploadStructure() {
                   )}
                 </div>
                 <div>
-                  {/* Replaced input text for "type" with a Headless UI Listbox */}
                   <Listbox value={selectedType} onChange={handleTypeChange}>
                     <ListboxButton
                       className={`${inputClass} text-left ${errors.type ? "border-red-500" : ""}`}

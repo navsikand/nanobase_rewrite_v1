@@ -19,6 +19,10 @@ import {
   TabList,
   TabPanels,
   TabPanel,
+  Listbox,
+  ListboxButton,
+  ListboxOptions,
+  ListboxOption,
 } from "@headlessui/react";
 
 // --- Types ---
@@ -49,7 +53,7 @@ type ImageRelation = {
 };
 
 type RelationItemProps = {
-  item: { description: string;[key: string]: string | File | undefined };
+  item: { description: string; [key: string]: string | File | undefined };
   onDelete: (name: string) => void;
   onEdit: (name: string, newDescription: string) => void;
   nameKey: string;
@@ -191,6 +195,23 @@ export default function EditStructurePage({
     applications: "",
   });
 
+  const typeOptions = [
+    "DNA",
+    "RNA",
+    "DNA/RNA hybrid",
+    "Nucleic acid/protein hybrid",
+    "Other",
+  ];
+
+  // State for the selected type; defaults to the first option.
+  const [selectedType, setSelectedType] = useState<string>(typeOptions[0]);
+
+  // Update formData when the type is changed.
+  const handleTypeChange = (value: string) => {
+    setSelectedType(value);
+    setFormData((prev) => ({ ...prev, type: value }));
+  };
+
   // New states for the updated file arrays.
   const [imageRelations, setImageRelations] = useState<ImageRelation[]>([]);
   const [expProtRelations, setExpProtRelations] = useState<FileRelation[]>([]);
@@ -276,7 +297,7 @@ export default function EditStructurePage({
             fileName: name,
             description:
               server_structureData.structure.structureFileDescriptionsArr[
-              idx
+                idx
               ] || "",
           })
         )
@@ -558,15 +579,24 @@ export default function EditStructurePage({
                   />
                 </div>
                 <div>
-                  <input
-                    type="text"
-                    name="type"
-                    placeholder="Type..."
-                    className={inputClass}
-                    value={formData.type}
-                    onChange={handleInputChange}
-                    required
-                  />
+                  <Listbox value={selectedType} onChange={handleTypeChange}>
+                    <ListboxButton className={`${inputClass} text-left`}>
+                      {selectedType}
+                    </ListboxButton>
+                    <ListboxOptions className="mt-1 border rounded bg-white">
+                      {typeOptions.map((option) => (
+                        <ListboxOption
+                          key={option}
+                          value={option}
+                          className={({ selected }) =>
+                            `cursor-pointer p-2 ${selected ? "bg-gray-200" : ""}`
+                          }
+                        >
+                          {option}
+                        </ListboxOption>
+                      ))}
+                    </ListboxOptions>
+                  </Listbox>
                 </div>
                 <div>
                   <textarea
