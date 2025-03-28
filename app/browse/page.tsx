@@ -69,7 +69,7 @@ export default function Browse() {
   );
 
   const { data: firstPageFetchedData } = useSWR(
-    firstPageFetchedStructures ? "getStructuresWithImages" : null,
+    firstPageFetchedStructures ? "browse_first_getStructuresWithImages" : null,
     async () => {
       if (!firstPageFetchedStructures) return [];
 
@@ -104,7 +104,7 @@ export default function Browse() {
   );
 
   const { data: fetchedData } = useSWR(
-    fetchedStructures ? "getStructuresWithImages" : null,
+    fetchedStructures ? "browse_all_getStructuresWithImages" : null,
     async () => {
       if (!fetchedStructures) return [];
 

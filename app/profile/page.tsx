@@ -16,7 +16,7 @@ export default function ProfilePage() {
     getAllUserStructuresFetcher
   );
   const { data: fetchedData } = useSWR(
-    structureData ? "getStructuresWithImages" : null,
+    structureData ? "profile_getStructuresWithImages" : null,
     async () => {
       if (!structureData) return [];
       const structures = await Promise.all(
