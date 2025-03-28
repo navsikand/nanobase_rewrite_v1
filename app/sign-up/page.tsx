@@ -196,7 +196,8 @@ export default function Signup() {
               </h2>
               <p className="mb-6">
                 Please check your email for a verification link to activate your
-                account.
+                account. Note that it might take upto 5 minutes to get the email
+                on institutional accounts.
               </p>
               <Link href="/sign-in" className="text-blue-600 hover:underline">
                 Go to Sign In
