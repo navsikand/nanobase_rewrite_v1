@@ -96,21 +96,20 @@ export interface STRUCTURE_CARD_DATA {
     lastUpdated: string;
     private: boolean;
 
-    imageNameToDescRelation: {
-      imageName: string;
-      description: string;
-    }[];
-
-    otherFiles: {
-      fileName: string;
-      description: string;
-      type: string;
-    }[];
-
-    fileNameToDescRelation: {
-      fileName: string;
-      description: string;
-    }[];
+    // File arrays
+    expResFilesArr: string[];
+    imagesArr: string[];
+    simProtFilesArr: string[];
+    simResFilesArr: string[];
+    structureFilesArr: string[];
+    expProtFilesArr: string[];
+    // Description arrays
+    expProtDescriptionsArr: string[];
+    expResDescriptionsArr: string[];
+    imageDescriptionsArr: string[];
+    simProtDescriptionsArr: string[];
+    simResDescriptionsArr: string[];
+    structureFileDescriptionsArr: string[];
 
     statsData?: {
       graph: string;

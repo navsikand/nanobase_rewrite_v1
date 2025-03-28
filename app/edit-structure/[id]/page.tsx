@@ -22,7 +22,7 @@ import {
 } from "@headlessui/react";
 
 // --- Types ---
-type FormData = {
+type FormDataType = {
   title: string;
   type: string;
   description: string;
@@ -35,25 +35,27 @@ type FormData = {
   applications: string;
 };
 
+// Extend relation types to include the file object if a new file is added.
 type FileRelation = {
   fileName: string;
   description: string;
+  file?: File;
 };
 
 type ImageRelation = {
   imageName: string;
   description: string;
+  file?: File;
 };
 
 type RelationItemProps = {
-  item: { description: string; [key: string]: string };
+  item: { description: string; [key: string]: string | File | undefined };
   onDelete: (name: string) => void;
   onEdit: (name: string, newDescription: string) => void;
   nameKey: string;
 };
 
 // --- RelationItem Component ---
-// Updated styling to match the upload UI's FileEntryItem design.
 const RelationItem = ({
   item,
   onDelete,
@@ -61,8 +63,10 @@ const RelationItem = ({
   nameKey,
 }: RelationItemProps) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [tempDescription, setTempDescription] = useState(item.description);
-  const itemName = item[nameKey];
+  const [tempDescription, setTempDescription] = useState(
+    item.description as string
+  );
+  const itemName = item[nameKey] as string;
 
   const handleSave = () => {
     onEdit(itemName, tempDescription);
@@ -113,7 +117,6 @@ const RelationItem = ({
 };
 
 // --- FileInputWithDescription Component ---
-// (Same as in UploadStructure for consistency)
 type FileInputWithDescriptionProps = {
   label: string;
   onAdd: (item: { file: File; description: string }) => void;
@@ -175,7 +178,7 @@ export default function EditStructurePage({
     ([, id]) => getUserStructureByIdFetcher("getUserStructureById", id)
   );
 
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<FormDataType>({
     title: "",
     type: "",
     description: "",
@@ -188,9 +191,15 @@ export default function EditStructurePage({
     applications: "",
   });
 
-  // State for file and image relations.
-  const [fileRelations, setFileRelations] = useState<FileRelation[]>([]);
+  // New states for the updated file arrays.
   const [imageRelations, setImageRelations] = useState<ImageRelation[]>([]);
+  const [expProtRelations, setExpProtRelations] = useState<FileRelation[]>([]);
+  const [expResRelations, setExpResRelations] = useState<FileRelation[]>([]);
+  const [simProtRelations, setSimProtRelations] = useState<FileRelation[]>([]);
+  const [simResRelations, setSimResRelations] = useState<FileRelation[]>([]);
+  const [structureFilesRelations, setStructureFilesRelations] = useState<
+    FileRelation[]
+  >([]);
 
   // For tab switching.
   const [tabIndex, setTabIndex] = useState(0);
@@ -201,6 +210,7 @@ export default function EditStructurePage({
 
   useEffect(() => {
     if (server_structureData) {
+      // Populate text fields – converting arrays into comma-separated strings.
       setFormData({
         title: server_structureData.structure.title,
         type: server_structureData.structure.type,
@@ -214,8 +224,63 @@ export default function EditStructurePage({
         private: server_structureData.structure.private,
       });
 
-      setImageRelations(server_structureData.structure.imageNameToDescRelation);
-      setFileRelations(server_structureData.structure.fileNameToDescRelation);
+      // Populate file relations from the new arrays in the schema.
+      setImageRelations(
+        server_structureData.structure.imagesArr.map(
+          (name: string, idx: number) => ({
+            imageName: name,
+            description:
+              server_structureData.structure.imageDescriptionsArr[idx] || "",
+          })
+        )
+      );
+      setExpProtRelations(
+        server_structureData.structure.expProtFilesArr.map(
+          (name: string, idx: number) => ({
+            fileName: name,
+            description:
+              server_structureData.structure.expProtDescriptionsArr[idx] || "",
+          })
+        )
+      );
+      setExpResRelations(
+        server_structureData.structure.expResFilesArr.map(
+          (name: string, idx: number) => ({
+            fileName: name,
+            description:
+              server_structureData.structure.expResDescriptionsArr[idx] || "",
+          })
+        )
+      );
+      setSimProtRelations(
+        server_structureData.structure.simProtFilesArr.map(
+          (name: string, idx: number) => ({
+            fileName: name,
+            description:
+              server_structureData.structure.simProtDescriptionsArr[idx] || "",
+          })
+        )
+      );
+      setSimResRelations(
+        server_structureData.structure.simResFilesArr.map(
+          (name: string, idx: number) => ({
+            fileName: name,
+            description:
+              server_structureData.structure.simResDescriptionsArr[idx] || "",
+          })
+        )
+      );
+      setStructureFilesRelations(
+        server_structureData.structure.structureFilesArr.map(
+          (name: string, idx: number) => ({
+            fileName: name,
+            description:
+              server_structureData.structure.structureFileDescriptionsArr[
+                idx
+              ] || "",
+          })
+        )
+      );
     }
   }, [server_structureData]);
 
@@ -229,22 +294,23 @@ export default function EditStructurePage({
     setFormData((prev) => ({ ...prev, [name]: newValue }));
   };
 
-  // Handlers for file/image relations.
-  const handleFileDelete = (fileName: string) => {
-    setFileRelations(
-      fileRelations.filter((file) => file.fileName !== fileName)
-    );
+  // Handlers for relations – file & image.
+  const handleFileDelete = (
+    fileName: string,
+    setter: (relations: FileRelation[]) => void,
+    relations: FileRelation[]
+  ) => {
+    setter(relations.filter((file) => file.fileName !== fileName));
   };
 
-  const handleImageDelete = (imageName: string) => {
-    setImageRelations(
-      imageRelations.filter((image) => image.imageName !== imageName)
-    );
-  };
-
-  const handleFileEdit = (fileName: string, newDescription: string) => {
-    setFileRelations(
-      fileRelations.map((file) =>
+  const handleFileEdit = (
+    fileName: string,
+    newDescription: string,
+    setter: (relations: FileRelation[]) => void,
+    relations: FileRelation[]
+  ) => {
+    setter(
+      relations.map((file) =>
         file.fileName === fileName
           ? { ...file, description: newDescription }
           : file
@@ -252,25 +318,36 @@ export default function EditStructurePage({
     );
   };
 
+  const handleImageDelete = (imageName: string) => {
+    setImageRelations(
+      imageRelations.filter((img) => img.imageName !== imageName)
+    );
+  };
+
   const handleImageEdit = (imageName: string, newDescription: string) => {
     setImageRelations(
-      imageRelations.map((image) =>
-        image.imageName === imageName
-          ? { ...image, description: newDescription }
-          : image
+      imageRelations.map((img) =>
+        img.imageName === imageName
+          ? { ...img, description: newDescription }
+          : img
       )
     );
   };
 
-  // Handlers for adding new files/images.
-  const handleAddFile = ({
-    file,
-    description,
-  }: {
-    file: File;
-    description: string;
-  }) => {
-    setFileRelations([...fileRelations, { fileName: file.name, description }]);
+  // Handlers for adding new items.
+  const handleAddFile = (
+    item: { file: File; description: string },
+    setter: (relations: FileRelation[]) => void,
+    relations: FileRelation[]
+  ) => {
+    setter([
+      ...relations,
+      {
+        fileName: item.file.name,
+        description: item.description,
+        file: item.file,
+      },
+    ]);
   };
 
   const handleAddImage = ({
@@ -282,12 +359,12 @@ export default function EditStructurePage({
   }) => {
     setImageRelations([
       ...imageRelations,
-      { imageName: file.name, description },
+      { imageName: file.name, description, file },
     ]);
   };
 
-  // Dummy submit handler with validations.
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  // Updated handleSubmit: sends file objects when available, as in the upload page.
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const errors: string[] = [];
 
@@ -298,31 +375,128 @@ export default function EditStructurePage({
       }
     });
 
+    // Validate paperLink URL.
     try {
       new URL(formData.paperLink);
     } catch {
       errors.push("Paper Link must be a valid URL.");
     }
 
+    // Ensure at least one image is provided.
     if (imageRelations.length < 1) {
       errors.push("At least one image is required.");
     }
-    if (fileRelations.length < 1) {
-      errors.push("At least one file is required.");
+
+    // If validation errors exist, display them in the modal.
+    if (errors.length > 0) {
+      setResponseMessage("Submission failed:\n" + errors.join("\n"));
+      setIsModalOpen(true);
+      return;
     }
 
-    if (errors.length > 0) {
-      alert(errors.join("\n"));
-    } else {
-      // Replace with your actual submission logic.
-      console.log("Form submitted successfully!", {
-        formData,
-        fileRelations,
-        imageRelations,
+    // Create FormData for submission.
+    const data = new FormData();
+    data.append("title", formData.title);
+    data.append("type", formData.type);
+    data.append("description", formData.description);
+    data.append("citation", formData.citation);
+    data.append("paperLink", formData.paperLink);
+    data.append("licensing", formData.licensing);
+    data.append("private", formData.private.toString());
+    // Convert comma separated strings to arrays.
+    data.append(
+      "authors",
+      JSON.stringify(formData.authors.split(",").map((s) => s.trim()))
+    );
+    data.append(
+      "keywords",
+      JSON.stringify(formData.keywords.split(",").map((s) => s.trim()))
+    );
+    data.append(
+      "applications",
+      JSON.stringify(formData.applications.split(",").map((s) => s.trim()))
+    );
+
+    // Append images.
+    imageRelations.forEach((img) => {
+      data.append("imagesArr", img.imageName);
+      data.append("imageDescriptionsArr", img.description);
+      if (img.file) {
+        data.append("newImageFiles", img.file);
+      }
+    });
+
+    // Append experiment protocol files.
+    expProtRelations.forEach((file) => {
+      data.append("expProtFilesArr", file.fileName);
+      data.append("expProtDescriptionsArr", file.description);
+      if (file.file) {
+        data.append("newExpProtFiles", file.file);
+      }
+    });
+
+    // Append experiment result files.
+    expResRelations.forEach((file) => {
+      data.append("expResFilesArr", file.fileName);
+      data.append("expResDescriptionsArr", file.description);
+      if (file.file) {
+        data.append("newExpResFiles", file.file);
+      }
+    });
+
+    // Append simulation protocol files.
+    simProtRelations.forEach((file) => {
+      data.append("simProtFilesArr", file.fileName);
+      data.append("simProtDescriptionsArr", file.description);
+      if (file.file) {
+        data.append("newSimProtFiles", file.file);
+      }
+    });
+
+    // Append simulation result files.
+    simResRelations.forEach((file) => {
+      data.append("simResFilesArr", file.fileName);
+      data.append("simResDescriptionsArr", file.description);
+      if (file.file) {
+        data.append("newSimResFiles", file.file);
+      }
+    });
+
+    // Append structure files.
+    structureFilesRelations.forEach((file) => {
+      data.append("structureFilesArr", file.fileName);
+      data.append("structureFileDescriptionsArr", file.description);
+      if (file.file) {
+        data.append("newStructureFiles", file.file);
+      }
+    });
+
+    try {
+      const res = await fetch("/api/updateStructure", {
+        method: "POST",
+        body: data,
       });
-      setResponseMessage("Structure updated successfully!");
-      setIsModalOpen(true);
+
+      // Check for server errors.
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Server responded with an error.");
+      }
+
+      const resJson = await res.json();
+      if (resJson.success) {
+        setResponseMessage("Structure updated successfully!");
+      } else {
+        setResponseMessage("Update failed: " + resJson.error);
+      }
+
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+    } catch (error: any) {
+      setResponseMessage(
+        "An error occurred while updating the structure: " + error.message
+      );
     }
+    setIsModalOpen(true);
   };
 
   // Shared styling for input fields.
@@ -363,7 +537,7 @@ export default function EditStructurePage({
                     type="text"
                     name="title"
                     placeholder="Title..."
-                    className={`${inputClass}`}
+                    className={inputClass}
                     value={formData.title}
                     onChange={handleInputChange}
                     required
@@ -483,10 +657,10 @@ export default function EditStructurePage({
                     onAdd={handleAddImage}
                   />
                   <ul className="mt-2 space-y-1">
-                    {imageRelations.map((image) => (
+                    {imageRelations.map((img) => (
                       <RelationItem
-                        key={image.imageName}
-                        item={image}
+                        key={img.imageName}
+                        item={img}
                         onDelete={handleImageDelete}
                         onEdit={handleImageEdit}
                         nameKey="imageName"
@@ -495,20 +669,187 @@ export default function EditStructurePage({
                   </ul>
                 </div>
 
-                {/* Files Section */}
+                {/* Experiment Protocol Files Section */}
                 <div className="border p-4 rounded-md">
-                  <h2 className="font-semibold mb-2">Files</h2>
+                  <h2 className="font-semibold mb-2">
+                    Experiment Protocol Files
+                  </h2>
                   <FileInputWithDescription
-                    label="File"
-                    onAdd={handleAddFile}
+                    label="Experiment Protocol File"
+                    onAdd={(item) =>
+                      handleAddFile(item, setExpProtRelations, expProtRelations)
+                    }
                   />
                   <ul className="mt-2 space-y-1">
-                    {fileRelations.map((file) => (
+                    {expProtRelations.map((file) => (
                       <RelationItem
                         key={file.fileName}
                         item={file}
-                        onDelete={handleFileDelete}
-                        onEdit={handleFileEdit}
+                        onDelete={(name) =>
+                          handleFileDelete(
+                            name,
+                            setExpProtRelations,
+                            expProtRelations
+                          )
+                        }
+                        onEdit={(name, newDesc) =>
+                          handleFileEdit(
+                            name,
+                            newDesc,
+                            setExpProtRelations,
+                            expProtRelations
+                          )
+                        }
+                        nameKey="fileName"
+                      />
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Experiment Result Files Section */}
+                <div className="border p-4 rounded-md">
+                  <h2 className="font-semibold mb-2">
+                    Experiment Result Files
+                  </h2>
+                  <FileInputWithDescription
+                    label="Experiment Result File"
+                    onAdd={(item) =>
+                      handleAddFile(item, setExpResRelations, expResRelations)
+                    }
+                  />
+                  <ul className="mt-2 space-y-1">
+                    {expResRelations.map((file) => (
+                      <RelationItem
+                        key={file.fileName}
+                        item={file}
+                        onDelete={(name) =>
+                          handleFileDelete(
+                            name,
+                            setExpResRelations,
+                            expResRelations
+                          )
+                        }
+                        onEdit={(name, newDesc) =>
+                          handleFileEdit(
+                            name,
+                            newDesc,
+                            setExpResRelations,
+                            expResRelations
+                          )
+                        }
+                        nameKey="fileName"
+                      />
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Simulation Protocol Files Section */}
+                <div className="border p-4 rounded-md">
+                  <h2 className="font-semibold mb-2">
+                    Simulation Protocol Files
+                  </h2>
+                  <FileInputWithDescription
+                    label="Simulation Protocol File"
+                    onAdd={(item) =>
+                      handleAddFile(item, setSimProtRelations, simProtRelations)
+                    }
+                  />
+                  <ul className="mt-2 space-y-1">
+                    {simProtRelations.map((file) => (
+                      <RelationItem
+                        key={file.fileName}
+                        item={file}
+                        onDelete={(name) =>
+                          handleFileDelete(
+                            name,
+                            setSimProtRelations,
+                            simProtRelations
+                          )
+                        }
+                        onEdit={(name, newDesc) =>
+                          handleFileEdit(
+                            name,
+                            newDesc,
+                            setSimProtRelations,
+                            simProtRelations
+                          )
+                        }
+                        nameKey="fileName"
+                      />
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Simulation Result Files Section */}
+                <div className="border p-4 rounded-md">
+                  <h2 className="font-semibold mb-2">
+                    Simulation Result Files
+                  </h2>
+                  <FileInputWithDescription
+                    label="Simulation Result File"
+                    onAdd={(item) =>
+                      handleAddFile(item, setSimResRelations, simResRelations)
+                    }
+                  />
+                  <ul className="mt-2 space-y-1">
+                    {simResRelations.map((file) => (
+                      <RelationItem
+                        key={file.fileName}
+                        item={file}
+                        onDelete={(name) =>
+                          handleFileDelete(
+                            name,
+                            setSimResRelations,
+                            simResRelations
+                          )
+                        }
+                        onEdit={(name, newDesc) =>
+                          handleFileEdit(
+                            name,
+                            newDesc,
+                            setSimResRelations,
+                            simResRelations
+                          )
+                        }
+                        nameKey="fileName"
+                      />
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Structure Files Section */}
+                <div className="border p-4 rounded-md">
+                  <h2 className="font-semibold mb-2">Structure Files</h2>
+                  <FileInputWithDescription
+                    label="Structure File"
+                    onAdd={(item) =>
+                      handleAddFile(
+                        item,
+                        setStructureFilesRelations,
+                        structureFilesRelations
+                      )
+                    }
+                  />
+                  <ul className="mt-2 space-y-1">
+                    {structureFilesRelations.map((file) => (
+                      <RelationItem
+                        key={file.fileName}
+                        item={file}
+                        onDelete={(name) =>
+                          handleFileDelete(
+                            name,
+                            setStructureFilesRelations,
+                            structureFilesRelations
+                          )
+                        }
+                        onEdit={(name, newDesc) =>
+                          handleFileEdit(
+                            name,
+                            newDesc,
+                            setStructureFilesRelations,
+                            structureFilesRelations
+                          )
+                        }
                         nameKey="fileName"
                       />
                     ))}
@@ -549,7 +890,9 @@ export default function EditStructurePage({
               <DialogTitle className="text-lg font-medium text-gray-900">
                 Submission Status
               </DialogTitle>
-              <p className="mt-2 text-sm text-gray-600">{responseMessage}</p>
+              <p className="mt-2 text-sm text-gray-600 whitespace-pre-wrap">
+                {responseMessage}
+              </p>
               <button
                 onClick={() => setIsModalOpen(false)}
                 className="mt-4 w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"

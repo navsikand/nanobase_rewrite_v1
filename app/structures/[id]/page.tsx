@@ -44,12 +44,6 @@ export default function StructurePage({
 
   const [structureData, setStructureData] =
     useState<STRUCTURE_CARD_DATA | null>(null);
-  const [allStructureFiles, setAllStructureFiles] = useState<
-    { fileName: string; description: string }[] | null
-  >(null);
-  const [allStructureImages, setAllStructureImages] = useState<
-    { imageName: string; description: string }[] | null
-  >(null);
   const [structureDataOxview, setStructureDataOxview] = useState<{
     files: File[];
     message: string;
@@ -58,12 +52,6 @@ export default function StructurePage({
   useEffect(() => {
     if (dexieData) {
       setStructureData(dexieData.structureData);
-      setAllStructureFiles(
-        dexieData.structureData.structure.fileNameToDescRelation
-      );
-      setAllStructureImages(
-        dexieData.structureData.structure.imageNameToDescRelation
-      );
     }
   }, [dexieData]);
 
@@ -130,6 +118,56 @@ export default function StructurePage({
     structureId,
   ]);
 
+  // Helper to zip together file names and descriptions
+  const zipFiles = (
+    files: string[] = [],
+    descriptions: string[] = []
+  ): { fileName: string; description: string }[] => {
+    return files.map((file, idx) => ({
+      fileName: file,
+      description: descriptions[idx] || "",
+    }));
+  };
+
+  // Create lists for each file type
+  const expProtFiles = structureData
+    ? zipFiles(
+        structureData.structure.expProtFilesArr,
+        structureData.structure.expProtDescriptionsArr
+      )
+    : [];
+  const expResFiles = structureData
+    ? zipFiles(
+        structureData.structure.expResFilesArr,
+        structureData.structure.expResDescriptionsArr
+      )
+    : [];
+  const simProtFiles = structureData
+    ? zipFiles(
+        structureData.structure.simProtFilesArr,
+        structureData.structure.simProtDescriptionsArr
+      )
+    : [];
+  const simResFiles = structureData
+    ? zipFiles(
+        structureData.structure.simResFilesArr,
+        structureData.structure.simResDescriptionsArr
+      )
+    : [];
+  const structureFiles = structureData
+    ? zipFiles(
+        structureData.structure.structureFilesArr,
+        structureData.structure.structureFileDescriptionsArr
+      )
+    : [];
+  // Images list from schema (zip images and descriptions)
+  const imageFiles = structureData
+    ? zipFiles(
+        structureData.structure.imagesArr,
+        structureData.structure.imageDescriptionsArr
+      )
+    : [];
+
   return (
     <main className="mx-auto max-w-7xl sm:px-6 sm:pt-16 lg:px-8">
       <div className="mx-auto max-w-2xl lg:max-w-none">
@@ -138,18 +176,18 @@ export default function StructurePage({
           <TabGroup className="flex flex-col-reverse">
             <div className="mx-auto mt-6 w-full max-w-2xl sm:block lg:max-w-none">
               <TabList className="grid grid-cols-4 gap-6">
-                {allStructureImages ? (
-                  allStructureImages.map((image) => (
+                {imageFiles.length > 0 ? (
+                  imageFiles.map((image) => (
                     <Tab
-                      key={image.imageName}
+                      key={image.fileName}
                       className="group relative flex h-24 bg-white/30"
                     >
-                      <span className="sr-only">{image.imageName}</span>
+                      <span className="sr-only">{image.fileName}</span>
                       <span className="absolute inset-0 overflow-hidden rounded-md cursor-pointer border-2 border-gray-100">
                         <Image
                           alt="structure_image"
                           fill={true}
-                          src={`${apiRoot}/structure/images/${structureData?.flatStructureId}/${image.imageName}`}
+                          src={`${apiRoot}/structure/images/${structureData?.flatStructureId}/${image.fileName}`}
                           className="size-full object-contain"
                         />
                       </span>
@@ -162,17 +200,17 @@ export default function StructurePage({
             </div>
 
             <TabPanels>
-              {allStructureImages ? (
-                allStructureImages?.map((image) => (
+              {imageFiles.length > 0 ? (
+                imageFiles.map((image) => (
                   <TabPanel
                     as="div"
                     className={"w-full flex bg-white/30 rounded-xl"}
-                    key={image.imageName}
+                    key={image.fileName}
                   >
                     <div className="relative h-full w-full min-h-60 aspect-square mx-auto flex-1">
                       <Image
-                        alt={image.imageName}
-                        src={`${apiRoot}/structure/images/${structureData?.flatStructureId}/${image.imageName}`}
+                        alt={image.fileName}
+                        src={`${apiRoot}/structure/images/${structureData?.flatStructureId}/${image.fileName}`}
                         fill={true}
                         className="aspect-square w-full object-contain sm:rounded-lg"
                       />
@@ -216,6 +254,7 @@ export default function StructurePage({
                 className="w-full mx-auto aspect-[16/9] border-2 border-gray-100 mb-8"
               />
 
+              {/* Images Section */}
               <div className="divide-y divide-gray-200">
                 <Disclosure as="div">
                   <h3>
@@ -237,17 +276,15 @@ export default function StructurePage({
                   </h3>
                   <DisclosurePanel className="pb-6">
                     <ul role="list" className="text-sm text-gray-700">
-                      {dexieData &&
-                      dexieData.structureData.structure
-                        .imageNameToDescRelation ? (
-                        allStructureImages?.map((file) => (
-                          <li key={file.imageName} className="pl-2">
+                      {imageFiles.length > 0 ? (
+                        imageFiles.map((img) => (
+                          <li key={img.fileName} className="pl-2">
                             <Link
-                              href={`${apiRoot}/structure/images/${structureData?.flatStructureId}/${file.imageName}`}
+                              href={`${apiRoot}/structure/images/${structureData?.flatStructureId}/${img.fileName}`}
                             >
-                              {file.imageName}{" "}
+                              {img.fileName}{" "}
                               <span className="text-gray-500">
-                                {file.description}
+                                {img.description}
                               </span>
                             </Link>
                           </li>
@@ -260,12 +297,13 @@ export default function StructurePage({
                 </Disclosure>
               </div>
 
+              {/* Experiment Protocol Files Section */}
               <div className="divide-y divide-gray-200 border-t">
                 <Disclosure as="div">
                   <h3>
                     <DisclosureButton className="group relative flex w-full items-center justify-between pt-6 text-left cursor-pointer">
                       <span className="text-sm font-medium text-gray-900 group-data-[open]:text-indigo-600">
-                        Files
+                        Experiment Protocol Files
                       </span>
                       <span className="ml-6 flex items-center">
                         <PlusIcon
@@ -281,8 +319,180 @@ export default function StructurePage({
                   </h3>
                   <DisclosurePanel className="pb-6">
                     <ul role="list" className="text-sm text-gray-700">
-                      {allStructureFiles ? (
-                        allStructureFiles.map((file) => (
+                      {expProtFiles.length > 0 ? (
+                        expProtFiles.map((file) => (
+                          <li key={file.fileName} className="pl-2">
+                            <Link
+                              href={`${apiRoot}/structure/files/${structureData?.flatStructureId}/expProt/${file.fileName}`}
+                            >
+                              {file.fileName}{" "}
+                              <span className="text-gray-500">
+                                {file.description}
+                              </span>
+                            </Link>
+                          </li>
+                        ))
+                      ) : (
+                        <Skeleton count={3} />
+                      )}
+                    </ul>
+                  </DisclosurePanel>
+                </Disclosure>
+              </div>
+
+              {/* Experiment Result Files Section */}
+              <div className="divide-y divide-gray-200 border-t">
+                <Disclosure as="div">
+                  <h3>
+                    <DisclosureButton className="group relative flex w-full items-center justify-between pt-6 text-left cursor-pointer">
+                      <span className="text-sm font-medium text-gray-900 group-data-[open]:text-indigo-600">
+                        Experiment Result Files
+                      </span>
+                      <span className="ml-6 flex items-center">
+                        <PlusIcon
+                          aria-hidden="true"
+                          className="block h-6 w-6 text-gray-400 group-hover:text-gray-500 group-data-[open]:hidden"
+                        />
+                        <MinusIcon
+                          aria-hidden="true"
+                          className="hidden h-6 w-6 text-indigo-400 group-hover:text-indigo-500 group-data-[open]:block"
+                        />
+                      </span>
+                    </DisclosureButton>
+                  </h3>
+                  <DisclosurePanel className="pb-6">
+                    <ul role="list" className="text-sm text-gray-700">
+                      {expResFiles.length > 0 ? (
+                        expResFiles.map((file) => (
+                          <li key={file.fileName} className="pl-2">
+                            <Link
+                              href={`${apiRoot}/structure/files/${structureData?.flatStructureId}/expRes/${file.fileName}`}
+                            >
+                              {file.fileName}{" "}
+                              <span className="text-gray-500">
+                                {file.description}
+                              </span>
+                            </Link>
+                          </li>
+                        ))
+                      ) : (
+                        <Skeleton count={3} />
+                      )}
+                    </ul>
+                  </DisclosurePanel>
+                </Disclosure>
+              </div>
+
+              {/* Simulation Protocol Files Section */}
+              <div className="divide-y divide-gray-200 border-t">
+                <Disclosure as="div">
+                  <h3>
+                    <DisclosureButton className="group relative flex w-full items-center justify-between pt-6 text-left cursor-pointer">
+                      <span className="text-sm font-medium text-gray-900 group-data-[open]:text-indigo-600">
+                        Simulation Protocol Files
+                      </span>
+                      <span className="ml-6 flex items-center">
+                        <PlusIcon
+                          aria-hidden="true"
+                          className="block h-6 w-6 text-gray-400 group-hover:text-gray-500 group-data-[open]:hidden"
+                        />
+                        <MinusIcon
+                          aria-hidden="true"
+                          className="hidden h-6 w-6 text-indigo-400 group-hover:text-indigo-500 group-data-[open]:block"
+                        />
+                      </span>
+                    </DisclosureButton>
+                  </h3>
+                  <DisclosurePanel className="pb-6">
+                    <ul role="list" className="text-sm text-gray-700">
+                      {simProtFiles.length > 0 ? (
+                        simProtFiles.map((file) => (
+                          <li key={file.fileName} className="pl-2">
+                            <Link
+                              href={`${apiRoot}/structure/files/${structureData?.flatStructureId}/simProt/${file.fileName}`}
+                            >
+                              {file.fileName}{" "}
+                              <span className="text-gray-500">
+                                {file.description}
+                              </span>
+                            </Link>
+                          </li>
+                        ))
+                      ) : (
+                        <Skeleton count={3} />
+                      )}
+                    </ul>
+                  </DisclosurePanel>
+                </Disclosure>
+              </div>
+
+              {/* Simulation Result Files Section */}
+              <div className="divide-y divide-gray-200 border-t">
+                <Disclosure as="div">
+                  <h3>
+                    <DisclosureButton className="group relative flex w-full items-center justify-between pt-6 text-left cursor-pointer">
+                      <span className="text-sm font-medium text-gray-900 group-data-[open]:text-indigo-600">
+                        Simulation Result Files
+                      </span>
+                      <span className="ml-6 flex items-center">
+                        <PlusIcon
+                          aria-hidden="true"
+                          className="block h-6 w-6 text-gray-400 group-hover:text-gray-500 group-data-[open]:hidden"
+                        />
+                        <MinusIcon
+                          aria-hidden="true"
+                          className="hidden h-6 w-6 text-indigo-400 group-hover:text-indigo-500 group-data-[open]:block"
+                        />
+                      </span>
+                    </DisclosureButton>
+                  </h3>
+                  <DisclosurePanel className="pb-6">
+                    <ul role="list" className="text-sm text-gray-700">
+                      {simResFiles.length > 0 ? (
+                        simResFiles.map((file) => (
+                          <li key={file.fileName} className="pl-2">
+                            <Link
+                              href={`${apiRoot}/structure/files/${structureData?.flatStructureId}/simRes/${file.fileName}`}
+                            >
+                              {file.fileName}{" "}
+                              <span className="text-gray-500">
+                                {file.description}
+                              </span>
+                            </Link>
+                          </li>
+                        ))
+                      ) : (
+                        <Skeleton count={3} />
+                      )}
+                    </ul>
+                  </DisclosurePanel>
+                </Disclosure>
+              </div>
+
+              {/* Structure Files Section */}
+              <div className="divide-y divide-gray-200 border-t">
+                <Disclosure as="div">
+                  <h3>
+                    <DisclosureButton className="group relative flex w-full items-center justify-between pt-6 text-left cursor-pointer">
+                      <span className="text-sm font-medium text-gray-900 group-data-[open]:text-indigo-600">
+                        Structure Files
+                      </span>
+                      <span className="ml-6 flex items-center">
+                        <PlusIcon
+                          aria-hidden="true"
+                          className="block h-6 w-6 text-gray-400 group-hover:text-gray-500 group-data-[open]:hidden"
+                        />
+                        <MinusIcon
+                          aria-hidden="true"
+                          className="hidden h-6 w-6 text-indigo-400 group-hover:text-indigo-500 group-data-[open]:block"
+                        />
+                      </span>
+                    </DisclosureButton>
+                  </h3>
+                  <DisclosurePanel className="pb-6">
+                    <ul role="list" className="text-sm text-gray-700">
+                      {structureFiles.length > 0 ? (
+                        structureFiles.map((file) => (
                           <li key={file.fileName} className="pl-2">
                             <Link
                               href={`${apiRoot}/structure/files/${structureData?.flatStructureId}/structure/${file.fileName}`}
@@ -302,6 +512,7 @@ export default function StructurePage({
                 </Disclosure>
               </div>
 
+              {/* Keywords Section */}
               <div className="divide-y divide-gray-200 border-t">
                 <Disclosure as="div">
                   <h3>
@@ -331,12 +542,13 @@ export default function StructurePage({
                 </Disclosure>
               </div>
 
+              {/* Applications Section */}
               <div className="divide-y divide-gray-200 border-t">
                 <Disclosure as="div">
                   <h3>
                     <DisclosureButton className="group relative flex w-full items-center justify-between pt-6 text-left cursor-pointer">
                       <span className="text-sm font-medium text-gray-900 group-data-[open]:text-indigo-600">
-                        Application
+                        Applications
                       </span>
                       <span className="ml-6 flex items-center">
                         <PlusIcon
@@ -360,6 +572,7 @@ export default function StructurePage({
                 </Disclosure>
               </div>
 
+              {/* Authors Section */}
               <div className="divide-y divide-gray-200 border-t">
                 <Disclosure as="div">
                   <h3>

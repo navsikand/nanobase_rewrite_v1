@@ -78,7 +78,7 @@ export default function Signup() {
                     required
                     autoComplete="given-name"
                     placeholder="John"
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
                 <div>
@@ -97,7 +97,7 @@ export default function Signup() {
                     required
                     autoComplete="family-name"
                     placeholder="Doe"
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -118,7 +118,7 @@ export default function Signup() {
                     required
                     autoComplete="email"
                     placeholder="example@example.com"
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
                 <div>
@@ -137,7 +137,7 @@ export default function Signup() {
                     required
                     autoComplete="organization"
                     placeholder="Your Institution"
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -157,7 +157,7 @@ export default function Signup() {
                   required
                   autoComplete="new-password"
                   placeholder="********"
-                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               <div className="flex items-center justify-between">
