@@ -531,7 +531,7 @@ export default function EditStructurePage({
                     : "px-4 py-2 font-medium text-black bg-gray-100 rounded-t-md hover:bg-gray-200 cursor-pointer"
                 }
               >
-                Text Data
+                MetaData
               </Tab>
               <Tab
                 className={({ selected }) =>
@@ -833,9 +833,11 @@ export default function EditStructurePage({
 
                 {/* Structure Files Section */}
                 <div className="border p-4 rounded-md">
-                  <h2 className="font-semibold mb-2">Structure Files</h2>
+                  <h2 className="font-semibold mb-2">
+                    Structure and Design Files
+                  </h2>
                   <FileInputWithDescription
-                    label="Structure File"
+                    label="Structure and Design File"
                     onAdd={(item) =>
                       handleAddFile(
                         item,

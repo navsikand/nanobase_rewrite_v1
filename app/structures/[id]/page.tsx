@@ -376,7 +376,7 @@ export default function StructurePage({
 
               {/* Structure Files Section */}
               <FileDisclosure
-                title="Structure Files"
+                title="Structure and Design Files"
                 files={structureFiles}
                 getHref={(file) =>
                   `${apiRoot}/structure/files/${structureData?.flatStructureId}/structure/${file.fileName}`
