@@ -10,6 +10,10 @@ import {
   TabList,
   TabPanels,
   TabPanel,
+  Listbox,
+  ListboxButton,
+  ListboxOptions,
+  ListboxOption,
 } from "@headlessui/react";
 import { apiRoot } from "@/helpers/fetchHelpers";
 
@@ -176,6 +180,24 @@ export default function UploadStructure() {
     keywords: "",
     private: false,
   });
+
+  // Options for the structure type
+  const typeOptions = [
+    "DNA",
+    "RNA",
+    "DNA/RNA hybrid",
+    "Nucleic acid/protein hybrid",
+    "Other",
+  ];
+
+  // State for the selected type; defaults to the first option.
+  const [selectedType, setSelectedType] = useState<string>(typeOptions[0]);
+
+  // Update formData when the type is changed.
+  const handleTypeChange = (value: string) => {
+    setSelectedType(value);
+    setFormData((prev) => ({ ...prev, type: value }));
+  };
 
   // State for different file entries.
   const [images, setImages] = useState<FileEntry[]>([]);
@@ -358,7 +380,7 @@ export default function UploadStructure() {
                     : "px-4 py-2 font-medium text-black bg-gray-100 rounded-t-md hover:bg-gray-200 cursor-pointer"
                 }
               >
-                MetaData
+                Metadata
               </Tab>
               <Tab
                 className={({ selected }) =>
@@ -388,15 +410,27 @@ export default function UploadStructure() {
                   )}
                 </div>
                 <div>
-                  <input
-                    type="text"
-                    name="type"
-                    placeholder="Type..."
-                    className={`${inputClass} ${errors.type ? "border-red-500" : ""}`}
-                    value={formData.type}
-                    onChange={handleChange}
-                    required
-                  />
+                  {/* Replaced input text for "type" with a Headless UI Listbox */}
+                  <Listbox value={selectedType} onChange={handleTypeChange}>
+                    <ListboxButton
+                      className={`${inputClass} text-left ${errors.type ? "border-red-500" : ""}`}
+                    >
+                      {selectedType}
+                    </ListboxButton>
+                    <ListboxOptions className="mt-1 border rounded bg-white">
+                      {typeOptions.map((option) => (
+                        <ListboxOption
+                          key={option}
+                          value={option}
+                          className={({ selected }) =>
+                            `cursor-pointer p-2 ${selected ? "bg-gray-200" : ""}`
+                          }
+                        >
+                          {option}
+                        </ListboxOption>
+                      ))}
+                    </ListboxOptions>
+                  </Listbox>
                   {errors.type && (
                     <p className="text-red-500 text-sm">{errors.type}</p>
                   )}

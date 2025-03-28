@@ -49,7 +49,7 @@ type ImageRelation = {
 };
 
 type RelationItemProps = {
-  item: { description: string; [key: string]: string | File | undefined };
+  item: { description: string;[key: string]: string | File | undefined };
   onDelete: (name: string) => void;
   onEdit: (name: string, newDescription: string) => void;
   nameKey: string;
@@ -276,7 +276,7 @@ export default function EditStructurePage({
             fileName: name,
             description:
               server_structureData.structure.structureFileDescriptionsArr[
-                idx
+              idx
               ] || "",
           })
         )
@@ -531,7 +531,7 @@ export default function EditStructurePage({
                     : "px-4 py-2 font-medium text-black bg-gray-100 rounded-t-md hover:bg-gray-200 cursor-pointer"
                 }
               >
-                MetaData
+                Metadata
               </Tab>
               <Tab
                 className={({ selected }) =>

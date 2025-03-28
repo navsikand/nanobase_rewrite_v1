@@ -84,6 +84,7 @@ export interface STRUCTURE_CARD_DATA {
     id: number;
     title: string;
     description: string;
+    modifications: string[];
     applications: string[];
     authors: string[];
     keywords: string[];

@@ -249,3 +249,9 @@ export const dexie_getLatestStructure = async () => {
     .toArray();
   return allStructures[0];
 };
+
+export const dexie_getAllModifications = async () => {
+  const structs = await DexieDB.structures.toArray();
+  const mods = [];
+  structs.map((i) => mods.push(i.structure.modifications));
+};
