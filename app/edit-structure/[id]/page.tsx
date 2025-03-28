@@ -387,7 +387,6 @@ export default function EditStructurePage({
       errors.push("At least one image is required.");
     }
 
-    // If validation errors exist, display them in the modal.
     if (errors.length > 0) {
       setResponseMessage("Submission failed:\n" + errors.join("\n"));
       setIsModalOpen(true);
@@ -408,73 +407,77 @@ export default function EditStructurePage({
       "datePublished",
       new Date(server_structureData!.structure.datePublished).toISOString()
     );
-    // Convert comma separated strings to arrays.
+    data.append("authors", formData.authors);
+    data.append("keywords", formData.keywords);
+    data.append("applications", formData.applications);
+    data.append("imagesArr", imageRelations.map((i) => i.imageName).join(","));
     data.append(
-      "authors",
-      JSON.stringify(formData.authors.split(",").map((s) => s.trim()))
+      "expProtFilesArr",
+      expProtRelations.map((i) => i.fileName).join(",")
     );
     data.append(
-      "keywords",
-      JSON.stringify(formData.keywords.split(",").map((s) => s.trim()))
+      "expResFilesArr",
+      expResRelations.map((i) => i.fileName).join(",")
     );
     data.append(
-      "applications",
-      JSON.stringify(formData.applications.split(",").map((s) => s.trim()))
+      "simProtFilesArr",
+      simProtRelations.map((i) => i.fileName).join(",")
+    );
+    data.append(
+      "simResFilesArr",
+      simResRelations.map((i) => i.fileName).join(",")
+    );
+    data.append(
+      "structureFilesArr",
+      structureFilesRelations.map((i) => i.fileName).join(",")
     );
 
-    // Append images.
-    imageRelations.forEach((img) => {
-      data.append("imagesArr", img.imageName);
-      data.append("imageDescriptionsArr", img.description);
-      if (img.file) {
-        data.append("newImageFiles", img.file);
-      }
-    });
+    data.append(
+      "imageDescriptionsArr",
+      imageRelations.map((i) => i.description).join(",")
+    );
+    data.append(
+      "expProtDescriptionsArr",
+      expProtRelations.map((i) => i.description).join(",")
+    );
+    data.append(
+      "expResDescriptionsArr",
+      expResRelations.map((i) => i.description).join(",")
+    );
+    data.append(
+      "simProtDescriptionsArr",
+      simProtRelations.map((i) => i.description).join(",")
+    );
+    data.append(
+      "simResDescriptionsArr",
+      simResRelations.map((i) => i.description).join(",")
+    );
+    data.append(
+      "structureDescriptionsArr",
+      structureFilesRelations.map((i) => i.description).join(",")
+    );
 
-    // Append experiment protocol files.
-    expProtRelations.forEach((file) => {
-      data.append("expProtFilesArr", file.fileName);
-      data.append("expProtDescriptionsArr", file.description);
-      if (file.file) {
-        data.append("newExpProtFiles", file.file);
-      }
-    });
+    // Helper function to append each file and its description, same as upload page.
+    const appendFiles = (
+      key: string,
+      fileEntries: { file?: File; description: string }[]
+    ) => {
+      fileEntries.forEach(({ file, description }) => {
+        if (file) {
+          // Only append if a new file is present.
+          data.append(key, file);
+          data.append(`${key}Description`, description);
+        }
+      });
+    };
 
-    // Append experiment result files.
-    expResRelations.forEach((file) => {
-      data.append("expResFilesArr", file.fileName);
-      data.append("expResDescriptionsArr", file.description);
-      if (file.file) {
-        data.append("newExpResFiles", file.file);
-      }
-    });
-
-    // Append simulation protocol files.
-    simProtRelations.forEach((file) => {
-      data.append("simProtFilesArr", file.fileName);
-      data.append("simProtDescriptionsArr", file.description);
-      if (file.file) {
-        data.append("newSimProtFiles", file.file);
-      }
-    });
-
-    // Append simulation result files.
-    simResRelations.forEach((file) => {
-      data.append("simResFilesArr", file.fileName);
-      data.append("simResDescriptionsArr", file.description);
-      if (file.file) {
-        data.append("newSimResFiles", file.file);
-      }
-    });
-
-    // Append structure files.
-    structureFilesRelations.forEach((file) => {
-      data.append("structureFilesArr", file.fileName);
-      data.append("structureFileDescriptionsArr", file.description);
-      if (file.file) {
-        data.append("newStructureFiles", file.file);
-      }
-    });
+    // Use the same keys as in the upload page.
+    appendFiles("images", imageRelations);
+    appendFiles("structureFiles", structureFilesRelations);
+    appendFiles("simProtFiles", simProtRelations);
+    appendFiles("simResFiles", simResRelations);
+    appendFiles("expProtFiles", expProtRelations);
+    appendFiles("expResFiles", expResRelations);
 
     try {
       const token = localStorage.getItem("token");
@@ -490,7 +493,6 @@ export default function EditStructurePage({
         body: data,
       });
 
-      // Check for server errors.
       if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.error || "Server responded with an error.");
@@ -502,7 +504,6 @@ export default function EditStructurePage({
       } else {
         setResponseMessage("Update failed: " + resJson.error);
       }
-
       /* eslint-disable @typescript-eslint/no-explicit-any */
     } catch (error: any) {
       setResponseMessage(
