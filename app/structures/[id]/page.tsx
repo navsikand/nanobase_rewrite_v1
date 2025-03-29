@@ -484,6 +484,66 @@ export default function StructurePage({
                   </DisclosurePanel>
                 </Disclosure>
               </div>
+
+              {/* Stats Section */}
+              <div className="divide-y divide-gray-200 border-t">
+                <Disclosure as="div">
+                  <h3>
+                    <DisclosureButton className="group relative flex w-full items-center justify-between pt-6 text-left cursor-pointer">
+                      <span className="text-sm font-medium text-gray-900 group-data-[open]:text-indigo-600">
+                        Stats
+                      </span>
+                      <span className="ml-6 flex items-center">
+                        <PlusIcon
+                          aria-hidden="true"
+                          className="block h-6 w-6 text-gray-400 group-hover:text-gray-500 group-data-[open]:hidden"
+                        />
+                        <MinusIcon
+                          aria-hidden="true"
+                          className="hidden h-6 w-6 text-indigo-400 group-hover:text-indigo-500 group-data-[open]:block"
+                        />
+                      </span>
+                    </DisclosureButton>
+                  </h3>
+                  <DisclosurePanel className="pb-6">
+                    {structureData ? (
+                      <>
+                        <p>
+                          Number of amino acids:{" "}
+                          {structureData.structure.statsData?.total_a || "NaN"}
+                        </p>
+                        <p>
+                          Number of nucleotides:{" "}
+                          {structureData.structure.statsData?.total_n || "NaN"}
+                        </p>
+                        <p>
+                          Number of staple strands:{" "}
+                          {structureData.structure.statsData?.n_staples ||
+                            "NaN"}
+                        </p>
+                        <p>
+                          Number of peptide strands:{" "}
+                          {structureData.structure.statsData?.n_peptides ||
+                            "NaN"}
+                        </p>
+                        {structureData.structure.statsData?.graph && (
+                          <div className="relative h-full w-full min-h-60 aspect-square mx-auto flex-1">
+                            <p>Staple length distrubution:</p>
+                            <Image
+                              alt="Image"
+                              src={`${apiRoot}/structure/images/${structureData?.flatStructureId}/${structureData.structure.statsData.graph}`}
+                              fill={true}
+                              className="aspect-square w-full object-contain sm:rounded-lg"
+                            />
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <Skeleton />
+                    )}
+                  </DisclosurePanel>
+                </Disclosure>
+              </div>
             </section>
           </div>
         </div>
