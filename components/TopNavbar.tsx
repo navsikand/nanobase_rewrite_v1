@@ -34,15 +34,15 @@ export const TopNavbar = () => {
 
           setUserAuthState({ name, id });
         } else {
-          if (pathName === "/upload-structure") {
-            router.push("/sign-up");
+          if (pathName === "/upload-structure" || pathName === "/profile") {
+            router.push("/sign-in");
           }
         }
       } catch (e) {
         console.log(e);
       }
     } else {
-      if (pathName === "/upload-structure") {
+      if (pathName === "/upload-structure" || pathName === "/profile") {
         router.push("/sign-in");
       }
     }

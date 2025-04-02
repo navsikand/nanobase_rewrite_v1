@@ -1,16 +1,42 @@
 "use client";
 
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { Button } from "@headlessui/react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { apiRoot } from "@/helpers/fetchHelpers";
+import { decode } from "jsonwebtoken";
 
 export default function ResetPassword() {
   const router = useRouter();
+  const pathName = usePathname();
+
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    router.prefetch("/browse");
+
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const { exp, name, id } = decode(token) as {
+          exp: number;
+          name: string;
+          id: string;
+        };
+        if (Date.now() < exp * 1000) {
+          const user = { name, id };
+        } else {
+          // Not signed in
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    } else {
+      // Not signed in
+    }
+  }, [pathName, router]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -23,9 +49,19 @@ export default function ResetPassword() {
     setErrorMessage("");
 
     try {
-      const response = await fetch(`${apiRoot}/auth/login`, {
+      const token = localStorage.getItem("token");
+
+      // Check if token exists, and throw an error if it's missing
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
+
+      const response = await fetch(`${apiRoot}/auth/reset`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(formData),
       });
 
@@ -59,30 +95,10 @@ export default function ResetPassword() {
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
             <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Email
-            </label>
-            <input
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              placeholder="example@example.com"
-              id="email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              autoComplete="email"
-            />
-          </div>
-
-          <div>
-            <label
               htmlFor="password"
               className="block text-sm font-medium text-gray-700"
             >
-              Password
+              New password
             </label>
             <input
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
@@ -93,23 +109,17 @@ export default function ResetPassword() {
               value={formData.password}
               onChange={handleChange}
               required
-              autoComplete="current-password"
+              autoComplete="new-password"
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <p className="text-sm">
-              Don&apos;t have an account?{" "}
-              <Link href="/sign-up" className="text-blue-600 hover:underline">
-                Sign up
-              </Link>
-            </p>
+          <div className="flex items-center justify-end">
             <Button
               type="submit"
               className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
               disabled={loading}
             >
-              {loading ? "Signing in..." : "Sign In"}
+              {loading ? "Reseting..." : "Reset"}
             </Button>
           </div>
         </form>

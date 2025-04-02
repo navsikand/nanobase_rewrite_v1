@@ -50,7 +50,6 @@ export const StructureCard = ({
       let data;
       try {
         data = await response.json();
-        console.log(data);
       } catch {
         throw new Error("Received invalid response from the server.");
       }
