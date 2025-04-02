@@ -181,6 +181,11 @@ export default function UploadStructure() {
     private: false,
   });
 
+  // New state for scaffold checkboxes.
+  const scaffoldOptions = ["M13mp18", "p8064", "p7308", "p7560", "other"];
+  const [selectedScaffolds, setSelectedScaffolds] = useState<string[]>([]);
+  const [otherScaffold, setOtherScaffold] = useState<string>("");
+
   // Options for the structure type
   const typeOptions = [
     "DNA",
@@ -234,6 +239,17 @@ export default function UploadStructure() {
       ...prev,
       [name]: newValue,
     }));
+  };
+
+  // Handler for scaffold checkbox changes.
+  const handleScaffoldChange = (option: string) => {
+    setSelectedScaffolds((prev) => {
+      if (prev.includes(option)) {
+        return prev.filter((item) => item !== option);
+      } else {
+        return [...prev, option];
+      }
+    });
   };
 
   // Validation function to check required form fields.
@@ -301,9 +317,20 @@ export default function UploadStructure() {
       return;
     }
 
+    // Prepare scaffold keywords.
+    const scaffoldKeywords = selectedScaffolds
+      .map((option) =>
+        option === "other" ? otherScaffold.trim() || "other" : option
+      )
+      .join(", ");
+    // Append scaffold keywords to existing keywords.
+    const combinedKeywords = formData.keywords
+      ? `${formData.keywords}, ${scaffoldKeywords}`
+      : scaffoldKeywords;
+
     setIsLoading(true);
 
-    const requestData = { ...formData };
+    const requestData = { ...formData, keywords: combinedKeywords };
     const formDataToSend = new FormData();
     Object.keys(requestData).forEach((key) => {
       /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -532,6 +559,41 @@ export default function UploadStructure() {
                     value={formData.authors}
                     onChange={handleChange}
                   />
+                </div>
+                {/* Scaffold Checkbox Section */}
+                <div className="border p-4 rounded-md">
+                  <p className="font-medium mb-2">
+                    Select which scaffold(s) (if any) are used in the structure.
+                  </p>
+                  <div className="flex flex-wrap gap-4">
+                    {scaffoldOptions.map((option) => (
+                      <label
+                        key={option}
+                        className="flex items-center space-x-1"
+                      >
+                        <input
+                          type="checkbox"
+                          name="scaffold"
+                          value={option}
+                          checked={selectedScaffolds.includes(option)}
+                          onChange={() => handleScaffoldChange(option)}
+                          className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                        />
+                        <span className="text-sm">{option}</span>
+                      </label>
+                    ))}
+                  </div>
+                  {selectedScaffolds.includes("other") && (
+                    <div className="mt-2">
+                      <input
+                        type="text"
+                        placeholder="Specify other scaffold..."
+                        value={otherScaffold}
+                        onChange={(e) => setOtherScaffold(e.target.value)}
+                        className={inputClass}
+                      />
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center">
                   <input
