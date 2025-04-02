@@ -47,9 +47,11 @@ export const StructureCard = ({
         window.location.reload();
       }
 
-      let data;
       try {
-        data = await response.json();
+        const data = await response.json();
+        if (!data) {
+          console.error("No data");
+        }
       } catch {
         throw new Error("Received invalid response from the server.");
       }

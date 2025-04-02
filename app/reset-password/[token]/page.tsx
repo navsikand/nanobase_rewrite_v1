@@ -20,13 +20,13 @@ export default function ResetPassword() {
     const token = localStorage.getItem("token");
     if (token) {
       try {
-        const { exp, name, id } = decode(token) as {
+        const { exp } = decode(token) as {
           exp: number;
           name: string;
           id: string;
         };
         if (Date.now() < exp * 1000) {
-          const user = { name, id };
+          // Signed in
         } else {
           // Not signed in
         }
