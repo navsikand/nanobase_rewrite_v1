@@ -8,18 +8,18 @@ export default function Tutorial() {
         </div>
         <p className="mt-8">
           Any researcher who would like to deposit a structure into Nanobase is
-          welcome to create an account. To begin, click the "Sign in" button in
-          the upper right corner and select "Create an account". Once you fill
-          in the form and verify your email, you are ready to upload a
-          structure.
+          welcome to create an account. To begin, click the &quot;Sign in&quot;
+          button in the upper right corner and select &quot;Create an
+          account&quot;. Once you fill in the form and verify your email, you
+          are ready to upload a structure.
         </p>
 
         <div className="w-full mt-8 space-y-3">
           <h2 className="text-4xl font-semibold">Uploading process</h2>
           <div className="space-y-2 mt-3">
             <p>
-              Begin by clicking the "Upload Structure" button in the sidebar.
-              This will take you to a form where you enter structure
+              Begin by clicking the &quot;Upload Structure&quot; button in the
+              sidebar. This will take you to a form where you enter structure
               information. Make sure to include purpose and keywords to make the
               structure easily searchable by users in the future. The next page
               is where you enter publication information, including any patents
@@ -66,9 +66,9 @@ export default function Tutorial() {
               the upload process. This will prevent your structure from being
               searchable and appearing in the home page. Once uploaded, you will
               be taken your structure page. You may view your private structure
-              by using the link for it or clicking "View my structures" in your
-              Profile page. The structure will only be visible to anyone who has
-              a link to it.
+              by using the link for it or clicking &quot;View my
+              structures&quot; in your Profile page. The structure will only be
+              visible to anyone who has a link to it.
             </p>
             <p>
               If you select a private structure, you may chose to make your
