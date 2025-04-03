@@ -27,6 +27,8 @@ export default function Home() {
       .toArray()
   );
 
+  const statsCount = useLiveQuery(() => DexieDB.structures.count());
+
   const [latestStructureWithImage, setLatestStructureWithImage] = useState<
     (STRUCTURE_CARD_DATA & { image: string }) | null
   >(null);
@@ -125,18 +127,16 @@ export default function Home() {
         </div>
         <div className="mt-12 grid gap-2 md:grid-cols-2">
           <div>
-            <h2 className="text-2xl">Who we are</h2>
+            <h2 className="text-2xl">What is Nanobase?</h2>
             <p>
-              For over 40 years, nucleic acid nanotechnology has created diverse
-              self-assembling DNA and RNA structures used in fields like drug
-              delivery, diagnostics, and nanophotonics. Our platform offers a
-              shared database of these designs, along with tools for editing,
-              visualizing, and simulating them. By fostering collaboration, we
-              aim to make verified nanostructures more accessible and reusable,
-              enabling easy adaptation for research and practical applications.
-              Users can also export ready-to-order strands or simulate designs
-              on our oxDNA.org server, enhancing modularity and functionality
-              across the community.
+              Nanobase is a respository of DNA/RNA and protein structures used
+              in fields like drug delivery, diagnostics, and nanophotonics.
+            </p>
+            <p className="mt-2">
+              <b>
+                Total structures:
+                {` ${statsCount}`}
+              </b>
             </p>
 
             <Button

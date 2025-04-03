@@ -1,27 +1,13 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@headlessui/react";
-import { useRouter } from "next/navigation";
 import { apiRoot } from "@/helpers/fetchHelpers";
 
-export default function ResetPassword({
-  params,
-}: {
-  params: Promise<{ token: string }>;
-}) {
-  const { token: resetToken } = use(params);
-  const router = useRouter();
-
-  const [password, setPassword] = useState("");
+export default function ResetPasswordEmail() {
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-
-  useEffect(() => {
-    if (!resetToken) {
-      router.push("/sign-in");
-    }
-  }, [resetToken]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,24 +15,18 @@ export default function ResetPassword({
     setErrorMessage("");
 
     try {
-      // Check if token exists, and throw an error if it's missing
-      if (!resetToken) {
-        throw new Error("No authentication token found");
-      }
-
-      const response = await fetch(
-        `${apiRoot}/auth/reset-with-email?token=${resetToken}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ password }),
-        }
-      );
+      const response = await fetch(`${apiRoot}/auth/reset-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
 
       if (response.ok) {
-        router.push("/sign-in");
+        //const data = await response.json();
+        //localStorage.setItem("token", data.token);
+        //router.push("/browse");
       } else {
         const data = await response.json();
         setErrorMessage(
@@ -64,7 +44,9 @@ export default function ResetPassword({
   return (
     <div className="min-h-screen flex justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-lg p-8">
-        <h1 className="text-3xl font-bold mb-6 text-center">Sign In</h1>
+        <h1 className="text-3xl font-bold mb-6 text-center">
+          Send reset email
+        </h1>
         {errorMessage && (
           <div className="mb-4 p-3 text-red-700 bg-red-100 rounded">
             {errorMessage}
@@ -73,21 +55,21 @@ export default function ResetPassword({
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
             <label
-              htmlFor="password"
+              htmlFor="email"
               className="block text-sm font-medium text-gray-700"
             >
-              New password
+              Email
             </label>
             <input
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              placeholder="********"
-              id="password"
-              name="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              placeholder="example@example.com"
+              id="email"
+              name="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
-              autoComplete="new-password"
+              autoComplete="email"
             />
           </div>
 
@@ -97,7 +79,7 @@ export default function ResetPassword({
               className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
               disabled={loading}
             >
-              {loading ? "Reseting..." : "Reset"}
+              Send reset email
             </Button>
           </div>
         </form>

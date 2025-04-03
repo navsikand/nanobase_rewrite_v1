@@ -52,6 +52,7 @@ export const TopNavbar = () => {
     { title: "Home", slug: "/" },
     { title: "Browse", slug: "/browse" },
     { title: "Upload structure", slug: "/upload-structure" },
+    { title: "How to upload", slug: "/tutorial" },
     {
       title: "Profile",
       slug: userAuthState ? `/profile` : "/sign-in",

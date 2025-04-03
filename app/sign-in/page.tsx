@@ -80,9 +80,14 @@ export default function SignIn() {
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
+              className="text-sm font-medium text-gray-700 flex justify-between"
             >
-              Password
+              <span>Password</span>{" "}
+              <span>
+                <Link href="/reset-password" className="text-blue-600">
+                  Forgot password?
+                </Link>
+              </span>
             </label>
             <input
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
