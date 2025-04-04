@@ -8,6 +8,7 @@ import {
 } from "@/helpers/fetchHelpers";
 import { STRUCTURE_CARD_DATA } from "@/types";
 import { Button } from "@headlessui/react";
+import Link from "next/link";
 import useSWR from "swr";
 
 export default function ProfilePage() {
@@ -63,15 +64,25 @@ export default function ProfilePage() {
               <b>Verified status:</b>{" "}
               {ProfileData.verified ? "Verified" : "Not verified"}
             </p>
-            <Button
-              onClick={() => {
-                localStorage.removeItem("token");
-                window.location.href = "/browse";
-              }}
-              className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
-            >
-              Sign Out
-            </Button>
+
+            <div className="flex space-x-2">
+              <Button
+                onClick={() => {
+                  localStorage.removeItem("token");
+                  window.location.href = "/browse";
+                }}
+                className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
+              >
+                Sign Out
+              </Button>
+
+              <Link
+                href={"/profile/reset"}
+                className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
+              >
+                Reset password
+              </Link>
+            </div>
           </div>
 
           <h2 className="text-4xl font-semibold">Structures</h2>

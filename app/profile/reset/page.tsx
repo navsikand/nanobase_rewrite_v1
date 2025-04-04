@@ -1,27 +1,16 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@headlessui/react";
 import { useRouter } from "next/navigation";
 import { apiRoot } from "@/helpers/fetchHelpers";
 
-export default function ResetPassword({
-  params,
-}: {
-  params: Promise<{ token: string }>;
-}) {
-  const { token: resetToken } = use(params);
+export default function ResetPassword() {
   const router = useRouter();
 
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-
-  useEffect(() => {
-    if (!resetToken) {
-      router.push("/sign-in");
-    }
-  }, [resetToken]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,29 +18,25 @@ export default function ResetPassword({
     setErrorMessage("");
 
     try {
-      // Check if token exists, and throw an error if it's missing
-      if (!resetToken) {
-        throw new Error("No authentication token found");
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Authentication token is missing. Please log in.");
       }
 
-      const response = await fetch(
-        `${apiRoot}/auth/reset-with-token?token=${resetToken}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ password }),
-        }
-      );
+      const response = await fetch(`${apiRoot}/auth/reset`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ password }),
+      });
 
       if (response.ok) {
         router.push("/sign-in");
       } else {
         const data = await response.json();
-        setErrorMessage(
-          data.message || "Authentication failed. Please try again."
-        );
+        setErrorMessage(data.message || "Failed");
       }
     } catch (error) {
       console.error(error);
@@ -64,7 +49,7 @@ export default function ResetPassword({
   return (
     <div className="min-h-screen flex justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-lg p-8">
-        <h1 className="text-3xl font-bold mb-6 text-center">Sign In</h1>
+        <h1 className="text-3xl font-bold mb-6 text-center">Reset password</h1>
         {errorMessage && (
           <div className="mb-4 p-3 text-red-700 bg-red-100 rounded">
             {errorMessage}

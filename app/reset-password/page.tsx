@@ -15,7 +15,7 @@ export default function ResetPasswordEmail() {
     setErrorMessage("");
 
     try {
-      const response = await fetch(`${apiRoot}/auth/reset-email`, {
+      const response = await fetch(`${apiRoot}/auth/send-reset-email`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

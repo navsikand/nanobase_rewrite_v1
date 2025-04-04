@@ -11,6 +11,7 @@ import { Highlighted_Underline } from "./utils/layout/highlightedUnderline";
 export const TopNavbar = () => {
   const router = useRouter();
   const pathName = usePathname();
+
   const [userAuthState, setUserAuthState] = useState<{
     name: string;
     id: string;
@@ -34,7 +35,11 @@ export const TopNavbar = () => {
 
           setUserAuthState({ name, id });
         } else {
-          if (pathName === "/upload-structure" || pathName === "/profile") {
+          if (
+            pathName === "/upload-structure" ||
+            pathName === "/profile" ||
+            pathName === "/profile/reset"
+          ) {
             router.push("/sign-in");
           }
         }
@@ -42,7 +47,11 @@ export const TopNavbar = () => {
         console.log(e);
       }
     } else {
-      if (pathName === "/upload-structure" || pathName === "/profile") {
+      if (
+        pathName === "/upload-structure" ||
+        pathName === "/profile" ||
+        pathName === "/profile/reset"
+      ) {
         router.push("/sign-in");
       }
     }
@@ -77,7 +86,7 @@ export const TopNavbar = () => {
         </div>
 
         {/* Centered Links (hidden on mobile) */}
-        <div className="hidden md:flex justify-center space-x-3 text-lg font-semibold">
+        <div className="hidden md:flex justify-center space-x-3 text-lg font-semibold whitespace-nowrap">
           {LINKS.map((link) => (
             <Link href={link.slug} key={link.slug} className="group">
               {link.title}
