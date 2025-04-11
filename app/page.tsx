@@ -120,7 +120,7 @@ export default function Home() {
   return (
     <div className="w-11/12 mx-auto lg:w-[65%]">
       {/* Header text */}
-      <div className="flex flex-col justify-center items-center mt-20">
+      <div className="flex flex-col justify-center items-center mt-5">
         <div className="relative py-25 bg-[url(/images/banner-bg.webp)] bg-cover bg-repeat flex-1 flex justify-center w-screen">
           {/* White overlay */}
           <div className="absolute inset-0 bg-white opacity-75 z-0"></div>
@@ -134,7 +134,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="mt-12 grid gap-2 md:grid-cols-2">
+        <div className="mt-5 grid gap-2 md:grid-cols-2">
           <div>
             <h2 className="text-2xl">What is Nanobase?</h2>
             <p>
