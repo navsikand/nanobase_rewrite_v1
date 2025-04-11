@@ -42,12 +42,12 @@ export default function ProfilePage() {
   return ProfileData ? (
     <div className="">
       {/* Header text */}
-      <div className="flex flex-col w-11/12 mx-auto justify-center items-center mt-20 lg:w-[65%]">
+      <div className="mx-auto mt-20 flex w-11/12 flex-col items-center justify-center lg:w-[65%]">
         <div className="w-full space-y-3">
           <h2 className="text-4xl font-semibold">
             {`${ProfileData.firstName} ${ProfileData.lastName}`}
           </h2>
-          <div className="space-y-2 mt-3">
+          <div className="mt-3 space-y-2">
             <p>
               <b>Email:</b> {ProfileData.email}
             </p>
@@ -71,14 +71,14 @@ export default function ProfilePage() {
                   localStorage.removeItem("token");
                   window.location.href = "/browse";
                 }}
-                className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
+                className="cursor-pointer rounded-lg bg-black px-4 py-2 text-white duration-200 hover:-translate-y-1 hover:shadow-xl"
               >
                 Sign Out
               </Button>
 
               <Link
                 href={"/profile/reset"}
-                className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
+                className="cursor-pointer rounded-lg bg-black px-4 py-2 text-white duration-200 hover:-translate-y-1 hover:shadow-xl"
               >
                 Reset password
               </Link>
@@ -86,8 +86,8 @@ export default function ProfilePage() {
           </div>
 
           <h2 className="text-4xl font-semibold">Structures</h2>
-          <div className="space-y-2 mt-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+          <div className="mt-3 space-y-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
               {fetchedData?.map(
                 ({ User, structure, image, flatStructureId }) => (
                   <StructureCard

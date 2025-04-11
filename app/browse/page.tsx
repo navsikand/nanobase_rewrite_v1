@@ -134,12 +134,12 @@ export default function Browse() {
 
   return (
     <div className="mx-auto w-11/12">
-      <div className="flex justify-center mb-2 space-x-2">
+      <div className="mb-2 flex justify-center space-x-2">
         <Input
           name="full_name"
           type="text"
           placeholder="Search..."
-          className={"bg-white rounded-xl p-2 border-2 border-gray-100"}
+          className={"rounded-xl border-2 border-gray-100 bg-white p-2"}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -148,13 +148,13 @@ export default function Browse() {
           onChange={(e) =>
             setSearchType(serachByFields[parseInt(e.target.value)].name)
           }
-          className="rounded-lg bg-white border-gray-100 border-2 cursor-pointer"
+          className="cursor-pointer rounded-lg border-2 border-gray-100 bg-white"
         >
           {serachByFields.map((field) => (
             <option
               value={field.id}
               key={field.id}
-              className="bg-white/20 cursor-pointer"
+              className="cursor-pointer bg-white/20"
             >
               {field.name}
             </option>
@@ -162,7 +162,7 @@ export default function Browse() {
         </Select>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {cardsToDisplay.map(({ User, structure, image, flatStructureId }) => (
           <StructureCard
             flatStructureId={flatStructureId}
@@ -174,7 +174,7 @@ export default function Browse() {
         ))}
       </div>
 
-      <div className={"flex justify-center mt-5"}>
+      <div className={"mt-5 flex justify-center"}>
         {(() => {
           const totalPages = dexieData?.count || 1;
           const current = pageNumber;
@@ -224,7 +224,7 @@ export default function Browse() {
           return pagesToShow.map((item, i) => {
             if (typeof item === "string") {
               return (
-                <span key={item + i} className="p-5 font-bold text-xl">
+                <span key={item + i} className="p-5 text-xl font-bold">
                   ...
                 </span>
               );
@@ -233,7 +233,7 @@ export default function Browse() {
                 <Button
                   key={item}
                   onClick={() => setPageNumber(item)}
-                  className={`p-5 rounded-lg hover:-translate-y-2 font-bold text-xl duration-100 cursor-pointer ${
+                  className={`cursor-pointer rounded-lg p-5 text-xl font-bold duration-100 hover:-translate-y-2 ${
                     pageNumber === item ? "underline" : ""
                   }`}
                 >

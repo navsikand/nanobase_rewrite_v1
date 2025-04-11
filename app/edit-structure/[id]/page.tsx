@@ -78,7 +78,7 @@ const RelationItem = ({
   };
 
   return (
-    <li className="flex items-center justify-between border p-2 rounded">
+    <li className="flex items-center justify-between rounded border p-2">
       <div>
         <span className="font-semibold">{itemName}</span>
         {" - "}
@@ -87,7 +87,7 @@ const RelationItem = ({
             type="text"
             value={tempDescription}
             onChange={(e) => setTempDescription(e.target.value)}
-            className="p-1 border rounded ml-1"
+            className="ml-1 rounded border p-1"
           />
         ) : (
           <span>{item.description}</span>
@@ -97,21 +97,21 @@ const RelationItem = ({
         {isEditing ? (
           <button
             onClick={handleSave}
-            className="px-2 py-1 bg-black text-white rounded hover:-translate-y-1 hover:shadow-xl duration-200"
+            className="rounded bg-black px-2 py-1 text-white duration-200 hover:-translate-y-1 hover:shadow-xl"
           >
             Save
           </button>
         ) : (
           <button
             onClick={() => setIsEditing(true)}
-            className="px-2 py-1 bg-black text-white rounded hover:-translate-y-1 hover:shadow-xl duration-200"
+            className="rounded bg-black px-2 py-1 text-white duration-200 hover:-translate-y-1 hover:shadow-xl"
           >
             Edit
           </button>
         )}
         <button
           onClick={() => onDelete(itemName)}
-          className="px-2 py-1 bg-black text-white rounded hover:-translate-y-1 hover:shadow-xl duration-200"
+          className="rounded bg-black px-2 py-1 text-white duration-200 hover:-translate-y-1 hover:shadow-xl"
         >
           Delete
         </button>
@@ -156,12 +156,12 @@ function FileInputWithDescription({
         placeholder="Enter description..."
         value={description}
         onChange={(e) => setDescription(e.target.value)}
-        className="mt-1 block p-2 border rounded"
+        className="mt-1 block rounded border p-2"
       />
       <button
         type="button"
         onClick={handleAdd}
-        className="mt-2 rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
+        className="mt-2 cursor-pointer rounded-lg bg-black px-4 py-2 text-white duration-200 hover:-translate-y-1 hover:shadow-xl"
       >
         Add {label}
       </button>
@@ -539,17 +539,17 @@ export default function EditStructurePage({
     "w-full border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 p-2 rounded-lg bg-stone-400/20 mt-1";
 
   return server_structureData ? (
-    <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto rounded-lg p-6 bg-white">
-        <h2 className="text-2xl font-bold mb-6">Edit Structure</h2>
+    <div className="min-h-screen px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-3xl rounded-lg bg-white p-6">
+        <h2 className="mb-6 text-2xl font-bold">Edit Structure</h2>
         <form onSubmit={handleSubmit}>
           <TabGroup selectedIndex={tabIndex} onChange={setTabIndex}>
-            <TabList className="flex space-x-2 border-b border-gray-300 mb-4">
+            <TabList className="mb-4 flex space-x-2 border-b border-gray-300">
               <Tab
                 className={({ selected }) =>
                   selected
-                    ? "px-4 py-2 font-medium text-white bg-black rounded-t-md border border-gray-300 cursor-pointer"
-                    : "px-4 py-2 font-medium text-black bg-gray-100 rounded-t-md hover:bg-gray-200 cursor-pointer"
+                    ? "cursor-pointer rounded-t-md border border-gray-300 bg-black px-4 py-2 font-medium text-white"
+                    : "cursor-pointer rounded-t-md bg-gray-100 px-4 py-2 font-medium text-black hover:bg-gray-200"
                 }
               >
                 Metadata
@@ -557,8 +557,8 @@ export default function EditStructurePage({
               <Tab
                 className={({ selected }) =>
                   selected
-                    ? "px-4 py-2 font-medium text-white bg-black rounded-t-md border border-gray-300 cursor-pointer"
-                    : "px-4 py-2 font-medium text-black bg-gray-100 rounded-t-md hover:bg-gray-200 cursor-pointer"
+                    ? "cursor-pointer rounded-t-md border border-gray-300 bg-black px-4 py-2 font-medium text-white"
+                    : "cursor-pointer rounded-t-md bg-gray-100 px-4 py-2 font-medium text-black hover:bg-gray-200"
                 }
               >
                 File & Image Data
@@ -583,7 +583,7 @@ export default function EditStructurePage({
                     <ListboxButton className={`${inputClass} text-left`}>
                       {selectedType}
                     </ListboxButton>
-                    <ListboxOptions className="mt-1 border rounded bg-white">
+                    <ListboxOptions className="mt-1 rounded border bg-white">
                       {typeOptions.map((option) => (
                         <ListboxOption
                           key={option}
@@ -646,7 +646,7 @@ export default function EditStructurePage({
                     name="private"
                     checked={formData.private}
                     onChange={handleInputChange}
-                    className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                    className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                   />
                   <label className="ml-2 text-sm text-gray-900">Private</label>
                 </div>
@@ -684,7 +684,7 @@ export default function EditStructurePage({
                   <button
                     type="button"
                     onClick={() => setTabIndex(1)}
-                    className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200"
+                    className="rounded-lg bg-black px-4 py-2 text-white duration-200 hover:-translate-y-1 hover:shadow-xl"
                   >
                     Next
                   </button>
@@ -694,8 +694,8 @@ export default function EditStructurePage({
               {/* File & Image Data Tab */}
               <TabPanel className="space-y-6">
                 {/* Images Section */}
-                <div className="border p-4 rounded-md">
-                  <h2 className="font-semibold mb-2">Images</h2>
+                <div className="rounded-md border p-4">
+                  <h2 className="mb-2 font-semibold">Images</h2>
                   <FileInputWithDescription
                     label="Image"
                     onAdd={handleAddImage}
@@ -714,8 +714,8 @@ export default function EditStructurePage({
                 </div>
 
                 {/* Experiment Protocol Files Section */}
-                <div className="border p-4 rounded-md">
-                  <h2 className="font-semibold mb-2">
+                <div className="rounded-md border p-4">
+                  <h2 className="mb-2 font-semibold">
                     Experiment Protocol Files
                   </h2>
                   <FileInputWithDescription
@@ -751,8 +751,8 @@ export default function EditStructurePage({
                 </div>
 
                 {/* Experiment Result Files Section */}
-                <div className="border p-4 rounded-md">
-                  <h2 className="font-semibold mb-2">
+                <div className="rounded-md border p-4">
+                  <h2 className="mb-2 font-semibold">
                     Experiment Result Files
                   </h2>
                   <FileInputWithDescription
@@ -788,8 +788,8 @@ export default function EditStructurePage({
                 </div>
 
                 {/* Simulation Protocol Files Section */}
-                <div className="border p-4 rounded-md">
-                  <h2 className="font-semibold mb-2">
+                <div className="rounded-md border p-4">
+                  <h2 className="mb-2 font-semibold">
                     Simulation Protocol Files
                   </h2>
                   <FileInputWithDescription
@@ -825,8 +825,8 @@ export default function EditStructurePage({
                 </div>
 
                 {/* Simulation Result Files Section */}
-                <div className="border p-4 rounded-md">
-                  <h2 className="font-semibold mb-2">
+                <div className="rounded-md border p-4">
+                  <h2 className="mb-2 font-semibold">
                     Simulation Result Files
                   </h2>
                   <FileInputWithDescription
@@ -862,8 +862,8 @@ export default function EditStructurePage({
                 </div>
 
                 {/* Structure Files Section */}
-                <div className="border p-4 rounded-md">
-                  <h2 className="font-semibold mb-2">
+                <div className="rounded-md border p-4">
+                  <h2 className="mb-2 font-semibold">
                     Structure and Design Files
                   </h2>
                   <FileInputWithDescription
@@ -906,13 +906,13 @@ export default function EditStructurePage({
                   <button
                     type="button"
                     onClick={() => setTabIndex(0)}
-                    className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200"
+                    className="rounded-lg bg-black px-4 py-2 text-white duration-200 hover:-translate-y-1 hover:shadow-xl"
                   >
                     Previous
                   </button>
                   <button
                     type="submit"
-                    className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 ml-2"
+                    className="ml-2 rounded-lg bg-black px-4 py-2 text-white duration-200 hover:-translate-y-1 hover:shadow-xl"
                   >
                     Submit Structure
                   </button>
@@ -930,18 +930,18 @@ export default function EditStructurePage({
           className="relative z-10"
           onClose={() => setIsModalOpen(false)}
         >
-          <div className="fixed inset-0 bg-black bg-opacity-30" />
+          <div className="bg-opacity-30 fixed inset-0 bg-black" />
           <div className="fixed inset-0 flex items-center justify-center">
-            <div className="rounded-lg max-w-md w-full p-6 bg-white">
+            <div className="w-full max-w-md rounded-lg bg-white p-6">
               <DialogTitle className="text-lg font-medium text-gray-900">
                 Submission Status
               </DialogTitle>
-              <p className="mt-2 text-sm text-gray-600 whitespace-pre-wrap">
+              <p className="mt-2 text-sm whitespace-pre-wrap text-gray-600">
                 {responseMessage}
               </p>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="mt-4 w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+                className="mt-4 w-full rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
               >
                 Close
               </button>

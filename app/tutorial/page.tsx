@@ -2,7 +2,7 @@ export default function Tutorial() {
   return (
     <div className="">
       {/* Header text */}
-      <div className="flex flex-col w-11/12 mx-auto justify-center items-center mt-20 lg:w-[65%] ">
+      <div className="mx-auto mt-20 flex w-11/12 flex-col items-center justify-center lg:w-[65%]">
         <div>
           <h1 className="text-6xl font-bold">Uploading structures</h1>
         </div>
@@ -14,9 +14,9 @@ export default function Tutorial() {
           are ready to upload a structure.
         </p>
 
-        <div className="w-full mt-8 space-y-3">
+        <div className="mt-8 w-full space-y-3">
           <h2 className="text-4xl font-semibold">Uploading process</h2>
-          <div className="space-y-2 mt-3">
+          <div className="mt-3 space-y-2">
             <p>
               Begin by clicking the &quot;Upload Structure&quot; button in the
               sidebar. This will take you to a form where you enter structure
@@ -59,7 +59,7 @@ export default function Tutorial() {
             </p>
           </div>
           <h2 className="text-4xl font-semibold">Private structures</h2>
-          <div className="space-y-2 mt-3">
+          <div className="mt-3 space-y-2">
             <p>
               If you do not want your structure to be publicly avaialable, you
               can make it private by marking the checkbox in the last step of

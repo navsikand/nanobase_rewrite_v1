@@ -118,19 +118,17 @@ export default function Home() {
   }, [fetchedData]);
 
   return (
-    <div className="w-11/12 mx-auto lg:w-[65%]">
+    <div className="mx-auto w-11/12 lg:w-[65%]">
       {/* Header text */}
-      <div className="flex flex-col justify-center items-center mt-5">
-        <div className="relative py-25 bg-[url(/images/banner-bg.webp)] bg-cover bg-repeat flex-1 flex justify-center w-screen">
+      <div className="mt-5 flex flex-col items-center justify-center">
+        <div className="relative flex w-screen flex-1 justify-center bg-[url(/images/banner-bg.webp)] bg-cover bg-repeat py-25">
           {/* White overlay */}
-          <div className="absolute inset-0 bg-white opacity-75 z-0"></div>
+          <div className="absolute inset-0 z-0 bg-white opacity-75"></div>
 
           {/* Content over the overlay */}
           <div className="relative z-10">
-            <p className="text-xl md:text-3xl md:-ml-6">
-              Welcome to
-            </p>
-            <h1 className="md:ml-6 md:text-7xl text-5xl font-bold">Nanobase</h1>
+            <p className="text-xl md:-ml-6 md:text-3xl">Welcome to</p>
+            <h1 className="text-5xl font-bold md:ml-6 md:text-7xl">Nanobase</h1>
           </div>
         </div>
 
@@ -150,7 +148,7 @@ export default function Home() {
 
             <Button
               className={
-                "rounded-lg px-5 py-2 font-semibold text-lg bg-black text-white relative hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer mt-2"
+                "relative mt-2 cursor-pointer rounded-lg bg-black px-5 py-2 text-lg font-semibold text-white duration-200 hover:-translate-y-1 hover:shadow-xl"
               }
               onClick={() => router.push("/browse")}
             >
@@ -159,16 +157,16 @@ export default function Home() {
 
             <Button
               className={
-                "rounded-lg px-5 py-2 font-semibold text-lg bg-black text-white relative hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer mt-2 ml-2"
+                "relative mt-2 ml-2 cursor-pointer rounded-lg bg-black px-5 py-2 text-lg font-semibold text-white duration-200 hover:-translate-y-1 hover:shadow-xl"
               }
               onClick={() => router.push("/about-us")}
             >
               About us
             </Button>
 
-            <p className="text-sm mt-3">
+            <p className="mt-3 text-sm">
               Have an account?{" "}
-              <Link href="/sign-in" className="underline text-blue-800">
+              <Link href="/sign-in" className="text-blue-800 underline">
                 Sign in
               </Link>
             </p>

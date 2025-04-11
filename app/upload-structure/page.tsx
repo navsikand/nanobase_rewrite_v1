@@ -70,13 +70,13 @@ function FileInputWithDescription({
           setDescription(e.target.value);
           if (e.target.value.trim()) setError("");
         }}
-        className="mt-1 block p-2 border rounded"
+        className="mt-1 block rounded border p-2"
       />
-      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
       <button
         type="button"
         onClick={handleAdd}
-        className="mt-2 rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
+        className="mt-2 cursor-pointer rounded-lg bg-black px-4 py-2 text-white duration-200 hover:-translate-y-1 hover:shadow-xl"
       >
         Add File
       </button>
@@ -114,7 +114,7 @@ function FileEntryItem({ index, entry, onDelete, onEdit }: FileEntryItemProps) {
             type="text"
             value={editedDescription}
             onChange={(e) => setEditedDescription(e.target.value)}
-            className="p-1 border rounded"
+            className="rounded border p-1"
           />
         ) : (
           <span>{entry.description}</span>
@@ -124,21 +124,21 @@ function FileEntryItem({ index, entry, onDelete, onEdit }: FileEntryItemProps) {
         {isEditing ? (
           <button
             onClick={handleSave}
-            className="px-2 py-1 bg-black cursor-pointer text-white rounded"
+            className="cursor-pointer rounded bg-black px-2 py-1 text-white"
           >
             Save
           </button>
         ) : (
           <button
             onClick={() => setIsEditing(true)}
-            className="px-2 py-1 bg-black cursor-pointer text-white rounded"
+            className="cursor-pointer rounded bg-black px-2 py-1 text-white"
           >
             Edit
           </button>
         )}
         <button
           onClick={() => onDelete(index)}
-          className="px-2 py-1 bg-black cursor-pointer text-white rounded"
+          className="cursor-pointer rounded bg-black px-2 py-1 text-white"
         >
           Delete
         </button>
@@ -394,17 +394,17 @@ export default function UploadStructure() {
   };
 
   return (
-    <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto rounded-lg p-6 bg-white">
-        <h1 className="text-2xl font-bold mb-6">Upload Structure</h1>
+    <div className="min-h-screen px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-3xl rounded-lg bg-white p-6">
+        <h1 className="mb-6 text-2xl font-bold">Upload Structure</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <TabGroup selectedIndex={tabIndex} onChange={setTabIndex}>
-            <TabList className="flex space-x-2 border-b border-gray-300 mb-4">
+            <TabList className="mb-4 flex space-x-2 border-b border-gray-300">
               <Tab
                 className={({ selected }) =>
                   selected
-                    ? "px-4 py-2 font-medium text-white bg-black rounded-t-md border border-gray-300 cursor-pointer"
-                    : "px-4 py-2 font-medium text-black bg-gray-100 rounded-t-md hover:bg-gray-200 cursor-pointer"
+                    ? "cursor-pointer rounded-t-md border border-gray-300 bg-black px-4 py-2 font-medium text-white"
+                    : "cursor-pointer rounded-t-md bg-gray-100 px-4 py-2 font-medium text-black hover:bg-gray-200"
                 }
               >
                 Metadata
@@ -412,8 +412,8 @@ export default function UploadStructure() {
               <Tab
                 className={({ selected }) =>
                   selected
-                    ? "px-4 py-2 font-medium text-white bg-black rounded-t-md border border-gray-300 cursor-pointer"
-                    : "px-4 py-2 font-medium text-black bg-gray-100 rounded-t-md hover:bg-gray-200 cursor-pointer"
+                    ? "cursor-pointer rounded-t-md border border-gray-300 bg-black px-4 py-2 font-medium text-white"
+                    : "cursor-pointer rounded-t-md bg-gray-100 px-4 py-2 font-medium text-black hover:bg-gray-200"
                 }
               >
                 Files
@@ -433,7 +433,7 @@ export default function UploadStructure() {
                     required
                   />
                   {errors.title && (
-                    <p className="text-red-500 text-sm">{errors.title}</p>
+                    <p className="text-sm text-red-500">{errors.title}</p>
                   )}
                 </div>
                 <div>
@@ -443,7 +443,7 @@ export default function UploadStructure() {
                     >
                       {selectedType}
                     </ListboxButton>
-                    <ListboxOptions className="mt-1 border rounded bg-white">
+                    <ListboxOptions className="mt-1 rounded border bg-white">
                       {typeOptions.map((option) => (
                         <ListboxOption
                           key={option}
@@ -458,7 +458,7 @@ export default function UploadStructure() {
                     </ListboxOptions>
                   </Listbox>
                   {errors.type && (
-                    <p className="text-red-500 text-sm">{errors.type}</p>
+                    <p className="text-sm text-red-500">{errors.type}</p>
                   )}
                 </div>
                 <div>
@@ -472,7 +472,7 @@ export default function UploadStructure() {
                     required
                   />
                   {errors.description && (
-                    <p className="text-red-500 text-sm">{errors.description}</p>
+                    <p className="text-sm text-red-500">{errors.description}</p>
                   )}
                 </div>
                 <div>
@@ -485,7 +485,7 @@ export default function UploadStructure() {
                     required
                   />
                   {errors.datePublished && (
-                    <p className="text-red-500 text-sm">
+                    <p className="text-sm text-red-500">
                       {errors.datePublished}
                     </p>
                   )}
@@ -500,7 +500,7 @@ export default function UploadStructure() {
                     onChange={handleChange}
                   />
                   {errors.citation && (
-                    <p className="text-red-500 text-sm">{errors.citation}</p>
+                    <p className="text-sm text-red-500">{errors.citation}</p>
                   )}
                 </div>
                 <div>
@@ -513,7 +513,7 @@ export default function UploadStructure() {
                     onChange={handleChange}
                   />
                   {errors.paperLink && (
-                    <p className="text-red-500 text-sm">{errors.paperLink}</p>
+                    <p className="text-sm text-red-500">{errors.paperLink}</p>
                   )}
                 </div>
                 <div>
@@ -527,7 +527,7 @@ export default function UploadStructure() {
                     required
                   />
                   {errors.licensing && (
-                    <p className="text-red-500 text-sm">{errors.licensing}</p>
+                    <p className="text-sm text-red-500">{errors.licensing}</p>
                   )}
                 </div>
                 <div>
@@ -561,8 +561,8 @@ export default function UploadStructure() {
                   />
                 </div>
                 {/* Scaffold Checkbox Section */}
-                <div className="border p-4 rounded-md">
-                  <p className="font-medium mb-2">
+                <div className="rounded-md border p-4">
+                  <p className="mb-2 font-medium">
                     Select which scaffold(s) (if any) are used in the structure.
                   </p>
                   <div className="flex flex-wrap gap-4">
@@ -577,7 +577,7 @@ export default function UploadStructure() {
                           value={option}
                           checked={selectedScaffolds.includes(option)}
                           onChange={() => handleScaffoldChange(option)}
-                          className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                          className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                         />
                         <span className="text-sm">{option}</span>
                       </label>
@@ -599,7 +599,7 @@ export default function UploadStructure() {
                   <input
                     type="checkbox"
                     name="private"
-                    className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                    className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                     checked={formData.private}
                     onChange={handleChange}
                   />
@@ -614,7 +614,7 @@ export default function UploadStructure() {
                   <button
                     type="button"
                     onClick={() => setTabIndex(1)}
-                    className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200"
+                    className="rounded-lg bg-black px-4 py-2 text-white duration-200 hover:-translate-y-1 hover:shadow-xl"
                   >
                     Next
                   </button>
@@ -625,14 +625,14 @@ export default function UploadStructure() {
               <TabPanel>
                 <div className="space-y-6">
                   {/* Images */}
-                  <div className="border p-4 rounded-md">
-                    <h2 className="font-semibold mb-2">Images</h2>
+                  <div className="rounded-md border p-4">
+                    <h2 className="mb-2 font-semibold">Images</h2>
                     <FileInputWithDescription
                       label="Add an Image:"
                       onAdd={addImage}
                     />
                     {errors.images && (
-                      <p className="text-red-500 text-sm">{errors.images}</p>
+                      <p className="text-sm text-red-500">{errors.images}</p>
                     )}
                     <ul className="mt-2 space-y-1">
                       {images.map((entry, index) => (
@@ -650,8 +650,8 @@ export default function UploadStructure() {
                   </div>
 
                   {/* Structure Files */}
-                  <div className="border p-4 rounded-md">
-                    <h2 className="font-semibold mb-2">
+                  <div className="rounded-md border p-4">
+                    <h2 className="mb-2 font-semibold">
                       Structure and Design Files
                     </h2>
                     <FileInputWithDescription
@@ -659,7 +659,7 @@ export default function UploadStructure() {
                       onAdd={addStructureFile}
                     />
                     {errors.structureFiles && (
-                      <p className="text-red-500 text-sm">
+                      <p className="text-sm text-red-500">
                         {errors.structureFiles}
                       </p>
                     )}
@@ -679,8 +679,8 @@ export default function UploadStructure() {
                   </div>
 
                   {/* Simulation Protocol Files */}
-                  <div className="border p-4 rounded-md">
-                    <h2 className="font-semibold mb-2">
+                  <div className="rounded-md border p-4">
+                    <h2 className="mb-2 font-semibold">
                       Simulation Protocol Files
                     </h2>
                     <FileInputWithDescription
@@ -705,8 +705,8 @@ export default function UploadStructure() {
                   </div>
 
                   {/* Simulation Result Files */}
-                  <div className="border p-4 rounded-md">
-                    <h2 className="font-semibold mb-2">
+                  <div className="rounded-md border p-4">
+                    <h2 className="mb-2 font-semibold">
                       Simulation Result Files
                     </h2>
                     <FileInputWithDescription
@@ -731,8 +731,8 @@ export default function UploadStructure() {
                   </div>
 
                   {/* Experiment Protocol Files */}
-                  <div className="border p-4 rounded-md">
-                    <h2 className="font-semibold mb-2">
+                  <div className="rounded-md border p-4">
+                    <h2 className="mb-2 font-semibold">
                       Experiment Protocol Files
                     </h2>
                     <FileInputWithDescription
@@ -757,8 +757,8 @@ export default function UploadStructure() {
                   </div>
 
                   {/* Experiment Result Files */}
-                  <div className="border p-4 rounded-md">
-                    <h2 className="font-semibold mb-2">
+                  <div className="rounded-md border p-4">
+                    <h2 className="mb-2 font-semibold">
                       Experiment Result Files
                     </h2>
                     <FileInputWithDescription
@@ -783,10 +783,10 @@ export default function UploadStructure() {
                   </div>
                 </div>
 
-                <div className="flex justify-end mt-4">
+                <div className="mt-4 flex justify-end">
                   <button
                     type="submit"
-                    className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
+                    className="cursor-pointer rounded-lg bg-black px-4 py-2 text-white duration-200 hover:-translate-y-1 hover:shadow-xl"
                     disabled={isLoading}
                   >
                     {isLoading ? "Uploading..." : "Upload Structure"}
@@ -805,16 +805,16 @@ export default function UploadStructure() {
           className="relative z-10"
           onClose={() => setIsModalOpen(false)}
         >
-          <div className="fixed inset-0 bg-black bg-opacity-30" />
+          <div className="bg-opacity-30 fixed inset-0 bg-black" />
           <div className="fixed inset-0 flex items-center justify-center">
-            <div className="rounded-lg max-w-md w-full p-6 bg-white">
+            <div className="w-full max-w-md rounded-lg bg-white p-6">
               <DialogTitle className="text-lg font-medium text-gray-900">
                 Upload Status
               </DialogTitle>
               <p className="mt-2 text-sm text-gray-600">{responseMessage}</p>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="mt-4 w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+                className="mt-4 w-full rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
               >
                 Close
               </button>

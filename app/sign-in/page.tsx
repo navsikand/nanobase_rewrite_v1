@@ -48,11 +48,11 @@ export default function SignIn() {
   };
 
   return (
-    <div className="min-h-screen flex justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-lg p-8">
-        <h1 className="text-3xl font-bold mb-6 text-center">Sign In</h1>
+    <div className="flex min-h-screen justify-center p-4">
+      <div className="w-full max-w-md rounded-lg bg-white p-8">
+        <h1 className="mb-6 text-center text-3xl font-bold">Sign In</h1>
         {errorMessage && (
-          <div className="mb-4 p-3 text-red-700 bg-red-100 rounded">
+          <div className="mb-4 rounded bg-red-100 p-3 text-red-700">
             {errorMessage}
           </div>
         )}
@@ -65,7 +65,7 @@ export default function SignIn() {
               Email
             </label>
             <input
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:ring-blue-500"
               placeholder="example@example.com"
               id="email"
               name="email"
@@ -80,7 +80,7 @@ export default function SignIn() {
           <div>
             <label
               htmlFor="password"
-              className="text-sm font-medium text-gray-700 flex justify-between"
+              className="flex justify-between text-sm font-medium text-gray-700"
             >
               <span>Password</span>{" "}
               <span>
@@ -90,7 +90,7 @@ export default function SignIn() {
               </span>
             </label>
             <input
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:ring-blue-500"
               placeholder="********"
               id="password"
               name="password"
@@ -111,7 +111,7 @@ export default function SignIn() {
             </p>
             <Button
               type="submit"
-              className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
+              className="cursor-pointer rounded-lg bg-black px-4 py-2 text-white duration-200 hover:-translate-y-1 hover:shadow-xl"
               disabled={loading}
             >
               {loading ? "Signing in..." : "Sign In"}

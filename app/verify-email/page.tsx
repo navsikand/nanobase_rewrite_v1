@@ -49,12 +49,12 @@ function VerifyEmailContent() {
   }, [token]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center p-4">
       {loading ? (
         <p>{message}</p>
       ) : (
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">
+          <h1 className="mb-4 text-2xl font-bold">
             {message.includes("successfully") ? "Success!" : "Oops!"}
           </h1>
           <p>{message}</p>

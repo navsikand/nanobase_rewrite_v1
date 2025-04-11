@@ -12,11 +12,11 @@ const LINKS: { title: string; slug: string }[] = [
 
 export const SidebarNav = () => {
   return (
-    <div className="md:flex flex-col space-y-2 p-4 hidden">
+    <div className="hidden flex-col space-y-2 p-4 md:flex">
       {/* Logo */}
       <div className="flex">
         <div className="flex">
-          <Link href="/" className="aspect-square size-10 relative">
+          <Link href="/" className="relative aspect-square size-10">
             <span className="sr-only">Nanobase</span>
 
             <Image
@@ -28,7 +28,7 @@ export const SidebarNav = () => {
           </Link>
         </div>
 
-        <h1 className=" ml-2 flex items-center">Nanobase</h1>
+        <h1 className="ml-2 flex items-center">Nanobase</h1>
       </div>
       {LINKS.map((link) => (
         <Link href={link.slug} key={link.slug}>

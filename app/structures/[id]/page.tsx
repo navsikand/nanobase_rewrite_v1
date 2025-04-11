@@ -41,7 +41,7 @@ function FileDisclosure({ title, files, getHref }: FileDisclosureProps) {
     <div className="divide-y divide-gray-200 border-t">
       <Disclosure as="div">
         <h3>
-          <DisclosureButton className="group relative flex w-full items-center justify-between pt-6 text-left cursor-pointer">
+          <DisclosureButton className="group relative flex w-full cursor-pointer items-center justify-between pt-6 text-left">
             <span className="text-sm font-medium text-gray-900 group-data-[open]:text-indigo-600">
               {title}
             </span>
@@ -270,7 +270,7 @@ export default function StructurePage({
                       className="group relative flex h-24 bg-white/30"
                     >
                       <span className="sr-only">{image.fileName}</span>
-                      <span className="absolute inset-0 overflow-hidden rounded-md cursor-pointer border-2 border-gray-100">
+                      <span className="absolute inset-0 cursor-pointer overflow-hidden rounded-md border-2 border-gray-100">
                         <Image
                           alt="structure_image"
                           fill={true}
@@ -291,10 +291,10 @@ export default function StructurePage({
                 imageFiles.map((image) => (
                   <TabPanel
                     as="div"
-                    className={"w-full flex bg-white/30 rounded-xl"}
+                    className={"flex w-full rounded-xl bg-white/30"}
                     key={image.fileName}
                   >
-                    <div className="relative h-full w-full min-h-60 aspect-square mx-auto flex-1">
+                    <div className="relative mx-auto aspect-square h-full min-h-60 w-full flex-1">
                       <Image
                         alt={image.fileName}
                         src={`${apiRoot}/structure/images/${structureData?.flatStructureId}/${image.fileName}`}
@@ -338,7 +338,7 @@ export default function StructurePage({
                 src="https://sulcgroup.github.io/oxdna-viewer/"
                 ref={oxviewIframeRef}
                 onLoad={sendToIframe}
-                className="w-full mx-auto aspect-[16/9] border-2 border-gray-100 mb-8"
+                className="mx-auto mb-8 aspect-[16/9] w-full border-2 border-gray-100"
               />
 
               {/* Images Section */}
@@ -399,7 +399,7 @@ export default function StructurePage({
               <div className="divide-y divide-gray-200 border-t">
                 <Disclosure as="div">
                   <h3>
-                    <DisclosureButton className="group relative flex w-full items-center justify-between pt-6 text-left cursor-pointer">
+                    <DisclosureButton className="group relative flex w-full cursor-pointer items-center justify-between pt-6 text-left">
                       <span className="text-sm font-medium text-gray-900 group-data-[open]:text-indigo-600">
                         Keywords
                       </span>
@@ -429,7 +429,7 @@ export default function StructurePage({
               <div className="divide-y divide-gray-200 border-t">
                 <Disclosure as="div">
                   <h3>
-                    <DisclosureButton className="group relative flex w-full items-center justify-between pt-6 text-left cursor-pointer">
+                    <DisclosureButton className="group relative flex w-full cursor-pointer items-center justify-between pt-6 text-left">
                       <span className="text-sm font-medium text-gray-900 group-data-[open]:text-indigo-600">
                         Applications
                       </span>
@@ -459,7 +459,7 @@ export default function StructurePage({
               <div className="divide-y divide-gray-200 border-t">
                 <Disclosure as="div">
                   <h3>
-                    <DisclosureButton className="group relative flex w-full items-center justify-between pt-6 text-left cursor-pointer">
+                    <DisclosureButton className="group relative flex w-full cursor-pointer items-center justify-between pt-6 text-left">
                       <span className="text-sm font-medium text-gray-900 group-data-[open]:text-indigo-600">
                         Authors
                       </span>
@@ -489,7 +489,7 @@ export default function StructurePage({
               <div className="divide-y divide-gray-200 border-t">
                 <Disclosure as="div">
                   <h3>
-                    <DisclosureButton className="group relative flex w-full items-center justify-between pt-6 text-left cursor-pointer">
+                    <DisclosureButton className="group relative flex w-full cursor-pointer items-center justify-between pt-6 text-left">
                       <span className="text-sm font-medium text-gray-900 group-data-[open]:text-indigo-600">
                         Stats
                       </span>
@@ -527,7 +527,7 @@ export default function StructurePage({
                             "NaN"}
                         </p>
                         {structureData.structure.statsData?.graph && (
-                          <div className="relative h-full w-full min-h-60 aspect-square mx-auto flex-1">
+                          <div className="relative mx-auto aspect-square h-full min-h-60 w-full flex-1">
                             <p>Staple length distrubution:</p>
                             <Image
                               alt="Image"

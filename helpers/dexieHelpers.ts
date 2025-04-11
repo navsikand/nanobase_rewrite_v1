@@ -88,10 +88,6 @@ export const dexie_syncDexieWithServer = async (
   }
 };
 
-export const dexie_getAllStructureCardData = async () => {
-  return await DexieDB.structures.toArray();
-};
-
 export const enum SEARCH_BY {
   TITLE = "Title",
   AUTHOR = "Author",
@@ -218,36 +214,6 @@ export const dexie_syncPageWithServer = async (
   } catch (error) {
     console.error("Error occurred while syncing with server:", error);
   }
-};
-
-//export const dexie_syncPageWithServer = async (
-//  server_data: StructurePageData
-//) => {
-//  const dexieCounterPart = await DexieDB.structurePageData.get(
-//    server_data.flatStructureIdPage
-//  );
-//
-//  if (dexieCounterPart) {
-//    if (
-//      //dexieCounterPart.structureData.structure.lastUpdated !==
-//      //  server_data.structureData.structure.lastUpdated ||
-//      !deepEqual(dexieCounterPart, server_data)
-//    ) {
-//      await DexieDB.structurePageData.delete(server_data.flatStructureIdPage);
-//      await DexieDB.structurePageData.add(server_data);
-//    }
-//  } else {
-//    await DexieDB.structurePageData.add(server_data);
-//  }
-//};
-
-export const dexie_getLatestStructure = async () => {
-  const allStructures = await DexieDB.structures
-    .orderBy("structure.uploadDate")
-    .reverse()
-    .limit(1)
-    .toArray();
-  return allStructures[0];
 };
 
 export const dexie_getStructureCount = async () => {

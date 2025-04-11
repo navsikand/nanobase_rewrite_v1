@@ -70,10 +70,10 @@ export const TopNavbar = () => {
   ];
   return (
     <>
-      <div className="p-4 px-8 grid grid-cols-2 items-center md:grid-cols-3">
+      <div className="grid grid-cols-2 items-center p-4 px-8 md:grid-cols-3">
         {/* Logo */}
         <div className="flex justify-start">
-          <Link href="/" className="aspect-square size-12 relative">
+          <Link href="/" className="relative aspect-square size-12">
             <span className="sr-only">Nanobase</span>
             <Image
               src="/images/nanobase_logo.svg"
@@ -86,7 +86,7 @@ export const TopNavbar = () => {
         </div>
 
         {/* Centered Links (hidden on mobile) */}
-        <div className="hidden md:flex justify-center space-x-3 text-lg font-semibold whitespace-nowrap">
+        <div className="hidden justify-center space-x-3 text-lg font-semibold whitespace-nowrap md:flex">
           {LINKS.map((link) => (
             <Link href={link.slug} key={link.slug} className="group">
               {link.title}
@@ -96,7 +96,7 @@ export const TopNavbar = () => {
         </div>
 
         {/* User Info or Sign In with Mobile Hamburger */}
-        <div className="flex justify-end items-center">
+        <div className="flex items-center justify-end">
           {/* Mobile hamburger button */}
           <div className="md:hidden">
             <button
@@ -126,7 +126,7 @@ export const TopNavbar = () => {
             // Original sign in button hidden on mobile
             <div className="hidden md:block">
               <Button
-                className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
+                className="cursor-pointer rounded-lg bg-black px-4 py-2 text-white duration-200 hover:-translate-y-1 hover:shadow-xl"
                 onClick={() => router.push("/sign-in")}
               >
                 Sign in
@@ -138,7 +138,7 @@ export const TopNavbar = () => {
 
       {/* Mobile Menu Dropdown */}
       {isMobileMenuOpen && (
-        <div className="md:hidden px-8 pb-4">
+        <div className="px-8 pb-4 md:hidden">
           <div className="flex flex-col space-y-2 text-lg font-semibold">
             {LINKS.map((link) => (
               <Link
@@ -154,7 +154,7 @@ export const TopNavbar = () => {
             {/* Add Sign In button if user is not authenticated */}
             {!userAuthState && (
               <Button
-                className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
+                className="cursor-pointer rounded-lg bg-black px-4 py-2 text-white duration-200 hover:-translate-y-1 hover:shadow-xl"
                 onClick={() => {
                   setIsMobileMenuOpen(false);
                   router.push("/sign-in");

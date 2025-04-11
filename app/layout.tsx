@@ -19,13 +19,13 @@ export default function RootLayout({
       {/* <body className="min-h-screen flex bg-gradient-to-r from-purple-500/15 to-blue-500/15"> */}
       <body
         //className={`${inter.className} min-h-screen flex bg-gradient-to-r from-indigo-200/50 via-purple-200/50 to-pink-200/50`}
-        className={`${inter.className} min-h-screen mb-20 flex bg-sky-50/10`}
+        className={`${inter.className} mb-20 flex min-h-screen bg-sky-50/10`}
       >
         {/* <SidebarNav /> */}
         <div className="flex w-full flex-1 flex-col">
           <TopNavbar />
 
-          <div className="flex flex-col flex-1">
+          <div className="flex flex-1 flex-col">
             <span className="flex-1">{children}</span>
 
             {/* <Footer /> */}

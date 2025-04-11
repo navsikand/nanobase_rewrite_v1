@@ -2,15 +2,15 @@ export default function AboutUs() {
   return (
     <div className="">
       {/* Header text */}
-      <div className="flex flex-col w-11/12 mx-auto justify-center items-center mt-20 lg:w-[65%] ">
+      <div className="mx-auto mt-20 flex w-11/12 flex-col items-center justify-center lg:w-[65%]">
         <div>
-          <p className="text-2xl font-light -ml-6">Welcome to</p>
+          <p className="-ml-6 text-2xl font-light">Welcome to</p>
           <h1 className="ml-6 text-6xl font-bold">Nanobase</h1>
         </div>
 
-        <div className="w-full mt-8 space-y-3">
+        <div className="mt-8 w-full space-y-3">
           <h2 className="text-4xl font-semibold">Who we are</h2>
-          <div className="space-y-2 mt-3">
+          <div className="mt-3 space-y-2">
             <p>
               Nanobase is developed and maintained by Navraj Sikand and Subhajit
               Roy of Petr Šulc and Hao Yan&apos;s labs at Arizona State
@@ -27,7 +27,7 @@ export default function AboutUs() {
             </p>
           </div>
           <h2 className="text-4xl font-semibold">Disclaimer and Copyright</h2>
-          <div className="space-y-2 mt-3">
+          <div className="mt-3 space-y-2">
             <p>
               The nanobase.org web application is provided by the copyright
               holders and contributors &quot;as is&quot; and any express or

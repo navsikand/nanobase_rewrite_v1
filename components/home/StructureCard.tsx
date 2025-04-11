@@ -67,14 +67,14 @@ export const StructureCard = ({
   return (
     <>
       <Link href={"/structures/" + id}>
-        <div className="px-5 rounded-lg bg-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer border-2 border-gray-100">
-          <div className="w-11/12 mx-auto">
-            <p className="text-xs font-extralight text-right pt-3 pb-1 w-full flex justify-between items-center">
+        <div className="cursor-pointer rounded-lg border-2 border-gray-100 bg-white px-5 duration-200 hover:-translate-y-1 hover:shadow-xl">
+          <div className="mx-auto w-11/12">
+            <p className="flex w-full items-center justify-between pt-3 pb-1 text-right text-xs font-extralight">
               {edit_menu && (
                 <div className="flex gap-2">
                   <Link
                     href={"/edit-structure/" + id}
-                    className="rounded-lg px-4 py-2 bg-black text-white font-semibold text-sm hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
+                    className="cursor-pointer rounded-lg bg-black px-4 py-2 text-sm font-semibold text-white duration-200 hover:-translate-y-1 hover:shadow-xl"
                   >
                     Edit
                   </Link>
@@ -84,7 +84,7 @@ export const StructureCard = ({
                       e.preventDefault();
                       setIsModalOpen(true);
                     }}
-                    className="rounded-lg px-4 py-2 bg-red-200 text-red-800 font-semibold text-sm hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
+                    className="cursor-pointer rounded-lg bg-red-200 px-4 py-2 text-sm font-semibold text-red-800 duration-200 hover:-translate-y-1 hover:shadow-xl"
                   >
                     Delete
                   </button>
@@ -104,7 +104,7 @@ export const StructureCard = ({
             </p>
 
             {/* Image */}
-            <div className="flex aspect-[9/16] w-full rounded-lg relative max-h-72 rounded-b-none border-b-gray-500 border-b-[1px]">
+            <div className="relative flex aspect-[9/16] max-h-72 w-full rounded-lg rounded-b-none border-b-[1px] border-b-gray-500">
               <span className="sr-only">{title}</span>
               <Image
                 src={imageSrc}
@@ -115,7 +115,7 @@ export const StructureCard = ({
             </div>
 
             {/* Card header */}
-            <div className="flex justify-between text-sm font-extralight mt-2">
+            <div className="mt-2 flex justify-between text-sm font-extralight">
               <h2 className="line-clamp-1">{title}</h2>
             </div>
 
@@ -143,7 +143,7 @@ export const StructureCard = ({
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-black bg-opacity-25" />
+            <div className="bg-opacity-25 fixed inset-0 bg-black" />
           </TransitionChild>
 
           <div className="fixed inset-0 overflow-y-auto">
@@ -160,7 +160,7 @@ export const StructureCard = ({
                 <DialogPanel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                   <DialogTitle
                     as="h3"
-                    className="text-lg font-medium leading-6 text-gray-900"
+                    className="text-lg leading-6 font-medium text-gray-900"
                   >
                     Confirm Deletion
                   </DialogTitle>
@@ -180,7 +180,7 @@ export const StructureCard = ({
                     </button>
                     <button
                       type="button"
-                      className="inline-flex justify-center rounded-md bg-red-200 border border-transparent px-4 py-2 text-sm font-medium text-red-800 hover:bg-red-300"
+                      className="inline-flex justify-center rounded-md border border-transparent bg-red-200 px-4 py-2 text-sm font-medium text-red-800 hover:bg-red-300"
                       onClick={() => {
                         handleDelete(id);
                         setIsModalOpen(false);

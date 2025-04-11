@@ -50,13 +50,13 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex justify-center p-4">
-      <div className="max-w-xl w-full bg-white rounded-lg p-8">
+    <div className="flex min-h-screen justify-center p-4">
+      <div className="w-full max-w-xl rounded-lg bg-white p-8">
         {!submitted ? (
           <>
-            <h1 className="text-3xl font-bold mb-6 text-center">Sign Up</h1>
+            <h1 className="mb-6 text-center text-3xl font-bold">Sign Up</h1>
             {errorMessage && (
-              <div className="mb-4 p-3 text-red-700 bg-red-100 rounded">
+              <div className="mb-4 rounded bg-red-100 p-3 text-red-700">
                 {errorMessage}
               </div>
             )}
@@ -78,7 +78,7 @@ export default function Signup() {
                     required
                     autoComplete="given-name"
                     placeholder="John"
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
                 <div>
@@ -97,7 +97,7 @@ export default function Signup() {
                     required
                     autoComplete="family-name"
                     placeholder="Doe"
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -118,7 +118,7 @@ export default function Signup() {
                     required
                     autoComplete="email"
                     placeholder="example@example.com"
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
                 <div>
@@ -137,7 +137,7 @@ export default function Signup() {
                     required
                     autoComplete="organization"
                     placeholder="Your Institution"
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -157,7 +157,7 @@ export default function Signup() {
                   required
                   autoComplete="new-password"
                   placeholder="********"
-                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  className="mt-1 block w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
               <div className="flex items-center justify-between">
@@ -172,7 +172,7 @@ export default function Signup() {
                 </p>
                 <Button
                   type="submit"
-                  className="rounded-lg px-4 py-2 bg-black text-white hover:-translate-y-1 hover:shadow-xl duration-200 cursor-pointer"
+                  className="cursor-pointer rounded-lg bg-black px-4 py-2 text-white duration-200 hover:-translate-y-1 hover:shadow-xl"
                   disabled={loading}
                 >
                   {loading ? "Signing up..." : "Sign Up"}
@@ -191,7 +191,7 @@ export default function Signup() {
             leaveTo="opacity-0"
           >
             <div className="text-center">
-              <h2 className="text-2xl font-bold mb-4">
+              <h2 className="mb-4 text-2xl font-bold">
                 Registration Successful
               </h2>
               <p className="mb-6">
