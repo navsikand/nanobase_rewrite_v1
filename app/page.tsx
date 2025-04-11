@@ -118,13 +118,22 @@ export default function Home() {
   }, [fetchedData]);
 
   return (
-    <div className="w-11/12 mx-auto lg:w-[65%] ">
+    <div className="w-11/12 mx-auto lg:w-[65%]">
       {/* Header text */}
       <div className="flex flex-col justify-center items-center mt-20">
-        <div>
-          <p className="text-xl  md:text-3xl font-light md:-ml-6">Welcome to</p>
-          <h1 className="md:ml-6 md:text-7xl text-5xl font-bold">Nanobase</h1>
+        <div className="relative py-25 bg-[url(/images/banner-bg.webp)] bg-cover bg-repeat flex-1 flex justify-center w-screen">
+          {/* White overlay */}
+          <div className="absolute inset-0 bg-white opacity-75 z-0"></div>
+
+          {/* Content over the overlay */}
+          <div className="relative z-10">
+            <p className="text-xl md:text-3xl md:-ml-6">
+              Welcome to
+            </p>
+            <h1 className="md:ml-6 md:text-7xl text-5xl font-bold">Nanobase</h1>
+          </div>
         </div>
+
         <div className="mt-12 grid gap-2 md:grid-cols-2">
           <div>
             <h2 className="text-2xl">What is Nanobase?</h2>
@@ -164,6 +173,7 @@ export default function Home() {
               </Link>
             </p>
           </div>
+
           <div>
             <h2 className="text-2xl">Latest structure</h2>
             {latestStructureWithImage && (
