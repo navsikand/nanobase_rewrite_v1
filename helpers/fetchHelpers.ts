@@ -1,4 +1,3 @@
-import { StructurePageData } from "@/db";
 import { STRUCTURE_CARD_DATA } from "@/types";
 import JSZip from "jszip";
 
@@ -38,27 +37,6 @@ export const getStructureImageFetcher = async (
   const { url }: { url: string } = await response.json();
   const r = url === "" ? "" : `${apiRoot}/structure/images/${url}`;
   return { url: r };
-};
-
-export const getAllStructureFilesFetcher = async (
-  key: string,
-  structureId: number
-) => {
-  const response = await fetch(`${apiRoot}/structure/${key}?id=${structureId}`);
-
-  if (!response.ok) throw new Error("Failed to fetch structure files");
-
-  const fileDataBlob = await response.blob();
-  const zip = await JSZip.loadAsync(fileDataBlob);
-
-  const files = await Promise.all(
-    Object.keys(zip.files).map(async (fileName) => {
-      const fileBlob = await zip.files[fileName].async("blob");
-      return { name: fileName, data: fileBlob };
-    })
-  );
-
-  return files;
 };
 
 export const getStructureOxdnaFilesFetcher = async (
@@ -129,15 +107,6 @@ export const getStructureByIdFetcher = async (
 
   const fetchedStructure: STRUCTURE_CARD_DATA = await response.json();
   return fetchedStructure;
-};
-
-export const getAllImageNamesFetcher = (structureId: number) => async () => {
-  const response = await fetch(
-    `${apiRoot}/structure/getAllStructureImagesPaths?id=${structureId}`
-  );
-  // if (!response.ok) throw new Error("Failed to fetch image paths");
-  if (response.ok) return (await response.json()) as string[];
-  else return [];
 };
 
 export const getUserProfileFetcher = async (key: string) => {
@@ -224,19 +193,6 @@ export const fetchAllImageNames = async (structureId: number) => {
     data === "" ? "" : `${apiRoot}/structure/images/${data}`
   );
   return r;
-};
-
-// Fetch helper for individual image by name
-export const fetchImageByName = async (
-  imageName: string,
-  structureId: number
-) => {
-  const url = `${apiRoot}/structure/images/${structureId}/${imageName}`;
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch image ${imageName}`);
-  }
-  return response; // Return the direct URL to the image
 };
 
 // Fetch all structure images as URLs

@@ -215,7 +215,3 @@ export const dexie_syncPageWithServer = async (
     console.error("Error occurred while syncing with server:", error);
   }
 };
-
-export const dexie_getStructureCount = async () => {
-  return await DexieDB.structures.count();
-};
