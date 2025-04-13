@@ -1,5 +1,5 @@
 import { DexieDB, StructurePageData } from "@/db";
-import { STRUCTURE_CARD_DATA } from "@/types";
+import { STRUCTURE_CARD_DATA } from "@/db";
 import { Dispatch, SetStateAction } from "react";
 import Fuse from "fuse.js";
 
@@ -110,7 +110,7 @@ export const dexie_getAllStructureCardDataPaginated = async (
 
   // Fuzzy Search Configurations
   const fuseOptions = {
-    threshold: 0.4, // Adjust based on fuzziness needs
+    threshold: 0.2, // Adjust based on fuzziness needs
     includeScore: false, // We only need matched results
   };
 
@@ -126,6 +126,10 @@ export const dexie_getAllStructureCardDataPaginated = async (
   const fuseAuthors = new Fuse(rawData, {
     ...fuseOptions,
     keys: ["structure.authors"],
+  });
+  const fuseApplications = new Fuse(rawData, {
+    ...fuseOptions,
+    keys: ["structure.applications"],
   });
   const fuseKeywords = new Fuse(rawData, {
     ...fuseOptions,
@@ -143,7 +147,8 @@ export const dexie_getAllStructureCardDataPaginated = async (
 
       switch (searchType) {
         case SEARCH_BY.APPLICATION:
-          return false;
+          const results = fuseApplications.search(searchQueryLower);
+          return results.some((result) => result.item === dataToCheck);
 
         case SEARCH_BY.AUTHOR: {
           // Search authors using Fuse.js

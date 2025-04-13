@@ -1,5 +1,49 @@
 import Dexie, { EntityTable } from "dexie";
-import { STRUCTURE_CARD_DATA } from "./types";
+
+export interface STRUCTURE_CARD_DATA {
+  flatStructureId: number; // For dexie
+  structure: {
+    id: number;
+    title: string;
+    description: string;
+    modifications: string[];
+    applications: string[];
+    authors: string[];
+    keywords: string[];
+    citation: string;
+    datePublished: string;
+    type: string;
+    licensing: string;
+    uploadDate: string;
+    paperLink: string;
+    lastUpdated: string;
+    private: boolean;
+
+    // File arrays
+    expResFilesArr: string[];
+    imagesArr: string[];
+    simProtFilesArr: string[];
+    simResFilesArr: string[];
+    structureFilesArr: string[];
+    expProtFilesArr: string[];
+    // Description arrays
+    expProtDescriptionsArr: string[];
+    expResDescriptionsArr: string[];
+    imageDescriptionsArr: string[];
+    simProtDescriptionsArr: string[];
+    simResDescriptionsArr: string[];
+    structureFileDescriptionsArr: string[];
+
+    statsData?: {
+      graph: string;
+      total_a: number;
+      total_n: number;
+      n_staples: number;
+      n_peptides: number;
+    };
+  };
+  User: { firstName: string; lastName: string };
+}
 
 export interface StructurePageData {
   flatStructureIdPage: number;

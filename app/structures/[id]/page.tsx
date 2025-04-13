@@ -9,7 +9,7 @@ import {
   getStructureByIdFetcher,
   getStructureOxdnaFilesFetcher,
 } from "@/helpers/fetchHelpers";
-import { STRUCTURE_CARD_DATA } from "@/types";
+import { STRUCTURE_CARD_DATA } from "@/db";
 import {
   Disclosure,
   DisclosureButton,

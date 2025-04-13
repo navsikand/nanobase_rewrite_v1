@@ -1,6 +1,6 @@
 "use client";
 
-import { StructureCard } from "@/components/home/StructureCard";
+import { StructureCard } from "@/components/StructureCard";
 import { DexieDB } from "@/db";
 import { dexie_syncDexieWithServer } from "@/helpers/dexieHelpers";
 import {
@@ -8,45 +8,28 @@ import {
   getAllPublicStructuresFetcherPaginated,
   getStructureImageFetcher,
 } from "@/helpers/fetchHelpers";
-import { STRUCTURE_CARD_DATA } from "@/types";
 import { Button } from "@headlessui/react";
 import { useLiveQuery } from "dexie-react-hooks";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import useSWR from "swr";
 
 export default function Home() {
   const router = useRouter();
 
+  // Gets latest structure by upload date
   const latestDexieStructure = useLiveQuery(() =>
     DexieDB.structures
       .orderBy("structure.uploadDate")
       .reverse()
       .limit(1)
       .toArray()
+      .then((s) => s[0])
   );
 
+  // Gets latest structure by upload date. Needs to be live query as on first load the value is always zero
   const statsCount = useLiveQuery(() => DexieDB.structures.count());
-
-  const [latestStructureWithImage, setLatestStructureWithImage] = useState<
-    (STRUCTURE_CARD_DATA & { image: string }) | null
-  >(null);
-
-  useEffect(() => {
-    (async () => {
-      if (latestDexieStructure && latestDexieStructure[0]) {
-        const latest = latestDexieStructure[0];
-
-        const imageUrl =
-          latest.image === "" ? "/images/no-structure-img.webp" : latest.image;
-        setLatestStructureWithImage({
-          ...latest,
-          image: imageUrl,
-        });
-      }
-    })();
-  }, [latestDexieStructure]);
 
   const { data: firstPageFetchedStructures } = useSWR(
     "getAllPublicStructures_paginated",
@@ -174,12 +157,12 @@ export default function Home() {
 
           <div>
             <h2 className="text-2xl">Latest structure</h2>
-            {latestStructureWithImage && (
+            {latestDexieStructure && (
               <StructureCard
-                User={latestStructureWithImage.User}
-                flatStructureId={latestStructureWithImage.flatStructureId}
-                image={latestStructureWithImage.image}
-                structure={latestStructureWithImage.structure}
+                User={latestDexieStructure.User}
+                flatStructureId={latestDexieStructure.flatStructureId}
+                image={latestDexieStructure.image}
+                structure={latestDexieStructure.structure}
               />
             )}
           </div>

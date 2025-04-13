@@ -1,6 +1,6 @@
 "use client";
 
-import { StructureCard } from "@/components/home/StructureCard";
+import { StructureCard } from "@/components/StructureCard";
 import {
   dexie_getAllStructureCardDataPaginated,
   dexie_syncDexieWithServer,
@@ -11,7 +11,7 @@ import {
   getAllPublicStructuresFetcherPaginated,
   getStructureImageFetcher,
 } from "@/helpers/fetchHelpers";
-import { STRUCTURE_CARD_DATA } from "@/types";
+import { STRUCTURE_CARD_DATA } from "@/db";
 import { Button, Input, Select } from "@headlessui/react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect, useState } from "react";

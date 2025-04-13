@@ -6,10 +6,10 @@ import {
   Transition,
   TransitionChild,
 } from "@headlessui/react";
-import { STRUCTURE_CARD_DATA } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
 import { apiRoot } from "@/helpers/fetchHelpers";
+import { STRUCTURE_CARD_DATA } from "@/db";
 
 export const StructureCard = ({
   structure: { description, id, title, uploadDate },

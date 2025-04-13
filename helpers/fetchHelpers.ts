@@ -1,4 +1,4 @@
-import { STRUCTURE_CARD_DATA } from "@/types";
+import { STRUCTURE_CARD_DATA } from "@/db";
 import JSZip from "jszip";
 
 export const apiRoot =

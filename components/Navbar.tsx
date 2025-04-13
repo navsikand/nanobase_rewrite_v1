@@ -6,9 +6,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Highlighted_Underline } from "./utils/layout/highlightedUnderline";
+import { Highlighted_Underline } from "./highlightedUnderline";
 
-export const TopNavbar = () => {
+export const Navbar = () => {
   const router = useRouter();
   const pathName = usePathname();
 
@@ -17,6 +17,8 @@ export const TopNavbar = () => {
     id: string;
   } | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const protected_routes = ["/upload-structure", "profile", "profile/reset"];
 
   useEffect(() => {
     router.prefetch("/browse");
@@ -35,11 +37,7 @@ export const TopNavbar = () => {
 
           setUserAuthState({ name, id });
         } else {
-          if (
-            pathName === "/upload-structure" ||
-            pathName === "/profile" ||
-            pathName === "/profile/reset"
-          ) {
+          if (protected_routes.includes(pathName)) {
             router.push("/sign-in");
           }
         }
@@ -47,11 +45,7 @@ export const TopNavbar = () => {
         console.log(e);
       }
     } else {
-      if (
-        pathName === "/upload-structure" ||
-        pathName === "/profile" ||
-        pathName === "/profile/reset"
-      ) {
+      if (protected_routes.includes(pathName)) {
         router.push("/sign-in");
       }
     }

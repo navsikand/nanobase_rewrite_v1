@@ -1,12 +1,12 @@
 "use client";
 
-import { StructureCard } from "@/components/home/StructureCard";
+import { StructureCard } from "@/components/StructureCard";
 import {
   getAllUserStructuresFetcher,
   getStructureImageFetcher,
   getUserProfileFetcher,
 } from "@/helpers/fetchHelpers";
-import { STRUCTURE_CARD_DATA } from "@/types";
+import { STRUCTURE_CARD_DATA } from "@/db";
 import { Button } from "@headlessui/react";
 import Link from "next/link";
 import useSWR from "swr";
