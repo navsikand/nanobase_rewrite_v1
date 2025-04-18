@@ -106,12 +106,12 @@ export default function Home() {
       <div className="mt-5 flex flex-col items-center justify-center">
         <div className="relative flex w-screen flex-1 justify-center bg-[url(/images/banner-bg.webp)] bg-cover bg-repeat py-25">
           {/* White overlay */}
-          <div className="absolute inset-0 z-0 bg-white opacity-75"></div>
+          <div className="absolute inset-0 z-0 bg-indigo-50 opacity-75"></div>
 
           {/* Content over the overlay */}
           <div className="relative z-10">
             <p className="text-xl md:-ml-6 md:text-3xl">Welcome to</p>
-            <h1 className="text-5xl font-bold md:ml-6 md:text-7xl">Nanobase</h1>
+            <h1 className="text-5xl font-bold md:ml-6 md:text-7xl">Nanobase.org</h1>
           </div>
         </div>
 
@@ -119,8 +119,14 @@ export default function Home() {
           <div>
             <h2 className="text-2xl">What is Nanobase?</h2>
             <p>
-              Nanobase is a respository of DNA/RNA and protein structures used
-              in fields like drug delivery, diagnostics, and nanophotonics.
+              Nanobase is a respository of DNA/RNA and protein nanostructures.
+              It is a public resource for the bionanotechnology community to
+              share and reuse their computational and experimental designs, with
+              the goal of becoming RCSB PDB-like database and encouraging more
+              collaboration and reusability of designs developed in our
+              community. The structures already deposited have promising
+              applications in fields like drug delivery, diagnostics, and
+              nanophotonics.
             </p>
             <p className="mt-2">
               <b>

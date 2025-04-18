@@ -66,7 +66,7 @@ export const Navbar = () => {
     <>
       <div className="grid grid-cols-2 items-center p-4 px-8 md:grid-cols-3">
         {/* Logo */}
-        <div className="flex justify-start">
+        <div className="flex justify-start items-center">
           <Link href="/" className="relative aspect-square size-12">
             <span className="sr-only">Nanobase</span>
             <Image
@@ -77,6 +77,7 @@ export const Navbar = () => {
               alt="Nanobase"
             />
           </Link>
+          <p className="text-3xl font-semibold ml-2">Nanobase.org</p>
         </div>
 
         {/* Centered Links (hidden on mobile) */}
