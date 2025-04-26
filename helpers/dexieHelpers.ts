@@ -151,27 +151,23 @@ export const dexie_getAllStructureCardDataPaginated = async (
           return results.some((result) => result.item === dataToCheck);
 
         case SEARCH_BY.AUTHOR: {
-          // Search authors using Fuse.js
           const results = fuseAuthors.search(searchQueryLower);
           return results.some((result) => result.item === dataToCheck);
         }
 
         case SEARCH_BY.DESCRIPTION: {
-          // Search description using Fuse.js
           return fuseDescription
             .search(searchQueryLower)
             .some((result) => result.item === dataToCheck);
         }
 
         case SEARCH_BY.KEYWORD: {
-          // Search keywords using Fuse.js
           return fuseKeywords
             .search(searchQueryLower)
             .some((result) => result.item === dataToCheck);
         }
 
         case SEARCH_BY.TITLE: {
-          // Search title using Fuse.js
           return fuseTitle
             .search(searchQueryLower)
             .some((result) => result.item === dataToCheck);

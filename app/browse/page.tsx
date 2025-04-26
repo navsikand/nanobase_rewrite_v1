@@ -16,8 +16,14 @@ import { Button, Input, Select } from "@headlessui/react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
+import { useSearchParams } from "next/navigation";
 
 export default function Browse() {
+  const searchParams = useSearchParams();
+  const s_keyword = searchParams.get("k");
+  const s_author = searchParams.get("au");
+  const s_application = searchParams.get("ap");
+
   const [pageNumber, setPageNumber] = useState(0);
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -30,9 +36,9 @@ export default function Browse() {
     // ID number order does matter.
     { id: 0, name: SEARCH_BY.TITLE },
     { id: 1, name: SEARCH_BY.AUTHOR },
-    // { id: 2, name: SEARCH_BY.APPLICATION },
-    { id: 2, name: SEARCH_BY.KEYWORD },
-    { id: 3, name: SEARCH_BY.DESCRIPTION },
+    { id: 2, name: SEARCH_BY.APPLICATION },
+    { id: 3, name: SEARCH_BY.KEYWORD },
+    { id: 4, name: SEARCH_BY.DESCRIPTION },
   ];
 
   const dexieData = useLiveQuery(
@@ -45,6 +51,23 @@ export default function Browse() {
       ),
     [pageNumber, searchType, searchQuery]
   );
+
+  useEffect(() => {
+    if (s_keyword) {
+      setSearchType(SEARCH_BY.KEYWORD);
+      setSearchQuery(s_keyword);
+    }
+
+    if (s_author) {
+      setSearchType(SEARCH_BY.AUTHOR);
+      setSearchQuery(s_author);
+    }
+
+    if (s_application) {
+      setSearchType(SEARCH_BY.APPLICATION);
+      setSearchQuery(s_application);
+    }
+  }, [s_keyword, s_author, s_application]);
 
   useEffect(() => {
     if (
@@ -148,6 +171,9 @@ export default function Browse() {
           onChange={(e) =>
             setSearchType(serachByFields[parseInt(e.target.value)].name)
           }
+          value={serachByFields
+            .findIndex((field) => field.name === searchType)
+            .toString()}
           className="cursor-pointer rounded-lg border-2 border-gray-100 bg-white"
         >
           {serachByFields.map((field) => (

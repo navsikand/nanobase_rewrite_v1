@@ -24,7 +24,7 @@ import { MinusIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { useLiveQuery } from "dexie-react-hooks";
 import Image from "next/image";
 import Link from "next/link";
-import { use, useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, use, useCallback, useEffect, useRef, useState } from "react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import useSWR from "swr";
@@ -415,9 +415,24 @@ export default function StructurePage({
                       </span>
                     </DisclosureButton>
                   </h3>
+
                   <DisclosurePanel className="pb-6">
                     {structureData ? (
-                      structureData.structure.keywords.join(" | ")
+                      <p>
+                        {structureData.structure.keywords.map(
+                          (keyword, idx, arr) => (
+                            <Fragment key={keyword}>
+                              <Link
+                                href={`/browse?k=${encodeURIComponent(keyword)}`}
+                              >
+                                {keyword}
+                              </Link>
+                              {/* add separator except after the last one */}
+                              {idx < arr.length - 1 && " | "}
+                            </Fragment>
+                          )
+                        )}
+                      </p>
                     ) : (
                       <Skeleton />
                     )}
@@ -445,9 +460,23 @@ export default function StructurePage({
                       </span>
                     </DisclosureButton>
                   </h3>
+
                   <DisclosurePanel className="pb-6">
                     {structureData ? (
-                      structureData.structure.applications.join(" | ")
+                      <p>
+                        {structureData.structure.applications.map(
+                          (app, idx, arr) => (
+                            <Fragment key={app}>
+                              <Link
+                                href={`/browse?ap=${encodeURIComponent(app)}`}
+                              >
+                                {app}
+                              </Link>
+                              {idx < arr.length - 1 && " | "}
+                            </Fragment>
+                          )
+                        )}
+                      </p>
                     ) : (
                       <Skeleton />
                     )}
@@ -477,7 +506,20 @@ export default function StructurePage({
                   </h3>
                   <DisclosurePanel className="pb-6">
                     {structureData ? (
-                      structureData.structure.authors.join(" | ")
+                      <p>
+                        {structureData.structure.authors.map(
+                          (author, idx, arr) => (
+                            <Fragment key={author}>
+                              <Link
+                                href={`/browse?au=${encodeURIComponent(author)}`}
+                              >
+                                {author}
+                              </Link>
+                              {idx < arr.length - 1 && " | "}
+                            </Fragment>
+                          )
+                        )}
+                      </p>
                     ) : (
                       <Skeleton />
                     )}
