@@ -111,7 +111,9 @@ export default function Home() {
           {/* Content over the overlay */}
           <div className="relative z-10">
             <p className="text-xl md:-ml-6 md:text-3xl">Welcome to</p>
-            <h1 className="text-5xl font-bold md:ml-6 md:text-7xl">Nanobase.org</h1>
+            <h1 className="text-5xl font-bold md:ml-6 md:text-7xl">
+              Nanobase.org
+            </h1>
           </div>
         </div>
 
