@@ -479,6 +479,7 @@ export default function UploadStructure() {
                   <input
                     type="date"
                     name="datePublished"
+                    placeholder="Date published"
                     className={`${inputClass} ${errors.datePublished ? "border-red-500" : ""}`}
                     value={formData.datePublished}
                     onChange={handleChange}
