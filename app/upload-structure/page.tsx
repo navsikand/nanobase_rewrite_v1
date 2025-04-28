@@ -61,8 +61,14 @@ function FileInputWithDescription({
   return (
     <div className="mb-4">
       <label className="block font-medium">{label}</label>
-      <input type="file" onChange={handleFileChange} className="mt-1 block" />
       <input
+        id={`file-input-${label}`}
+        type="file"
+        onChange={handleFileChange}
+        className="mt-1 block"
+      />
+      <input
+        id={`desc-input-${label}`}
         type="text"
         placeholder="Enter description..."
         value={description}
@@ -423,7 +429,11 @@ export default function UploadStructure() {
               {/* Text Data Panel */}
               <TabPanel className={"space-y-1"}>
                 <div>
+                  <label htmlFor="title" className="block font-medium">
+                    Title
+                  </label>
                   <input
+                    id="title"
                     type="text"
                     name="title"
                     placeholder="Title..."
@@ -437,8 +447,12 @@ export default function UploadStructure() {
                   )}
                 </div>
                 <div>
+                  <label htmlFor="type" className="block font-medium">
+                    Type
+                  </label>
                   <Listbox value={selectedType} onChange={handleTypeChange}>
                     <ListboxButton
+                      id="type"
                       className={`${inputClass} text-left ${errors.type ? "border-red-500" : ""}`}
                     >
                       {selectedType}
@@ -462,7 +476,11 @@ export default function UploadStructure() {
                   )}
                 </div>
                 <div>
+                  <label htmlFor="description" className="block font-medium">
+                    Description
+                  </label>
                   <textarea
+                    id="description"
                     name="description"
                     placeholder="Description..."
                     className={`${inputClass} ${errors.description ? "border-red-500" : ""}`}
@@ -476,7 +494,11 @@ export default function UploadStructure() {
                   )}
                 </div>
                 <div>
+                  <label htmlFor="datePublished" className="block font-medium">
+                    Date Published
+                  </label>
                   <input
+                    id="datePublished"
                     type="date"
                     name="datePublished"
                     placeholder="Date published"
@@ -492,7 +514,11 @@ export default function UploadStructure() {
                   )}
                 </div>
                 <div>
+                  <label htmlFor="citation" className="block font-medium">
+                    Citation
+                  </label>
                   <input
+                    id="citation"
                     type="text"
                     name="citation"
                     placeholder="Citation..."
@@ -505,7 +531,11 @@ export default function UploadStructure() {
                   )}
                 </div>
                 <div>
+                  <label htmlFor="paperLink" className="block font-medium">
+                    Paper Link
+                  </label>
                   <input
+                    id="paperLink"
                     type="url"
                     name="paperLink"
                     placeholder="Paper link..."
@@ -518,7 +548,11 @@ export default function UploadStructure() {
                   )}
                 </div>
                 <div>
+                  <label htmlFor="licensing" className="block font-medium">
+                    Licensing
+                  </label>
                   <input
+                    id="licensing"
                     type="text"
                     name="licensing"
                     placeholder="Licensing..."
@@ -532,30 +566,42 @@ export default function UploadStructure() {
                   )}
                 </div>
                 <div>
+                  <label htmlFor="keywords" className="block font-medium">
+                    Keywords (comma-separated)
+                  </label>
                   <input
+                    id="keywords"
                     type="text"
-                    placeholder="Keywords (comma-separated)..."
                     name="keywords"
+                    placeholder="Keywords (comma-separated)..."
                     className={inputClass}
                     value={formData.keywords}
                     onChange={handleChange}
                   />
                 </div>
                 <div>
+                  <label htmlFor="applications" className="block font-medium">
+                    Applications (comma-separated)
+                  </label>
                   <input
+                    id="applications"
                     type="text"
-                    placeholder="Applications (comma-separated)..."
                     name="applications"
+                    placeholder="Applications (comma-separated)..."
                     className={inputClass}
                     value={formData.applications}
                     onChange={handleChange}
                   />
                 </div>
                 <div>
+                  <label htmlFor="authors" className="block font-medium">
+                    Authors (comma-separated)
+                  </label>
                   <input
+                    id="authors"
                     type="text"
-                    placeholder="Authors (comma-separated)..."
                     name="authors"
+                    placeholder="Authors (comma-separated)..."
                     className={inputClass}
                     value={formData.authors}
                     onChange={handleChange}
@@ -586,7 +632,11 @@ export default function UploadStructure() {
                   </div>
                   {selectedScaffolds.includes("other") && (
                     <div className="mt-2">
+                      <label htmlFor="otherScaffold" className="block font-medium">
+                        Specify other scaffold
+                      </label>
                       <input
+                        id="otherScaffold"
                         type="text"
                         placeholder="Specify other scaffold..."
                         value={otherScaffold}
@@ -598,6 +648,7 @@ export default function UploadStructure() {
                 </div>
                 <div className="flex items-center">
                   <input
+                    id="private"
                     type="checkbox"
                     name="private"
                     className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
