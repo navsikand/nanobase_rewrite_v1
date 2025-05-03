@@ -632,7 +632,10 @@ export default function UploadStructure() {
                   </div>
                   {selectedScaffolds.includes("other") && (
                     <div className="mt-2">
-                      <label htmlFor="otherScaffold" className="block font-medium">
+                      <label
+                        htmlFor="otherScaffold"
+                        className="block font-medium"
+                      >
                         Specify other scaffold
                       </label>
                       <input

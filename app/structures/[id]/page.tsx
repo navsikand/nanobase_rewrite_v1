@@ -334,12 +334,17 @@ export default function StructurePage({
                 Additional details
               </h2>
 
-              <iframe
-                src="https://sulcgroup.github.io/oxdna-viewer/"
-                ref={oxviewIframeRef}
-                onLoad={sendToIframe}
-                className="mx-auto mb-8 aspect-[16/9] w-full border-2 border-gray-100"
-              />
+              <div
+                className="mx-auto mb-8 resize overflow-auto border-2 border-gray-100"
+                style={{ aspectRatio: "16 / 9", maxWidth: "100%" }}
+              >
+                <iframe
+                  src="https://sulcgroup.github.io/oxdna-viewer/"
+                  ref={oxviewIframeRef}
+                  onLoad={sendToIframe}
+                  className="h-full w-full border-0"
+                />
+              </div>
 
               {/* Images Section */}
               <FileDisclosure
