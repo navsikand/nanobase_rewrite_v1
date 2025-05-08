@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function AboutUs() {
   return (
     <div className="">
@@ -47,6 +49,15 @@ export default function AboutUs() {
               you to refer to the respective publications linked in the
               structure description for further information about patents and
               copyrights related to the structure.
+            </p>
+          </div>
+          <h2 className="text-4xl font-semibold">Contact us</h2>
+          <div className="mt-3 space-y-2">
+            <p>
+              For any requests or queries please contact us at
+              <Link href="mailto:oxdna.help@gmail.com">
+                mailto:oxdna.help@gmail.com
+              </Link>
             </p>
           </div>
         </div>
