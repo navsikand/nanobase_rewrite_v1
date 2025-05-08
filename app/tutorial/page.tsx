@@ -10,8 +10,8 @@ export default function Tutorial() {
           Any researcher who wants to deposit a structure into Nanobase can
           create an account. To begin, click the &quot;Sign in&quot; button in
           the upper right corner and select &quot;Create an account&quot;. Once
-          you fill in the form and verify your email, you're ready to upload a
-          structure.
+          you fill in the form and verify your email, you&apos;re ready to
+          upload a structure.
         </p>
 
         <div className="mt-12 w-full">
@@ -39,26 +39,26 @@ export default function Tutorial() {
               </li>
               <li>
                 At least one image (idealized, simulated, or experimental) to be
-                shown as the entry photo. If you don't have one available, you
-                can use the oxView tool to produce such an image from the oxDNA
-                files.
+                shown as the entry photo. If you don&apos;t have one available,
+                you can use the oxView tool to produce such an image from the
+                oxDNA files.
               </li>
               <li>
                 If you want the 3D structure viewer to display your structure,
-                you'll also need to convert your design file to oxDNA format.
-                Note that providing oxDNA files is not required to upload a
-                structure, but it's recommended. The file converted to oxDNA
-                format (using tacoxdna if your design tool doesn't have a
-                built-in exporter) should then be included in the list of files
-                you upload.
+                you&apos;ll also need to convert your design file to oxDNA
+                format. Note that providing oxDNA files is not required to
+                upload a structure, but it&apos;s recommended. The file
+                converted to oxDNA format (using tacoxdna if your design tool
+                doesn&apos;t have a built-in exporter) should then be included
+                in the list of files you upload.
               </li>
             </ul>
 
             <p className="text-lg text-gray-700">
               On this page, you can also upload additional image files that will
               appear in a gallery on the entry page, as well as experimental and
-              simulation protocols and results that you'd like to share with the
-              wider community.
+              simulation protocols and results that you&apos;d like to share
+              with the wider community.
             </p>
           </div>
 
@@ -68,12 +68,12 @@ export default function Tutorial() {
 
           <div className="space-y-6">
             <p className="text-lg text-gray-700">
-              If you don't want your structure to be publicly available, you can
-              make it private by marking the checkbox in the last step of the
-              upload process. This will prevent your structure from being
-              searchable and appearing on the home page. Once uploaded, you'll
-              be taken to your structure page. You can view your private
-              structure using the link or by clicking &quot;View my
+              If you don&apos;t want your structure to be publicly available,
+              you can make it private by marking the checkbox in the last step
+              of the upload process. This will prevent your structure from being
+              searchable and appearing on the home page. Once uploaded,
+              you&apos;ll be taken to your structure page. You can view your
+              private structure using the link or by clicking &quot;View my
               structures&quot; in your Profile page. The structure will only be
               visible to anyone who has a link to it.
             </p>
