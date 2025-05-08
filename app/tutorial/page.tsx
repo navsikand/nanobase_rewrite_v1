@@ -47,10 +47,10 @@ export default function Tutorial() {
                 converted to oxDNA format (using tacoxdna if your design tool of
                 choice does not have a built-in exporter) should then be
                 included in the list of the files that you upload. The following
-                video demonstrates conversion from cadnano using oxView. If you
-                are having trouble converting into oxDNA format, please do not
-                hesitate to contact us. A video on how to relax structures in
-                OxView can be seen below
+                video demonstrates conversion from cadnano using oxView and how
+                to relax structures. If you are having trouble converting into
+                oxDNA format or relaxing the structure, please do not hesitate
+                to contact us.
                 <iframe
                   className="mx-auto my-4 aspect-video w-2xl"
                   src="https://www.youtube.com/embed/5-rgMekX8gE?si=0pGiqfinbjDJ8gqW"
