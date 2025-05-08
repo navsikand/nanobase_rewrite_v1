@@ -54,9 +54,9 @@ export default function AboutUs() {
           <h2 className="text-4xl font-semibold">Contact us</h2>
           <div className="mt-3 space-y-2">
             <p>
-              For any requests or queries please contact us at
+              For any requests or queries please contact us at{" "}
               <Link href="mailto:oxdna.help@gmail.com">
-                mailto:oxdna.help@gmail.com
+                oxdna.help@gmail.com
               </Link>
             </p>
           </div>
