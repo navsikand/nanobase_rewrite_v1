@@ -55,7 +55,10 @@ export default function AboutUs() {
           <div className="mt-3 space-y-2">
             <p>
               For any requests or queries please contact us at{" "}
-              <Link href="mailto:oxdna.help@gmail.com">
+              <Link
+                href="mailto:oxdna.help@gmail.com"
+                className="font-bold underline decoration-indigo-50"
+              >
                 oxdna.help@gmail.com
               </Link>
             </p>

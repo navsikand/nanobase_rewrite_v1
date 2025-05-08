@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Tutorial() {
   return (
     <div className="">
@@ -47,7 +49,17 @@ export default function Tutorial() {
                 included in the list of the files that you upload. The following
                 video demonstrates conversion from cadnano using oxView. If you
                 are having trouble converting into oxDNA format, please do not
-                hesitate to contact us.
+                hesitate to contact us. A video on how to relax structures in
+                OxView can be seen below
+                <iframe
+                  className="mx-auto my-4 aspect-video w-2xl"
+                  src="https://www.youtube.com/embed/5-rgMekX8gE?si=0pGiqfinbjDJ8gqW"
+                  title="YouTube video player"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allowFullScreen
+                  loading="lazy"
+                />
               </li>
             </ul>
 
@@ -69,6 +81,18 @@ export default function Tutorial() {
               by using the link for it or clicking &quot;Profile&quot; on the
               top navbar. The structure will only be visible to anyone who has a
               link to it.
+            </p>
+          </div>
+          <h2 className="text-4xl font-semibold">Contact us</h2>
+          <div className="mt-3 space-y-2">
+            <p>
+              For any requests or queries please contact us at{" "}
+              <Link
+                href="mailto:oxdna.help@gmail.com"
+                className="font-bold underline decoration-indigo-50"
+              >
+                oxdna.help@gmail.com
+              </Link>
             </p>
           </div>
         </div>
