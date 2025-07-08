@@ -387,7 +387,7 @@ export default function StructurePage({
                 title="Simulation Result Files"
                 files={simResFiles}
                 getHref={(file) =>
-                  `${apiRoot}/structure/files/${structureData?.flatStructureId}/simRes/${file.fileName}`
+                  `${apiRoot}/structure/files/${structureData?.flatStructureId}/simResults/${file.fileName}`
                 }
               />
 
