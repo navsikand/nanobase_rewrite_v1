@@ -175,7 +175,7 @@ export default function UploadStructure() {
 
   const [formData, setFormData] = useState<FormDataState>({
     title: "",
-    type: "",
+    type: typeOptions[0],
     description: "",
     datePublished: "",
     citation: "",
