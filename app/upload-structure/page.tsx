@@ -173,6 +173,15 @@ export default function UploadStructure() {
   const inputClass =
     "w-full border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 p-2 rounded-lg bg-stone-400/20 mt-1";
 
+  // Options for the structure type
+  const typeOptions = [
+    "DNA",
+    "RNA",
+    "DNA/RNA hybrid",
+    "Nucleic acid/protein hybrid",
+    "Other",
+  ];
+
   const [formData, setFormData] = useState<FormDataState>({
     title: "",
     type: typeOptions[0],
@@ -191,15 +200,6 @@ export default function UploadStructure() {
   const scaffoldOptions = ["M13mp18", "p8064", "p7308", "p7560", "other"];
   const [selectedScaffolds, setSelectedScaffolds] = useState<string[]>([]);
   const [otherScaffold, setOtherScaffold] = useState<string>("");
-
-  // Options for the structure type
-  const typeOptions = [
-    "DNA",
-    "RNA",
-    "DNA/RNA hybrid",
-    "Nucleic acid/protein hybrid",
-    "Other",
-  ];
 
   // State for the selected type; defaults to the first option.
   const [selectedType, setSelectedType] = useState<string>(typeOptions[0]);
