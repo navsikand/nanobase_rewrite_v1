@@ -356,40 +356,48 @@ export default function StructurePage({
               />
 
               {/* Experiment Protocol Files Section */}
-              <FileDisclosure
-                title="Experiment Protocol Files"
-                files={expProtFiles}
-                getHref={(file) =>
-                  `${apiRoot}/structure/files/${structureData?.flatStructureId}/expProt/${file.fileName}`
-                }
-              />
+              {expProtFiles.length > 0 && (
+                <FileDisclosure
+                  title="Experiment Protocol Files"
+                  files={expProtFiles}
+                  getHref={(file) =>
+                    `${apiRoot}/structure/files/${structureData?.flatStructureId}/expProt/${file.fileName}`
+                  }
+                />
+              )}
 
               {/* Experiment Result Files Section */}
-              <FileDisclosure
-                title="Experiment Result Files"
-                files={expResFiles}
-                getHref={(file) =>
-                  `${apiRoot}/structure/files/${structureData?.flatStructureId}/expRes/${file.fileName}`
-                }
-              />
+              {expResFiles.length > 0 && (
+                <FileDisclosure
+                  title="Experiment Result Files"
+                  files={expResFiles}
+                  getHref={(file) =>
+                    `${apiRoot}/structure/files/${structureData?.flatStructureId}/expRes/${file.fileName}`
+                  }
+                />
+              )}
 
               {/* Simulation Protocol Files Section */}
-              <FileDisclosure
-                title="Simulation Protocol Files"
-                files={simProtFiles}
-                getHref={(file) =>
-                  `${apiRoot}/structure/files/${structureData?.flatStructureId}/simProt/${file.fileName}`
-                }
-              />
+              {simProtFiles.length > 0 && (
+                <FileDisclosure
+                  title="Simulation Protocol Files"
+                  files={simProtFiles}
+                  getHref={(file) =>
+                    `${apiRoot}/structure/files/${structureData?.flatStructureId}/simProt/${file.fileName}`
+                  }
+                />
+              )}
 
               {/* Simulation Result Files Section */}
-              <FileDisclosure
-                title="Simulation Result Files"
-                files={simResFiles}
-                getHref={(file) =>
-                  `${apiRoot}/structure/files/${structureData?.flatStructureId}/simResults/${file.fileName}`
-                }
-              />
+              {simResFiles.length > 0 && (
+                <FileDisclosure
+                  title="Simulation Result Files"
+                  files={simResFiles}
+                  getHref={(file) =>
+                    `${apiRoot}/structure/files/${structureData?.flatStructureId}/simResults/${file.fileName}`
+                  }
+                />
+              )}
 
               {/* Structure Files Section */}
               <FileDisclosure
