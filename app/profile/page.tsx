@@ -1,5 +1,6 @@
 "use client";
 
+import { ProfilePageSkeleton } from "@/components/ProfilePageSkeleton";
 import { StructureCard } from "@/components/StructureCard";
 import {
   getAllUserStructuresFetcher,
@@ -12,7 +13,10 @@ import Link from "next/link";
 import useSWR from "swr";
 
 export default function ProfilePage() {
-  const { data: ProfileData } = useSWR("profile", getUserProfileFetcher);
+  const { data: ProfileData, isLoading: isProfileLoading } = useSWR(
+    "profile",
+    getUserProfileFetcher
+  );
   const { data: structureData } = useSWR<STRUCTURE_CARD_DATA[]>(
     "getAllUserStructures",
     getAllUserStructuresFetcher
@@ -39,7 +43,9 @@ export default function ProfilePage() {
     }
   );
 
-  return ProfileData ? (
+  return isProfileLoading ? (
+    <ProfilePageSkeleton />
+  ) : ProfileData ? (
     <div className="">
       {/* Header text */}
       <div className="mx-auto mt-20 flex w-11/12 flex-col items-center justify-center lg:w-[65%]">
@@ -106,6 +112,6 @@ export default function ProfilePage() {
       </div>
     </div>
   ) : (
-    <p>Loading</p>
+    <p>Error loading profile.</p>
   );
 }

@@ -8,6 +8,7 @@ export default function ResetPasswordEmail() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [emailSent, setEmailSent] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,9 +25,7 @@ export default function ResetPasswordEmail() {
       });
 
       if (response.ok) {
-        //const data = await response.json();
-        //localStorage.setItem("token", data.token);
-        //router.push("/browse");
+        setEmailSent(true);
       } else {
         const data = await response.json();
         setErrorMessage(
@@ -52,37 +51,45 @@ export default function ResetPasswordEmail() {
             {errorMessage}
           </div>
         )}
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Email
-            </label>
-            <input
-              className="mt-1 block w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:ring-blue-500"
-              placeholder="example@example.com"
-              id="email"
-              name="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-            />
+        {emailSent ? (
+          <div className="text-center">
+            <p className="rounded bg-green-100 p-3 text-green-700">
+              Reset email sent successfully! Please check your inbox.
+            </p>
           </div>
+        ) : (
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Email
+              </label>
+              <input
+                className="mt-1 block w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:ring-blue-500"
+                placeholder="example@example.com"
+                id="email"
+                name="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+              />
+            </div>
 
-          <div className="flex items-center justify-end">
-            <Button
-              type="submit"
-              className="cursor-pointer rounded-lg bg-black px-4 py-2 text-white duration-200 hover:-translate-y-1 hover:shadow-xl"
-              disabled={loading}
-            >
-              Send reset email
-            </Button>
-          </div>
-        </form>
+            <div className="flex items-center justify-end">
+              <Button
+                type="submit"
+                className="cursor-pointer rounded-lg bg-black px-4 py-2 text-white duration-200 hover:-translate-y-1 hover:shadow-xl"
+                disabled={loading}
+              >
+                Send reset email
+              </Button>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );

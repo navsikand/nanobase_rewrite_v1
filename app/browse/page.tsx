@@ -2,10 +2,11 @@
 
 import { Suspense } from "react";
 import BrowseInner from "./inner";
+import { BrowsePageSkeleton } from "@/components/BrowsePageSkeleton";
 
 export default function Browse() {
   return (
-    <Suspense fallback={<div className="p-6 text-center">Loading…</div>}>
+    <Suspense fallback={<BrowsePageSkeleton />}>
       <BrowseInner />
     </Suspense>
   );
