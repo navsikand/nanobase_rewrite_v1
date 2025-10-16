@@ -361,7 +361,7 @@ export default function StructurePage({
                   title="Experiment Protocol Files"
                   files={expProtFiles}
                   getHref={(file) =>
-                    `${apiRoot}/structure/files/${structureData?.flatStructureId}/expProt/${file.fileName}`
+                    `${apiRoot}/structure/files/${structureData?.flatStructureId}/expProtocol/${file.fileName}`
                   }
                 />
               )}
@@ -372,7 +372,7 @@ export default function StructurePage({
                   title="Experiment Result Files"
                   files={expResFiles}
                   getHref={(file) =>
-                    `${apiRoot}/structure/files/${structureData?.flatStructureId}/expRes/${file.fileName}`
+                    `${apiRoot}/structure/files/${structureData?.flatStructureId}/expResults/${file.fileName}`
                   }
                 />
               )}
@@ -383,7 +383,7 @@ export default function StructurePage({
                   title="Simulation Protocol Files"
                   files={simProtFiles}
                   getHref={(file) =>
-                    `${apiRoot}/structure/files/${structureData?.flatStructureId}/simProt/${file.fileName}`
+                    `${apiRoot}/structure/files/${structureData?.flatStructureId}/simProtocol/${file.fileName}`
                   }
                 />
               )}
