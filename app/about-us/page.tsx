@@ -15,8 +15,8 @@ export default function AboutUs() {
           <div className="mt-3 space-y-2">
             <p>
               Nanobase is developed and maintained by Navraj Sikand and Subhajit
-              Roy of Petr Šulc and Hao Yan&apos;s labs at Arizona State
-              University. Our labs have extensive experience in nanostructure
+              Roy of Petr Šulc&apos;s lab at Arizona State
+              University. Our lab have extensive experience in nanostructure
               design, experiments, and simulation, and also dedicate significant
               effort to tool and methods development to make the nanostructure
               design process easier. Any inquiries should be directed to
