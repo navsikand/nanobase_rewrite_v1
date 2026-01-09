@@ -18,9 +18,9 @@ export const getAllPublicStructuresFetcherPaginated = async (
   skip: number = 0,
   take: number = 15
 ) => {
-  const response = await fetch(`${apiRoot}/structure/${key}`, {
-    body: JSON.stringify({ skip, take }),
-  });
+  const response = await fetch(
+    `${apiRoot}/structure/${key}?skip=${skip}&take=${take}`
+  );
   const data = await response.json();
   return data.structures as STRUCTURE_CARD_DATA[];
 };

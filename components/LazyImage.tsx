@@ -52,10 +52,7 @@ export const LazyImage = ({
   }, [priority]);
 
   return (
-    <div
-      ref={imageRef}
-      className={className}
-    >
+    <div ref={imageRef}>
       {isVisible ? (
         <Image
           src={src || "/images/no-structure-img.webp"}
@@ -63,6 +60,7 @@ export const LazyImage = ({
           width={fill ? undefined : width}
           height={fill ? undefined : height}
           fill={fill}
+          className={className}
           sizes={fill ? "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" : undefined}
           loading={priority ? "eager" : "lazy"}
           placeholder="blur"
