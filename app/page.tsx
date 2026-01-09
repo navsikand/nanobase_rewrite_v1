@@ -4,19 +4,21 @@ import { StructureCard } from "@/components/StructureCard";
 import { DexieDB } from "@/db";
 import { dexie_syncDexieWithServer } from "@/helpers/dexieHelpers";
 import {
-  getAllPublicStructuresFetcher,
   getAllPublicStructuresFetcherPaginated,
-  getStructureImageFetcher,
+  batchGetStructureImages,
 } from "@/helpers/fetchHelpers";
 import { Button } from "@headlessui/react";
 import { useLiveQuery } from "dexie-react-hooks";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import useSWR from "swr";
+
+const INITIAL_PAGE_SIZE = 15;
 
 export default function Home() {
   const router = useRouter();
+  const [allStructuresLoaded, setAllStructuresLoaded] = useState(false);
 
   // Gets latest structure by upload date
   const latestDexieStructure = useLiveQuery(() =>
@@ -28,77 +30,81 @@ export default function Home() {
       .then((s) => s[0])
   );
 
-  // Gets latest structure by upload date. Needs to be live query as on first load the value is always zero
+  // Gets total structure count
   const statsCount = useLiveQuery(() => DexieDB.structures.count());
 
-  const { data: firstPageFetchedStructures } = useSWR(
-    "getAllPublicStructures_paginated",
-    getAllPublicStructuresFetcherPaginated
-  );
+  /**
+   * Phase 1.3: Optimized Data Fetching
+   * Changed from 4 concurrent API calls to 2:
+   * - Single paginated structures fetch
+   * - Batch image fetch for first page
+   */
 
-  const { data: firstPageFetchedData } = useSWR(
-    firstPageFetchedStructures ? "getStructuresWithImages" : null,
-    async () => {
-      if (!firstPageFetchedStructures) return [];
-
-      const structures = await Promise.all(
-        firstPageFetchedStructures.map(async (structure) => {
-          const structureId = structure.structure.id;
-          try {
-            const imageBlob = structureId
-              ? (await getStructureImageFetcher(structureId)).url
-              : "";
-            return { ...structure, image: imageBlob };
-          } catch (error) {
-            console.error("Error fetching image:", error);
-            return { ...structure, image: "" };
-          }
-        })
-      );
-      return structures;
+  // ✅ Single SWR call for first page (paginated)
+  const { data: firstPageStructures } = useSWR(
+    ["getAllPublicStructures_paginated", 0, INITIAL_PAGE_SIZE],
+    ([_, skip, take]) =>
+      getAllPublicStructuresFetcherPaginated("getAllPublicStructures_paginated", skip, take),
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 60000, // 1 minute dedup
     }
   );
 
-  useEffect(() => {
-    (async () => {
-      if (firstPageFetchedData)
-        await dexie_syncDexieWithServer(firstPageFetchedData);
-    })();
-  }, [firstPageFetchedData]);
-
-  const { data: fetchedStructures } = useSWR(
-    "getAllPublicStructures",
-    getAllPublicStructuresFetcher
-  );
-
-  const { data: fetchedData } = useSWR(
-    fetchedStructures ? "getStructuresWithImages" : null,
-    async () => {
-      if (!fetchedStructures) return [];
-
-      const structures = await Promise.all(
-        fetchedStructures.map(async (structure) => {
-          const structureId = structure.structure.id;
-          try {
-            const imageBlob = structureId
-              ? (await getStructureImageFetcher(structureId)).url
-              : "";
-            return { ...structure, image: imageBlob };
-          } catch (error) {
-            console.error("Error fetching image:", error);
-            return { ...structure, image: "" };
-          }
-        })
-      );
-      return structures;
+  // ✅ Batch fetch images for first page only
+  const { data: firstPageWithImages } = useSWR(
+    firstPageStructures ? ["batchImages", firstPageStructures.map(s => s.structure.id)] : null,
+    async ([_, ids]) => {
+      if (!ids || ids.length === 0) return [];
+      const imageMap = await batchGetStructureImages(ids as number[]);
+      return (firstPageStructures || []).map(s => ({
+        ...s,
+        image: imageMap[s.structure.id] || ""
+      }));
     }
   );
 
+  // ✅ Single sync operation for first page
   useEffect(() => {
-    (async () => {
-      if (fetchedData) await dexie_syncDexieWithServer(fetchedData);
-    })();
-  }, [fetchedData]);
+    if (firstPageWithImages?.length) {
+      dexie_syncDexieWithServer(firstPageWithImages);
+    }
+  }, [firstPageWithImages]);
+
+  // ✅ Load remaining pages in background (only if needed)
+  useEffect(() => {
+    if (!allStructuresLoaded && statsCount && statsCount > INITIAL_PAGE_SIZE) {
+      // Load remaining pages in background
+      const loadRemaining = async () => {
+        let skip = INITIAL_PAGE_SIZE;
+        while (skip < (statsCount || 0)) {
+          try {
+            const batch = await getAllPublicStructuresFetcherPaginated(
+              "getAllPublicStructures_paginated",
+              skip,
+              INITIAL_PAGE_SIZE
+            );
+            const ids = batch.map(s => s.structure.id);
+            const imageMap = await batchGetStructureImages(ids);
+            const withImages = batch.map(s => ({
+              ...s,
+              image: imageMap[s.structure.id] || ""
+            }));
+            await dexie_syncDexieWithServer(withImages);
+            skip += INITIAL_PAGE_SIZE;
+          } catch (error) {
+            console.error("Error loading remaining pages:", error);
+            break;
+          }
+        }
+        setAllStructuresLoaded(true);
+      };
+
+      // Start loading in background after initial render
+      const timeoutId = setTimeout(loadRemaining, 1000);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [statsCount, allStructuresLoaded]);
 
   return (
     <div className="mx-auto w-11/12 lg:w-[65%]">

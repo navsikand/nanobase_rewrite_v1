@@ -44,9 +44,9 @@ export default function Browse() {
     () =>
       dexie_getAllStructureCardDataPaginated(
         pageNumber,
+        15, // pageSize
         searchQuery,
-        searchType,
-        setPageNumber
+        searchType
       ),
     [pageNumber, searchType, searchQuery]
   );
@@ -201,7 +201,7 @@ export default function Browse() {
 
       <div className={"mt-5 flex justify-center"}>
         {(() => {
-          const totalPages = dexieData?.count || 1;
+          const totalPages = dexieData?.totalPages || 1;
           const current = pageNumber;
           let pagesToShow = [];
 

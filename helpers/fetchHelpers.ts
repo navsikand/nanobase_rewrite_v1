@@ -200,3 +200,47 @@ export const fetchAllStructureImages = async (structureId: number) => {
   const data = await fetchAllImageNames(structureId);
   return data;
 };
+/**
+ * Phase 1.3: Batch Image Fetching
+ * Fetch display images for multiple structures in a single request
+ * Returns a map of structureId -> imageUrl
+ */
+export const batchGetStructureImages = async (
+  structureIds: number[]
+): Promise<Record<number, string>> => {
+  if (!structureIds || structureIds.length === 0) {
+    return {};
+  }
+
+  try {
+    const response = await fetch(
+      `${apiRoot}/structure/batch-display-images`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ids: structureIds }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to batch fetch images");
+    }
+
+    const imageMap: Record<number, string> = await response.json();
+
+    // Convert relative paths to absolute URLs
+    const result: Record<number, string> = {};
+    Object.entries(imageMap).forEach(([id, imageUrl]) => {
+      result[parseInt(id)] = imageUrl
+        ? `${apiRoot}/structure/images/${imageUrl}`
+        : "";
+    });
+
+    return result;
+  } catch (error) {
+    console.error("Error batch fetching images:", error);
+    return {};
+  }
+};

@@ -6,10 +6,10 @@ import {
   Transition,
   TransitionChild,
 } from "@headlessui/react";
-import Image from "next/image";
 import Link from "next/link";
 import { apiRoot } from "@/helpers/fetchHelpers";
 import { STRUCTURE_CARD_DATA } from "@/db";
+import { LazyImage } from "./LazyImage";
 
 export const StructureCard = ({
   structure: { description, id, title, uploadDate },
@@ -106,7 +106,7 @@ export const StructureCard = ({
             {/* Image */}
             <div className="relative flex aspect-[9/16] max-h-72 w-full rounded-lg rounded-b-none border-b-[1px] border-b-gray-500">
               <span className="sr-only">{title}</span>
-              <Image
+              <LazyImage
                 src={imageSrc}
                 fill={true}
                 className="object-contain"
