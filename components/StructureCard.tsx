@@ -6,6 +6,7 @@ import {
   Transition,
   TransitionChild,
 } from "@headlessui/react";
+import Image from "next/image";
 import Link from "next/link";
 import { apiRoot } from "@/helpers/fetchHelpers";
 import { STRUCTURE_CARD_DATA } from "@/db";
@@ -104,7 +105,7 @@ export const StructureCard = ({
             </p>
 
             {/* Image */}
-            <div className="relative w-full rounded-lg rounded-b-none border-b-[1px] border-b-gray-500 overflow-hidden" style={{ aspectRatio: '9/16', maxHeight: '288px' }}>
+            <div className="relative flex aspect-[9/16] max-h-72 w-full rounded-lg rounded-b-none border-b-[1px] border-b-gray-500">
               <span className="sr-only">{title}</span>
               <LazyImage
                 src={imageSrc}

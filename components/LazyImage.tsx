@@ -54,8 +54,7 @@ export const LazyImage = ({
   return (
     <div
       ref={imageRef}
-      className={`relative ${fill ? 'h-full w-full' : ''} ${className}`}
-      style={fill ? { position: 'relative' } : undefined}
+      className={className}
     >
       {isVisible ? (
         <Image
