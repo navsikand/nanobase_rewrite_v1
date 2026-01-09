@@ -25,6 +25,15 @@ export const getAllPublicStructuresFetcherPaginated = async (
   return data.structures as STRUCTURE_CARD_DATA[];
 };
 
+export const getPublicStructureCountFetcher = async () => {
+  const response = await fetch(`${apiRoot}/structure/count`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch public structure count");
+  }
+  const data = await response.json();
+  return data.count as number;
+};
+
 export const getStructureImageFetcher = async (
   structureId: number
 ): Promise<{ url: string }> => {

@@ -6,6 +6,7 @@ import { dexie_syncDexieWithServer } from "@/helpers/dexieHelpers";
 import {
   getAllPublicStructuresFetcherPaginated,
   batchGetStructureImages,
+  getPublicStructureCountFetcher,
 } from "@/helpers/fetchHelpers";
 import { Button } from "@headlessui/react";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -32,6 +33,16 @@ export default function Home() {
 
   // Gets total structure count
   const statsCount = useLiveQuery(() => DexieDB.structures.count());
+
+  // Fallback to API count so first render isn't capped at initial Dexie page
+  const { data: apiCount } = useSWR(
+    "public_structure_count",
+    getPublicStructureCountFetcher,
+    {
+      dedupingInterval: 60000,
+      revalidateOnFocus: false,
+    }
+  );
 
   /**
    * Phase 1.3: Optimized Data Fetching
@@ -76,11 +87,13 @@ export default function Home() {
 
   // ✅ Load remaining pages in background (only if needed)
   useEffect(() => {
-    if (!allStructuresLoaded && statsCount && statsCount > INITIAL_PAGE_SIZE) {
+    const total = apiCount ?? statsCount ?? 0;
+
+    if (!allStructuresLoaded && total > INITIAL_PAGE_SIZE) {
       // Load remaining pages in background
       const loadRemaining = async () => {
         let skip = INITIAL_PAGE_SIZE;
-        while (skip < (statsCount || 0)) {
+        while (skip < total) {
           try {
             const batch = await getAllPublicStructuresFetcherPaginated(
               "getAllPublicStructures_paginated",
@@ -107,7 +120,9 @@ export default function Home() {
       const timeoutId = setTimeout(loadRemaining, 1000);
       return () => clearTimeout(timeoutId);
     }
-  }, [statsCount, allStructuresLoaded]);
+  }, [statsCount, apiCount, allStructuresLoaded]);
+
+  const totalStructures = apiCount ?? statsCount ?? 0;
 
   return (
     <div className="mx-auto w-11/12 lg:w-[65%]">
@@ -142,7 +157,7 @@ export default function Home() {
             <p className="mt-2">
               <b>
                 Total structures:
-                {` ${statsCount}`}
+                {` ${totalStructures}`}
               </b>
             </p>
 
