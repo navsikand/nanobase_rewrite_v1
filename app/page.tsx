@@ -71,6 +71,9 @@ export default function Home() {
     }
   }, [firstPageWithImages]);
 
+  // Get the latest structure - prefer from API data, fallback to Dexie
+  const displayLatestStructure = firstPageWithImages?.[0] || latestDexieStructure;
+
   // ✅ Load remaining pages in background (only if needed)
   useEffect(() => {
     if (!allStructuresLoaded && statsCount && statsCount > INITIAL_PAGE_SIZE) {
@@ -171,12 +174,12 @@ export default function Home() {
 
           <div>
             <h2 className="text-2xl">Latest structure</h2>
-            {latestDexieStructure && (
+            {displayLatestStructure && (
               <StructureCard
-                User={latestDexieStructure.User}
-                flatStructureId={latestDexieStructure.flatStructureId}
-                image={latestDexieStructure.image}
-                structure={latestDexieStructure.structure}
+                User={displayLatestStructure.User}
+                flatStructureId={displayLatestStructure.flatStructureId}
+                image={displayLatestStructure.image || ""}
+                structure={displayLatestStructure.structure}
               />
             )}
           </div>

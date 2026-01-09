@@ -41,7 +41,7 @@ export const StructureCard = ({
         try {
           const errorData = await response.json();
           errorMsg = errorData.message || errorMsg;
-        } catch {}
+        } catch { }
         throw new Error(errorMsg);
       } else {
         window.location.reload();
@@ -104,7 +104,7 @@ export const StructureCard = ({
             </p>
 
             {/* Image */}
-            <div className="relative flex aspect-[9/16] max-h-72 w-full rounded-lg rounded-b-none border-b-[1px] border-b-gray-500">
+            <div className="relative w-full rounded-lg rounded-b-none border-b-[1px] border-b-gray-500 overflow-hidden" style={{ aspectRatio: '9/16', maxHeight: '288px' }}>
               <span className="sr-only">{title}</span>
               <LazyImage
                 src={imageSrc}

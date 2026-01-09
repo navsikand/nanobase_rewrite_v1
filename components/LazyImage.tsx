@@ -52,7 +52,11 @@ export const LazyImage = ({
   }, [priority]);
 
   return (
-    <div ref={imageRef} className={className}>
+    <div
+      ref={imageRef}
+      className={`relative ${fill ? 'h-full w-full' : ''} ${className}`}
+      style={fill ? { position: 'relative' } : undefined}
+    >
       {isVisible ? (
         <Image
           src={src || "/images/no-structure-img.webp"}
@@ -60,6 +64,7 @@ export const LazyImage = ({
           width={fill ? undefined : width}
           height={fill ? undefined : height}
           fill={fill}
+          sizes={fill ? "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" : undefined}
           loading={priority ? "eager" : "lazy"}
           placeholder="blur"
           blurDataURL="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3C/svg%3E"
