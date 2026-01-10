@@ -3,13 +3,13 @@ import { StructureCard } from "@/components/StructureCard";
 import {
   dexie_getAllStructureCardDataPaginated,
   dexie_syncDexieWithServer,
+  dexie_syncDexieWithServer_backgroundMode,
   SEARCH_BY,
 } from "@/helpers/dexieHelpers";
 import {
-  getAllPublicStructuresFetcher,
   getAllPublicStructuresFetcherPaginated,
-  getStructureImageFetcher,
   getPublicStructureCountFetcher,
+  batchGetStructureImages,
 } from "@/helpers/fetchHelpers";
 import { STRUCTURE_CARD_DATA } from "@/db";
 import { Button, Input, Select } from "@headlessui/react";
@@ -86,132 +86,131 @@ export default function Browse() {
     }
   }, [dexieData]);
 
-  const { data: firstPageFetchedStructures } = useSWR(
-    "getAllPublicStructures_paginated",
-    getAllPublicStructuresFetcherPaginated
-  );
-
-  const { data: firstPageFetchedData } = useSWR(
-    firstPageFetchedStructures ? "browse_first_getStructuresWithImages" : null,
-    async () => {
-      if (!firstPageFetchedStructures) return [];
-
-      const structures = await Promise.all(
-        firstPageFetchedStructures.map(async (structure) => {
-          const structureId = structure.structure.id;
-          try {
-            const imageURL = structureId
-              ? (await getStructureImageFetcher(structureId)).url
-              : "";
-            return { ...structure, image: imageURL };
-          } catch (error) {
-            console.error("Error fetching image:", error);
-            return { ...structure, image: "" };
-          }
-        })
-      );
-      return structures;
-    }
-  );
-
-  useEffect(() => {
-    (async () => {
-      if (firstPageFetchedData)
-        await dexie_syncDexieWithServer(firstPageFetchedData);
-    })();
-  }, [firstPageFetchedData]);
-
-  const { data: fetchedStructures } = useSWR(
-    "getAllPublicStructures",
-    getAllPublicStructuresFetcher
-  );
-
-  const { data: fetchedData } = useSWR(
-    fetchedStructures ? "browse_all_getStructuresWithImages" : null,
-    async () => {
-      if (!fetchedStructures) return [];
-
-      const structures = await Promise.all(
-        fetchedStructures.map(async (structure) => {
-          const structureId = structure.structure.id;
-          try {
-            const imageBlob = structureId
-              ? (await getStructureImageFetcher(structureId)).url
-              : "";
-            return { ...structure, image: imageBlob };
-          } catch (error) {
-            console.error("Error fetching image:", error);
-            return { ...structure, image: "" };
-          }
-        })
-      );
-      return structures;
-    }
-  );
-
-  useEffect(() => {
-    (async () => {
-      if (fetchedData) await dexie_syncDexieWithServer(fetchedData);
-    })();
-  }, [fetchedData]);
-
   // Get total structure count from API for correct pagination
-  const PAGE_SIZE = 15;
-  const { data: apiCount } = useSWR(
+  const { data: totalCount } = useSWR(
     "public_structure_count",
     getPublicStructureCountFetcher,
     {
-      dedupingInterval: 60000,
+      dedupingInterval: 3600000, // 1 hour
       revalidateOnFocus: false,
     }
   );
 
-  // Track if we've loaded all structures to Dexie
-  const [allStructuresLoaded, setAllStructuresLoaded] = useState(false);
+  // Track loading progress
+  const [loadingStatus, setLoadingStatus] = useState<{
+    stage: "idle" | "first-page" | "background" | "complete";
+    loaded: number;
+    total: number;
+  }>({ stage: "idle", loaded: 0, total: 0 });
 
-  // Load remaining pages in background (only if needed)
+  // Unified data loading - single source of truth
   useEffect(() => {
-    const total = apiCount ?? 0;
+    if (!totalCount) return;
 
-    if (!allStructuresLoaded && total > PAGE_SIZE) {
-      const loadRemaining = async () => {
-        let skip = PAGE_SIZE;
-        while (skip < total) {
-          try {
-            const batch = await getAllPublicStructuresFetcherPaginated(
-              "getAllPublicStructures_paginated",
-              skip,
-              PAGE_SIZE
-            );
-            const structures = await Promise.all(
-              batch.map(async (structure) => {
-                const structureId = structure.structure.id;
-                try {
-                  const imageURL = structureId
-                    ? (await getStructureImageFetcher(structureId)).url
-                    : "";
-                  return { ...structure, image: imageURL };
-                } catch (error) {
-                  console.error("Error fetching image:", error);
-                  return { ...structure, image: "" };
-                }
-              })
-            );
-            await dexie_syncDexieWithServer(structures);
-            skip += PAGE_SIZE;
-          } catch (error) {
-            console.error("Error loading remaining pages:", error);
-            break;
-          }
+    const abortController = new AbortController();
+    let isActive = true;
+
+    const loadAllData = async () => {
+      try {
+        // PHASE 1: Load first page FAST
+        setLoadingStatus({ stage: "first-page", loaded: 0, total: totalCount });
+
+        const firstPage = await getAllPublicStructuresFetcherPaginated(
+          "getAllPublicStructures_paginated",
+          0,
+          15
+        );
+
+        // Batch fetch images for first page (15 IDs in 1 request)
+        const firstPageIds = firstPage
+          .map((s) => s.structure.id)
+          .filter(Boolean) as number[];
+
+        const imageMap = await batchGetStructureImages(firstPageIds);
+
+        const firstPageWithImages = firstPage.map((s) => ({
+          ...s,
+          image: imageMap[s.structure.id] || "",
+        }));
+
+        await dexie_syncDexieWithServer(firstPageWithImages);
+        setLoadingStatus({ stage: "first-page", loaded: 15, total: totalCount });
+
+        // Wait 1 second before background loading
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        if (!isActive || abortController.signal.aborted) return;
+
+        // PHASE 2: Load remaining in batches of 100
+        if (totalCount <= 15) {
+          setLoadingStatus({
+            stage: "complete",
+            loaded: totalCount,
+            total: totalCount,
+          });
+          return;
         }
-        setAllStructuresLoaded(true);
-      };
 
-      // Start loading in background after initial render
-      const timeoutId = setTimeout(loadRemaining, 1000);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [apiCount, allStructuresLoaded]);
+        setLoadingStatus({ stage: "background", loaded: 15, total: totalCount });
+
+        const BATCH_SIZE = 100;
+        let skip = 15;
+
+        while (skip < totalCount && isActive && !abortController.signal.aborted) {
+          // Fetch batch of structures
+          const batch = await getAllPublicStructuresFetcherPaginated(
+            "getAllPublicStructures_paginated",
+            skip,
+            BATCH_SIZE
+          );
+
+          if (!isActive || abortController.signal.aborted) break;
+
+          // Batch fetch images (max 100 IDs at once - perfect match!)
+          const batchIds = batch
+            .map((s) => s.structure.id)
+            .filter(Boolean) as number[];
+
+          const batchImageMap = await batchGetStructureImages(batchIds);
+
+          const batchWithImages = batch.map((s) => ({
+            ...s,
+            image: batchImageMap[s.structure.id] || "",
+          }));
+
+          await dexie_syncDexieWithServer_backgroundMode(batchWithImages);
+
+          skip += BATCH_SIZE;
+          setLoadingStatus({
+            stage: "background",
+            loaded: Math.min(skip, totalCount),
+            total: totalCount,
+          });
+
+          // Small delay to avoid overwhelming server
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+
+        if (isActive && !abortController.signal.aborted) {
+          setLoadingStatus({
+            stage: "complete",
+            loaded: totalCount,
+            total: totalCount,
+          });
+        }
+      } catch (error) {
+        console.error("Error loading structures:", error);
+      }
+    };
+
+    loadAllData();
+
+    // Cleanup on unmount
+    return () => {
+      isActive = false;
+      abortController.abort();
+    };
+  }, [totalCount]);
 
   return (
     <div className="mx-auto w-11/12">

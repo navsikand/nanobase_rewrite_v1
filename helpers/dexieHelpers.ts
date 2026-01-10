@@ -88,6 +88,43 @@ export const dexie_syncDexieWithServer = async (
   }
 };
 
+/**
+ * Optimized sync for background loading - only adds/updates, no deletions
+ * More efficient than full sync when progressively loading dataset
+ * Use this when loading batches of structures in the background
+ */
+export const dexie_syncDexieWithServer_backgroundMode = async (
+  server_data: (STRUCTURE_CARD_DATA & { image: string })[]
+): Promise<void> => {
+  try {
+    const recordsToUpdate: (STRUCTURE_CARD_DATA & { image: string })[] = [];
+    const recordsToAdd: (STRUCTURE_CARD_DATA & { image: string })[] = [];
+
+    await DexieDB.transaction("rw", DexieDB.structures, async () => {
+      for (const serverRecord of server_data) {
+        const existingRecord = await DexieDB.structures.get(
+          serverRecord.flatStructureId
+        );
+
+        if (!existingRecord) {
+          recordsToAdd.push(serverRecord);
+        } else if (!deepEqual(existingRecord, serverRecord)) {
+          recordsToUpdate.push(serverRecord);
+        }
+      }
+
+      if (recordsToUpdate.length > 0) {
+        await DexieDB.structures.bulkPut(recordsToUpdate);
+      }
+      if (recordsToAdd.length > 0) {
+        await DexieDB.structures.bulkAdd(recordsToAdd);
+      }
+    });
+  } catch (error) {
+    console.error("Error in background sync:", error);
+  }
+};
+
 export const enum SEARCH_BY {
   TITLE = "Title",
   AUTHOR = "Author",
