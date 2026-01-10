@@ -52,7 +52,10 @@ export const LazyImage = ({
   }, [priority]);
 
   return (
-    <div ref={imageRef}>
+    <div
+      ref={imageRef}
+      className={fill ? "relative h-full w-full" : undefined}
+    >
       {isVisible ? (
         <Image
           src={src || "/images/no-structure-img.webp"}
