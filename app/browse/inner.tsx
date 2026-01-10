@@ -9,6 +9,7 @@ import {
   getAllPublicStructuresFetcher,
   getAllPublicStructuresFetcherPaginated,
   getStructureImageFetcher,
+  getPublicStructureCountFetcher,
 } from "@/helpers/fetchHelpers";
 import { STRUCTURE_CARD_DATA } from "@/db";
 import { Button, Input, Select } from "@headlessui/react";
@@ -153,6 +154,64 @@ export default function Browse() {
       if (fetchedData) await dexie_syncDexieWithServer(fetchedData);
     })();
   }, [fetchedData]);
+
+  // Get total structure count from API for correct pagination
+  const PAGE_SIZE = 15;
+  const { data: apiCount } = useSWR(
+    "public_structure_count",
+    getPublicStructureCountFetcher,
+    {
+      dedupingInterval: 60000,
+      revalidateOnFocus: false,
+    }
+  );
+
+  // Track if we've loaded all structures to Dexie
+  const [allStructuresLoaded, setAllStructuresLoaded] = useState(false);
+
+  // Load remaining pages in background (only if needed)
+  useEffect(() => {
+    const total = apiCount ?? 0;
+
+    if (!allStructuresLoaded && total > PAGE_SIZE) {
+      const loadRemaining = async () => {
+        let skip = PAGE_SIZE;
+        while (skip < total) {
+          try {
+            const batch = await getAllPublicStructuresFetcherPaginated(
+              "getAllPublicStructures_paginated",
+              skip,
+              PAGE_SIZE
+            );
+            const structures = await Promise.all(
+              batch.map(async (structure) => {
+                const structureId = structure.structure.id;
+                try {
+                  const imageURL = structureId
+                    ? (await getStructureImageFetcher(structureId)).url
+                    : "";
+                  return { ...structure, image: imageURL };
+                } catch (error) {
+                  console.error("Error fetching image:", error);
+                  return { ...structure, image: "" };
+                }
+              })
+            );
+            await dexie_syncDexieWithServer(structures);
+            skip += PAGE_SIZE;
+          } catch (error) {
+            console.error("Error loading remaining pages:", error);
+            break;
+          }
+        }
+        setAllStructuresLoaded(true);
+      };
+
+      // Start loading in background after initial render
+      const timeoutId = setTimeout(loadRemaining, 1000);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [apiCount, allStructuresLoaded]);
 
   return (
     <div className="mx-auto w-11/12">
