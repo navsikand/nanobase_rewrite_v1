@@ -70,6 +70,10 @@ export default function Browse() {
   }, [s_keyword, s_author, s_application]);
 
   useEffect(() => {
+    setPageNumber(0);
+  }, [searchQuery, searchType]);
+
+  useEffect(() => {
     if (
       dexieData &&
       dexieData.structures &&
