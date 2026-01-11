@@ -1,17 +1,23 @@
 "use client";
 
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useState, useEffect } from "react";
 import { Button } from "@headlessui/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiRoot } from "@/helpers/fetchHelpers";
 import { storeEncryptionKey, clearEncryptionKey } from "@/lib/secure-key-storage";
+import { getCSRFToken, updateCSRFTokenFromResponse, ensureCSRFToken } from "@/lib/csrf-manager";
 
 export default function SignIn() {
   const router = useRouter();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  // Fetch CSRF token on mount
+  useEffect(() => {
+    ensureCSRFToken();
+  }, []);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -24,15 +30,24 @@ export default function SignIn() {
     setErrorMessage("");
 
     try {
+      const csrfToken = getCSRFToken();
+      const headers: HeadersInit = { "Content-Type": "application/json" };
+      if (csrfToken) {
+        headers["X-CSRF-Token"] = csrfToken;
+      }
+
       const response = await fetch(`${apiRoot}/auth/login`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         credentials: "include", // Include cookies for refresh token
         body: JSON.stringify(formData),
       });
 
       if (response.ok) {
         const data = await response.json();
+
+        // Update CSRF token from response (backend regenerates after auth)
+        updateCSRFTokenFromResponse(response);
 
         // Store access token
         localStorage.setItem("token", data.token);

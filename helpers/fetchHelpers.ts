@@ -1,11 +1,35 @@
 import { STRUCTURE_CARD_DATA } from "@/db";
 import JSZip from "jszip";
+import { getCSRFToken } from "@/lib/csrf-manager";
 
 export const apiRoot =
   process.env.NODE_ENV === "production"
     ? "https://api.nanobase.org/api/v1"
     : "http://localhost:3002/api/v1";
 //export const apiRoot = "http://localhost:3002/api/v1";
+
+/**
+ * Enhanced fetch that automatically adds CSRF token to state-changing requests
+ */
+async function fetchWithCSRF(url: string, options: RequestInit = {}): Promise<Response> {
+  const method = options.method?.toUpperCase() || 'GET';
+
+  // Add CSRF token for state-changing methods
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+    const csrfToken = getCSRFToken();
+    if (csrfToken) {
+      options.headers = {
+        ...options.headers,
+        'X-CSRF-Token': csrfToken,
+      };
+    }
+  }
+
+  // Always include credentials to send/receive cookies
+  options.credentials = 'include';
+
+  return fetch(url, options);
+}
 
 export const getAllPublicStructuresFetcher = async (key: string) => {
   const response = await fetch(`${apiRoot}/structure/${key}`);
@@ -128,7 +152,7 @@ export const getUserProfileFetcher = async (key: string) => {
   }
 
   // Make the fetch request with the Authorization header
-  const response = await fetch(`${apiRoot}/auth/${key}`, {
+  const response = await fetchWithCSRF(`${apiRoot}/auth/${key}`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -222,7 +246,7 @@ export const batchGetStructureImages = async (
   }
 
   try {
-    const response = await fetch(
+    const response = await fetchWithCSRF(
       `${apiRoot}/structure/batch-display-images`,
       {
         method: "POST",
