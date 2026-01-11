@@ -18,6 +18,12 @@ function getApiBaseUrl(): string {
 
 /**
  * Decode JWT to get expiration time
+ *
+ * SECURITY NOTE: This only decodes the token, it does NOT verify the signature.
+ * - JWT signature verification happens server-side on every API request
+ * - Client-side verification would require exposing the secret key (major security risk)
+ * - We only check expiration here to determine if we should refresh the token
+ * - The backend authenticates all requests via middleware with signature verification
  */
 function getTokenExpiration(token: string): number | null {
   try {
@@ -73,7 +79,7 @@ export async function refreshAccessToken(): Promise<string> {
       }
 
       const data = await response.json();
-      const newAccessToken = data.accessToken;
+      const newAccessToken = data.token;
 
       // Store new access token
       localStorage.setItem('token', newAccessToken);

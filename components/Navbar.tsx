@@ -26,18 +26,23 @@ export const Navbar = () => {
     const token = localStorage.getItem("token");
     if (token) {
       try {
-        // Updated to match new token payload structure
+        // SECURITY NOTE: We use decode() not verify() because:
+        // 1. JWT signature verification MUST happen server-side (has the secret key)
+        // 2. Client-side verification would require exposing the secret (security vulnerability)
+        // 3. We only check expiration here to avoid unnecessary API calls
+        // 4. All actual authentication is done by backend middleware on every request
         const payload = decode(token) as {
-          id: number;        // Changed from string to number
-          email: string;     // New field
-          name: string;
-          tokenId: string;   // New field
-          exp: number;
+          id: number;        // User ID
+          email: string;     // User email
+          name: string;      // User display name
+          tokenId: string;   // Unique token identifier for revocation
+          exp: number;       // Expiration timestamp
           iss: string;       // Issuer
           aud: string;       // Audience
           sub: string;       // Subject (user ID as string)
         };
 
+        // Only check expiration client-side to avoid sending expired tokens
         if (Date.now() < payload.exp * 1000) {
           if (pathName === "/sign-in" || pathName === "/sign-up")
             router.push("/browse");
