@@ -1,7 +1,9 @@
 /**
- * API Client with CSRF token and credentials support
+ * API Client with CSRF token, automatic token refresh, and credentials support
  * Handles cross-origin requests to api.nanobase.org
  */
+
+import { getValidToken, isTokenExpired } from "@/lib/token-manager";
 
 export const apiRoot =
   process.env.NODE_ENV === "production"
@@ -53,7 +55,7 @@ interface ApiRequestOptions extends RequestInit {
 }
 
 /**
- * Make an API request with proper CSRF token and credentials
+ * Make an API request with proper CSRF token, automatic token refresh, and credentials
  */
 export async function apiRequest<T = any>(
   endpoint: string,
@@ -67,9 +69,9 @@ export async function apiRequest<T = any>(
     ...(fetchOptions.headers as Record<string, string>),
   };
 
-  // Add auth token if available and not skipped
+  // Add auth token if available and not skipped (auto-refresh if needed)
   if (!skipAuth) {
-    const token = localStorage.getItem("token");
+    const token = await getValidToken();
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -119,6 +121,50 @@ export async function apiRequest<T = any>(
       }
 
       return await retryResponse.json();
+    }
+  }
+
+  // Handle 401 Unauthorized with token refresh retry
+  if (response.status === 401 && !skipAuth) {
+    console.log('[API] Got 401, attempting token refresh and retry');
+    try {
+      const newToken = await getValidToken();
+      if (newToken) {
+        headers["Authorization"] = `Bearer ${newToken}`;
+
+        // Retry request with new token
+        const retryResponse = await fetch(`${apiRoot}${endpoint}`, {
+          ...fetchOptions,
+          headers,
+          credentials: "include",
+        });
+
+        if (retryResponse.ok) {
+          // Update CSRF token from response header if present
+          const newCsrfToken = retryResponse.headers.get("x-csrf-token");
+          if (newCsrfToken) {
+            csrfToken = newCsrfToken;
+          }
+
+          return await retryResponse.json();
+        }
+
+        // If retry still fails with 401, redirect to login
+        if (retryResponse.status === 401) {
+          console.error('[API] Token refresh retry failed, redirecting to login');
+          localStorage.removeItem('token');
+          window.location.href = '/sign-in';
+          throw new Error('Session expired. Please log in again.');
+        }
+
+        const errorData = await retryResponse.json().catch(() => ({}));
+        throw new Error(errorData.message || `API request failed: ${retryResponse.statusText}`);
+      }
+    } catch (refreshError) {
+      console.error('[API] Token refresh failed:', refreshError);
+      localStorage.removeItem('token');
+      window.location.href = '/sign-in';
+      throw refreshError;
     }
   }
 

@@ -11,6 +11,8 @@ import { STRUCTURE_CARD_DATA } from "@/db";
 import { Button } from "@headlessui/react";
 import Link from "next/link";
 import useSWR from "swr";
+import { clearEncryptionKey } from "@/lib/secure-key-storage";
+import { apiRoot } from "@/helpers/fetchHelpers";
 
 export default function ProfilePage() {
   const { data: ProfileData, isLoading: isProfileLoading } = useSWR(
@@ -73,9 +75,27 @@ export default function ProfilePage() {
 
             <div className="flex space-x-2">
               <Button
-                onClick={() => {
-                  localStorage.removeItem("token");
-                  window.location.href = "/browse";
+                onClick={async () => {
+                  try {
+                    // Call backend logout endpoint to revoke refresh token
+                    await fetch(`${apiRoot}/logout`, {
+                      method: "POST",
+                      credentials: "include", // Send HttpOnly cookie
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                    });
+                  } catch (error) {
+                    console.error("Logout API call failed:", error);
+                    // Continue with local cleanup even if API call fails
+                  } finally {
+                    // Clear local storage
+                    localStorage.removeItem("token");
+                    clearEncryptionKey();
+
+                    // Redirect to browse page
+                    window.location.href = "/browse";
+                  }
                 }}
                 className="cursor-pointer rounded-lg bg-black px-4 py-2 text-white duration-200 hover:-translate-y-1 hover:shadow-xl"
               >

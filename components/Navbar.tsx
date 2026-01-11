@@ -26,23 +26,39 @@ export const Navbar = () => {
     const token = localStorage.getItem("token");
     if (token) {
       try {
-        const { exp, name, id } = decode(token) as {
-          exp: number;
+        // Updated to match new token payload structure
+        const payload = decode(token) as {
+          id: number;        // Changed from string to number
+          email: string;     // New field
           name: string;
-          id: string;
+          tokenId: string;   // New field
+          exp: number;
+          iss: string;       // Issuer
+          aud: string;       // Audience
+          sub: string;       // Subject (user ID as string)
         };
-        if (Date.now() < exp * 1000) {
+
+        if (Date.now() < payload.exp * 1000) {
           if (pathName === "/sign-in" || pathName === "/sign-up")
             router.push("/browse");
 
-          setUserAuthState({ name, id });
+          setUserAuthState({
+            name: payload.name,
+            id: String(payload.id) // Convert number to string for display
+          });
         } else {
+          // Token expired - clear it and redirect if on protected route
+          localStorage.removeItem("token");
           if (protected_routes.includes(pathName)) {
             router.push("/sign-in");
           }
         }
       } catch (e) {
-        console.log(e);
+        console.error('Token decode error:', e);
+        localStorage.removeItem("token");
+        if (protected_routes.includes(pathName)) {
+          router.push("/sign-in");
+        }
       }
     } else {
       if (protected_routes.includes(pathName)) {
