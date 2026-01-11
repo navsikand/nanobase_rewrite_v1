@@ -26,23 +26,44 @@ export const Navbar = () => {
     const token = localStorage.getItem("token");
     if (token) {
       try {
-        const { exp, name, id } = decode(token) as {
-          exp: number;
-          name: string;
-          id: string;
+        // SECURITY NOTE: We use decode() not verify() because:
+        // 1. JWT signature verification MUST happen server-side (has the secret key)
+        // 2. Client-side verification would require exposing the secret (security vulnerability)
+        // 3. We only check expiration here to avoid unnecessary API calls
+        // 4. All actual authentication is done by backend middleware on every request
+        const payload = decode(token) as {
+          id: number;        // User ID
+          email: string;     // User email
+          name: string;      // User display name
+          tokenId: string;   // Unique token identifier for revocation
+          exp: number;       // Expiration timestamp
+          iss: string;       // Issuer
+          aud: string;       // Audience
+          sub: string;       // Subject (user ID as string)
         };
-        if (Date.now() < exp * 1000) {
+
+        // Only check expiration client-side to avoid sending expired tokens
+        if (Date.now() < payload.exp * 1000) {
           if (pathName === "/sign-in" || pathName === "/sign-up")
             router.push("/browse");
 
-          setUserAuthState({ name, id });
+          setUserAuthState({
+            name: payload.name,
+            id: String(payload.id) // Convert number to string for display
+          });
         } else {
+          // Token expired - clear it and redirect if on protected route
+          localStorage.removeItem("token");
           if (protected_routes.includes(pathName)) {
             router.push("/sign-in");
           }
         }
       } catch (e) {
-        console.log(e);
+        console.error('Token decode error:', e);
+        localStorage.removeItem("token");
+        if (protected_routes.includes(pathName)) {
+          router.push("/sign-in");
+        }
       }
     } else {
       if (protected_routes.includes(pathName)) {

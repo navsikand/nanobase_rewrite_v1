@@ -5,6 +5,7 @@ import { Button } from "@headlessui/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiRoot } from "@/helpers/fetchHelpers";
+import { storeEncryptionKey, clearEncryptionKey } from "@/lib/secure-key-storage";
 
 export default function SignIn() {
   const router = useRouter();
@@ -26,12 +27,22 @@ export default function SignIn() {
       const response = await fetch(`${apiRoot}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // Include cookies for refresh token
         body: JSON.stringify(formData),
       });
 
       if (response.ok) {
         const data = await response.json();
+
+        // Store access token
         localStorage.setItem("token", data.token);
+
+        // Store encryption key with 24-hour expiration (if provided)
+        if (data.encryptionKey && data.keyExpiresAt) {
+          storeEncryptionKey(data.encryptionKey, data.keyExpiresAt);
+          console.log('[Login] Encryption key stored successfully');
+        }
+
         router.push("/browse");
       } else {
         const data = await response.json();
@@ -42,6 +53,9 @@ export default function SignIn() {
     } catch (error) {
       console.error(error);
       setErrorMessage("An unexpected error occurred. Please try again.");
+      // Clear any partial data on login failure
+      localStorage.removeItem("token");
+      clearEncryptionKey();
     } finally {
       setLoading(false);
     }
