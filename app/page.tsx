@@ -2,7 +2,10 @@
 
 import { StructureCard } from "@/components/StructureCard";
 import { DexieDB } from "@/db";
-import { dexie_syncDexieWithServer } from "@/helpers/dexieHelpers";
+import {
+  dexie_syncDexieWithServer,
+  dexie_syncDexieWithServer_backgroundMode,
+} from "@/helpers/dexieHelpers";
 import {
   getAllPublicStructuresFetcherPaginated,
   batchGetStructureImages,
@@ -12,7 +15,7 @@ import { Button } from "@headlessui/react";
 import { useLiveQuery } from "dexie-react-hooks";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useSWR from "swr";
 
 const INITIAL_PAGE_SIZE = 15;
@@ -20,6 +23,7 @@ const INITIAL_PAGE_SIZE = 15;
 export default function Home() {
   const router = useRouter();
   const [allStructuresLoaded, setAllStructuresLoaded] = useState(false);
+  const remainingLoadStartedRef = useRef(false);
 
   // Gets latest structure by upload date
   const latestDexieStructure = useLiveQuery(() =>
@@ -87,40 +91,55 @@ export default function Home() {
 
   // ✅ Load remaining pages in background (only if needed)
   useEffect(() => {
-    const total = apiCount ?? statsCount ?? 0;
+    const total = apiCount ?? 0;
 
-    if (!allStructuresLoaded && total > INITIAL_PAGE_SIZE) {
-      // Load remaining pages in background
-      const loadRemaining = async () => {
-        let skip = INITIAL_PAGE_SIZE;
-        while (skip < total) {
-          try {
-            const batch = await getAllPublicStructuresFetcherPaginated(
-              "getAllPublicStructures_paginated",
-              skip,
-              INITIAL_PAGE_SIZE
-            );
-            const ids = batch.map(s => s.structure.id);
-            const imageMap = await batchGetStructureImages(ids);
-            const withImages = batch.map(s => ({
-              ...s,
-              image: imageMap[s.structure.id] || ""
-            }));
-            await dexie_syncDexieWithServer(withImages);
-            skip += INITIAL_PAGE_SIZE;
-          } catch (error) {
-            console.error("Error loading remaining pages:", error);
-            break;
-          }
-        }
-        setAllStructuresLoaded(true);
-      };
-
-      // Start loading in background after initial render
-      const timeoutId = setTimeout(loadRemaining, 1000);
-      return () => clearTimeout(timeoutId);
+    if (!total || allStructuresLoaded || remainingLoadStartedRef.current) {
+      return;
     }
-  }, [statsCount, apiCount, allStructuresLoaded]);
+
+    if (total <= INITIAL_PAGE_SIZE) {
+      setAllStructuresLoaded(true);
+      return;
+    }
+
+    let isActive = true;
+    remainingLoadStartedRef.current = true;
+
+    const loadRemaining = async () => {
+      let skip = INITIAL_PAGE_SIZE;
+      while (skip < total && isActive) {
+        try {
+          const batch = await getAllPublicStructuresFetcherPaginated(
+            "getAllPublicStructures_paginated",
+            skip,
+            INITIAL_PAGE_SIZE
+          );
+          if (!isActive) return;
+          const ids = batch.map(s => s.structure.id);
+          const imageMap = await batchGetStructureImages(ids);
+          const withImages = batch.map(s => ({
+            ...s,
+            image: imageMap[s.structure.id] || ""
+          }));
+          await dexie_syncDexieWithServer_backgroundMode(withImages);
+          skip += INITIAL_PAGE_SIZE;
+        } catch (error) {
+          console.error("Error loading remaining pages:", error);
+          break;
+        }
+      }
+      if (isActive) {
+        setAllStructuresLoaded(true);
+      }
+    };
+
+    const timeoutId = setTimeout(loadRemaining, 1000);
+
+    return () => {
+      isActive = false;
+      clearTimeout(timeoutId);
+    };
+  }, [apiCount, allStructuresLoaded]);
 
   const totalStructures = apiCount ?? statsCount ?? 0;
 

@@ -2,7 +2,6 @@
 import { StructureCard } from "@/components/StructureCard";
 import {
   dexie_getAllStructureCardDataPaginated,
-  dexie_syncDexieWithServer,
   dexie_syncDexieWithServer_backgroundMode,
   SEARCH_BY,
 } from "@/helpers/dexieHelpers";
@@ -137,8 +136,12 @@ export default function Browse() {
           image: imageMap[s.structure.id] || "",
         }));
 
-        await dexie_syncDexieWithServer(firstPageWithImages);
-        setLoadingStatus({ stage: "first-page", loaded: 15, total: totalCount });
+        await dexie_syncDexieWithServer_backgroundMode(firstPageWithImages);
+        setLoadingStatus({
+          stage: "first-page",
+          loaded: Math.min(firstPageWithImages.length, totalCount),
+          total: totalCount,
+        });
 
         // Wait 1 second before background loading
         await new Promise((resolve) => setTimeout(resolve, 1000));
