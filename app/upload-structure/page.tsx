@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, ChangeEvent, FormEvent, Fragment } from "react";
+import { useState, ChangeEvent, FormEvent, Fragment, useRef } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -37,6 +37,13 @@ function FileInputWithDescription({
   const [file, setFile] = useState<File | null>(null);
   const [description, setDescription] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputId = `file-input-${label
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")}`;
+  const descriptionInputId = `desc-input-${label
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")}`;
 
   const handleAdd = () => {
     if (file) {
@@ -49,6 +56,9 @@ function FileInputWithDescription({
       setFile(null);
       setDescription("");
       setError("");
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
@@ -62,13 +72,28 @@ function FileInputWithDescription({
     <div className="mb-4">
       <label className="block font-medium">{label}</label>
       <input
-        id={`file-input-${label}`}
+        ref={fileInputRef}
+        id={fileInputId}
         type="file"
         onChange={handleFileChange}
-        className="mt-1 block"
+        className="sr-only"
       />
+      <div className="mt-1 flex flex-wrap items-center gap-3">
+        <label
+          htmlFor={fileInputId}
+          className="cursor-pointer rounded-lg border-2 border-dashed border-black bg-gray-100 px-4 py-2 text-sm font-semibold text-black transition hover:bg-gray-200"
+        >
+          Choose File
+        </label>
+        <span className="text-sm text-gray-600">
+          {file ? file.name : "No file selected yet"}
+        </span>
+      </div>
+      <p className="mt-1 text-xs text-gray-500">
+        Click "Choose File" to open your file selector.
+      </p>
       <input
-        id={`desc-input-${label}`}
+        id={descriptionInputId}
         type="text"
         placeholder="Enter description..."
         value={description}
@@ -82,7 +107,17 @@ function FileInputWithDescription({
       <button
         type="button"
         onClick={handleAdd}
-        className="mt-2 cursor-pointer rounded-lg bg-black px-4 py-2 text-white duration-200 hover:-translate-y-1 hover:shadow-xl"
+        disabled={!file}
+        title={
+          !file
+            ? "Select a file or image first, then click Add File."
+            : "Add this file to the upload list."
+        }
+        className={`mt-2 rounded-lg px-4 py-2 text-white duration-200 ${
+          file
+            ? "cursor-pointer bg-black hover:-translate-y-1 hover:shadow-xl"
+            : "cursor-not-allowed bg-gray-400"
+        }`}
       >
         Add File
       </button>
