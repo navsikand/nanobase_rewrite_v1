@@ -6,6 +6,7 @@ import { SWRProvider } from "@/app/providers";
 import { ServiceWorkerRegistration } from "@/app/service-worker-registration";
 import type { Metadata } from "next";
 const inter = Inter({ subsets: ["latin"] });
+
 export const metadata: Metadata = {
   title: "Nanobase",
   description: "A repository for DNA/RNA nanotechnology",
